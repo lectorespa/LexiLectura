@@ -31,27 +31,29 @@ jobs:
             const indexContent = files.map(file => {
               const filePath = path.join(obrasDir, file);
               try {
-                const rawData = fs.readFileSync(filePath, "utf8");
+                let rawData = fs.readFileSync(filePath, "utf8");
+                
+                // Limpiar BOM (\uFEFF) y espacios/caracteres invisibles al inicio
+                rawData = rawData.replace(/^\uFEFF/, "").trim();
+
                 const data = JSON.parse(rawData);
 
-                // Extracción priorizando data.meta.title / data.meta.titulo
+                // Extracción con prioridad en meta.title
                 const title = data.meta?.title || 
                               data.meta?.titulo || 
-                              data.metadata?.title || 
-                              data.metadata?.titulo || 
                               data.title || 
                               data.titulo || 
                               file;
 
                 return { file: file, title: title };
               } catch (e) {
-                console.error(`Error leyendo ${file}:`, e);
+                console.error(`❌ Error parseando ${file}:`, e.message);
                 return { file: file, title: file };
               }
             });
 
             fs.writeFileSync("./index.json", JSON.stringify(indexContent, null, 2));
-            console.log("✅ index.json generado correctamente:", indexContent);
+            console.log("✅ index.json generado correctamente:", JSON.stringify(indexContent, null, 2));
           '
 
       - name: Guardar cambios en el repositorio
@@ -59,5 +61,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add index.json
-          git commit -m "chore: actualizar index.json con títulos de meta [skip ci]" || exit 0
+          git commit -m "chore: actualizar index.json parseando meta.title [skip ci]" || exit 0
           git push origin main
