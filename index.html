@@ -146,7 +146,7 @@
     </div>
   </div>
 
-  <!-- Lógica de Control de la Carpeta de Obras (Optimizada para Servidor Online) -->
+  <!-- Lógica de Control con Búsqueda Multirruta para Servidor -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const jsonSelect = document.getElementById('json-select');
@@ -168,7 +168,7 @@
         folderBtn.id = 'folder-picker';
         
         const label = document.createElement('label');
-        label.innerHTML = ' 📁 <strong>Cargar carpeta obras:</strong> ';
+        label.innerHTML = ' 📁 <strong>Cargar carpeta local:</strong> ';
         
         selectorContainer.appendChild(label);
         selectorContainer.appendChild(folderBtn);
@@ -207,30 +207,37 @@
         });
       } else {
         // ENTORNO SERVIDOR ONLINE (http:// o https://)
-        // Se añade timestamp anti-caché (?t=...)
-        const fetchUrl = './obras/index.json?t=' + Date.now();
+        // Rutas a probar secuencialmente
+        const candidateUrls = [
+          './index.json?t=' + Date.now(),
+          '/index.json?t=' + Date.now(),
+          './obras/index.json?t=' + Date.now()
+        ];
 
-        fetch(fetchUrl)
-          .then(res => {
-            if (!res.ok) {
-              throw new Error(`Error HTTP ${res.status}: No se encontró el archivo index.json en /obras/`);
-            }
-            return res.json();
-          })
-          .then(indexData => {
-            console.log("✅ index.json cargado con éxito desde servidor:", indexData);
-            poblarDesplegable(indexData);
-          })
-          .catch(err => {
-            console.error("❌ Fallo en la carga remota de index.json:", err);
-            // Intentar ruta alternativa sin punto inicial por si la estructura de carpetas varía
-            fetch('obras/index.json?t=' + Date.now())
-              .then(r => r.ok ? r.json() : Promise.reject(r.status))
-              .then(data => poblarDesplegable(data))
-              .catch(e => {
-                jsonSelect.innerHTML = '<option value="">⚠️ Error cargando obras/index.json</option>';
-              });
-          });
+        function intentarFetch(index) {
+          if (index >= candidateUrls.length) {
+            console.error("❌ Ninguna ruta de index.json devolvió respuesta válida.");
+            jsonSelect.innerHTML = '<option value="">⚠️ Error cargando index.json (Revisar rutas/permisos)</option>';
+            return;
+          }
+
+          const url = candidateUrls[index];
+          fetch(url)
+            .then(res => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return res.json();
+            })
+            .then(indexData => {
+              console.log(`✅ index.json cargado correctamente desde: ${url}`);
+              poblarDesplegable(indexData);
+            })
+            .catch(err => {
+              console.warn(`⚠️ Fallo al probar ruta [${url}]: ${err.message}`);
+              intentarFetch(index + 1);
+            });
+        }
+
+        intentarFetch(0);
       }
 
       function poblarDesplegable(data) {
@@ -239,7 +246,7 @@
         const obrasList = Array.isArray(data) ? data : (data.obras || data.files || data.items);
 
         if (!Array.isArray(obrasList)) {
-          console.error("Formato no válido en index.json:", data);
+          console.error("Estructura de index.json no válida:", data);
           jsonSelect.innerHTML = '<option value="">⚠️ Formato index.json no válido</option>';
           return;
         }
