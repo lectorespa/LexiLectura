@@ -1,0 +1,52 @@
+name: Generar index.json automáticamente
+
+on:
+  push:
+    paths:
+      - 'obras/*.json' # Se activa solo si añades/modificas un JSON en /obras/
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Generar index.json desde la carpeta obras
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+
+            const obrasDir = "./obras";
+            if (!fs.existsSync(obrasDir)) process.exit(0);
+
+            const files = fs.readdirSync(obrasDir).filter(f => f.endsWith(".json") && f !== "index.json");
+            
+            const indexContent = files.map(file => {
+              const filePath = path.join(obrasDir, file);
+              try {
+                const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+                const title = data.metadata?.title || data.titulo || data.title || file;
+                return { file: file, title: title };
+              } catch (e) {
+                return { file: file, title: file };
+              }
+            });
+
+            fs.writeFileSync("./index.json", JSON.stringify(indexContent, null, 2));
+            console.log("✅ index.json generado con éxito:", indexContent);
+          '
+
+      - name: Guardar cambios en el repositorio
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.json
+          git commit -m "chore: actualizar index.json automáticamente [skip ci]" || exit 0
+          git push
