@@ -1,0 +1,249 @@
+{
+  "meta": {
+    "title": "El rayo que no cesa",
+    "author": "Miguel Hernández",
+    "authorNodeId": "node_author",
+    "period": "Generación del 36",
+    "periodNodeId": "node_period",
+    "year": "1936",
+    "lang": "es",
+    "audioUrl": null
+  },
+  "categoryLabels": {
+    "author": "Autor",
+    "period": "Época",
+    "vocabulary": "Vocabulario",
+    "culture": "Cultura",
+    "syntax": "Sintaxis",
+    "analysis": "Análisis"
+  },
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "author",
+      "label": "Miguel Hernández",
+      "title": "Perfil biográfico y literario de Miguel Hernández",
+      "annotations": {
+        "short": {
+          "definition": "Poeta español de la Generación del 36, clave en la transición del neogongorismo a la poesía social.",
+          "content": "<p>Nacido en Orihuela, su formación autodidacta y su origen humilde marcaron una obra caracterizada por el apasionamiento trágico, la fuerza del lenguaje telúrico y un profundo compromiso político durante la Guerra Civil española.</p>"
+        },
+        "deep": {
+          "definition": "Poeta y dramaturgo de la Generación del 36 y del Neopopularismo, cuya trayectoria trasciende desde el rigor clasicista e imágenes neobarrocas hacia una lírica humanizada, comprometida y trágica.",
+          "content": "<p>Miguel Hernández Gilabert (1910-1942) representa una de las voces más singulares y desgarradoras de la lírica hispánica del siglo XX. Su asimilación temprana de los clásicos del Siglo de Oro (Garcilaso, Góngora, Quevedo) se funde con una sensibilidad telúrica vinculada a su infancia campesina en Orihuela y la influencia posterior del surrealismo de la Generación del 27.</p><p>Su poemario <em>El rayo que no cesa</em> (1936) constituye el cenit de su poesía amorosa y pasional, articulada mayoritariamente a través del soneto clásico. Durante la Guerra Civil, su poesía se transformó en un instrumento de lucha y testimonio social (<em>Viento del pueblo</em>). Tras la contienda, encarcelado por el régimen franquista, redactó sus emotivas <em>Cancionero y romancero de ausencias</em> antes de morir tuberculosis en presidio a los 31 años.</p>"
+        }
+      },
+      "wikipediaArticle": "Miguel_Hernández",
+      "wikiLang": "es",
+      "visualConceptType": "portrait",
+      "locationAnchor": "Orihuela",
+      "imageSearchQuery": "Retrato de Miguel Hernández poeta",
+      "imageVisualKeywords": [
+        "retrato miguel hernandez",
+        "poeta orihuela"
+      ],
+      "imageDescription": "Retrato fotográfico del poeta español Miguel Hernández",
+      "youtubeSearchQuery": "Miguel Hernández biografía y obra literaria"
+    },
+    "node_period": {
+      "type": "period",
+      "category": "period",
+      "label": "Generación del 36",
+      "title": "Contexto histórico y estético de la Generación del 36",
+      "annotations": {
+        "short": {
+          "definition": "Promoción de escritores marcada por la Segunda República, la Guerra Civil Española y el reingreso a la poesía humana.",
+          "content": "<p>Caracterizada por el alejamiento de la poesía pura e intelectualizada del 27 para reincorporar la angustia existencial, las pasiones viscerales, el compromiso social y el impacto de la contienda fratricida.</p>"
+        },
+        "deep": {
+          "definition": "Movimiento literario integrado por los escritores surgidos durante la Segunda República Española y la contienda civil, definidos por la humanización de la lírica y el peso desgarrador del contexto socio-político.",
+          "content": "<p>La Generación del 36 (o promoción de 1936) agrupa a creadores cuya juventud coincidió con la polarización política de los años treinta y el estallido de la Guerra Civil Española. Estéticamente, se distancian de las deshumanizaciones vanguardistas y del puro formalismo para retornar a una lírica trágica, apasionada y vinculada al destino individual y colectivo.</p><p>En el plano formal, coexiste la recuperación de las estrofas tradicionales clasicistas —como el soneto impecable que cultiva Hernández— con la urgencia del verso libre y la romancística bélica. Esta generación experimentó de forma directa la represión, el exilio interior o exterior y la ruptura drástica de la vida cultural hispánica post-1939.</p>"
+        }
+      },
+      "wikipediaArticle": "Generación_del_36",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": "Madrid",
+      "imageSearchQuery": "Guerra civil espanola vanguardia literaria",
+      "imageVisualKeywords": [
+        "generacion del 36",
+        "espana 1936"
+      ],
+      "imageDescription": "Representación del contexto social y cultural de la España de 1936",
+      "youtubeSearchQuery": "Generación del 36 contexto histórico y literario"
+    },
+    "node_1": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "rayo que no cesa",
+      "title": "El símbolo central del rayo incesante",
+      "annotations": {
+        "short": {
+          "definition": "Alegoría de la pasión amorosa inevitable, destructiva y de origen trágico que domina al poeta.",
+          "content": "<p>Representa una fuerza irresistible y dolorosa que hiere continuamente el espíritu del amante. Funciona como el eje conceptual que vertebra todo el libro mediante la tensión entre deseo y sufrimiento.</p>"
+        },
+        "deep": {
+          "definition": "Metáfora obsesiva y nuclear del poemario que condensa la pulsión erótica, la herida existencial y la fuerza destructiva e Incontrolable del amor apasionado.",
+          "content": "<p>El «rayo que no cesa» encarna la fuerza irrompible de la pasión que fulmina e ilumina simultáneamente al sujeto poético. Lejos de la convención del amor cortés placentero, Hernández concibe el enamoramiento como una fatalidad biológica y trágica, una energía continua que carcome las entrañas del amante.</p><p>Este símbolo enlaza la naturaleza elemental y cósmica con la dimensión psicológica interna. El rayo no es solo un fenómeno exterior, sino una fuerza fatal engendrada dentro de la propia carne y alma del poeta, insaciable e indestructible a pesar del sufrimiento constante que ocasiona.</p>"
+        }
+      },
+      "wikipediaArticle": "El_rayo_que_no_cesa",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Rayo tormenta cielo oscuro",
+      "imageVisualKeywords": [
+        "rayo",
+        "tormenta",
+        "fuerza natural"
+      ],
+      "imageDescription": "Descarga eléctrica de un rayo atravesando el cielo nocturno",
+      "youtubeSearchQuery": "El rayo que no cesa analisis simbolo"
+    },
+    "node_2": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "me habita",
+      "title": "Personificación y sintaxis de la interiorización",
+      "annotations": {
+        "short": {
+          "definition": "Verbo transitivo que muestra cómo la pena o el amor se convierten en un inquilino interior.",
+          "content": "<p>Destaca la inversión sintáctica donde el sentimiento es el agente activo que ocupa el cuerpo del poeta, transformando al sujeto pasivo en mero recipiente de su propio dolor.</p>"
+        },
+        "deep": {
+          "definition": "Recurso de interiorización sintáctica y metáfora de ocupación espacial donde el sentimiento amoroso asume el rol actancial de habitante del propio organismo del poeta.",
+          "content": "<p>La elección verbal de «habitar» altera la relación sujeto-objeto tradicional de la vivencia afectiva. El poeta no es quien siente el amor voluntariamente, sino que es habitado y poseído por una fuerza ontológica ajena a su control voluntario.</p><p>Esta construcción enfatiza la cosificación del yo lírico frente al dominio absoluto de la pasión. La anatomía y la conciencia quedan convertidas en un domicilio tomado por el dolor y el deseo, recurso recurrente en la poesía barroca de Quevedo y en la lírica hernandiana.</p>"
+        }
+      },
+      "wikipediaArticle": "Personificación",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Sombra figura interior silueta humana",
+      "imageVisualKeywords": [
+        "silueta interior",
+        "sombra"
+      ],
+      "imageDescription": "Silueta humana que evoca la presencia interior de un sentimiento",
+      "youtubeSearchQuery": "Figuras retoricas personificación metáfora"
+    },
+    "node_3": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "terco pincel",
+      "title": "Acepción del adjetivo terco en la creación figurativa",
+      "annotations": {
+        "short": {
+          "definition": "Metáfora que califica la persistencia obstinada e insiste del dolor en delinear el sufrimiento.",
+          "content": "<p>El término 'terco' subraya la naturaleza reiterativa del tormento amoroso, que dibuja una y otra vez sobre el alma del poeta la misma marca indeleble.</p>"
+        },
+        "deep": {
+          "definition": "Transferencia adjetival y personificación del instrumento pictórico para significar la perseverancia irreductible de la obsesión amatoria.",
+          "content": "<p>El adjetivo «terco» proyecta una voluntad humana e inflexibilidad sobre el «pincel», símbolo del proceso expresivo o de la marca imborrable de la Pasión. Denota una insistencia destructiva que persevera en trazar contornos de dolor en el fuero interno.</p><p>Esta combinación léxica aúna la esfera plástica del grabado y el pincel con la contumacia del sufrimiento amoroso, evidenciando el rigor formal neogongorino que Hernández aprendió en su etapa de formación clasicista.</p>"
+        }
+      },
+      "wikipediaArticle": "Pincel",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Pincel sobre lienzo pintura al oleo",
+      "imageVisualKeywords": [
+        "pincel",
+        "lienzo",
+        "pintura"
+      ],
+      "imageDescription": "Pincel aplicando trazos firmes de pintura sobre un lienzo",
+      "youtubeSearchQuery": "El rayo que no cesa soneto 1 explicacion"
+    },
+    "node_4": {
+      "type": "culture",
+      "category": "culture",
+      "label": "minerales puros",
+      "title": "Simbología de los minerales en el imaginario hernandiano",
+      "annotations": {
+        "short": {
+          "definition": "Referencia a los elementos primigenios e inalterables de la tierra y la geología.",
+          "content": "<p>Evoca la solidez, la dureza y la pureza incorruptible de la materia terrestre, vinculando el amor a una sustancia primaria, eterna e inmutable.</p>"
+        },
+        "deep": {
+          "definition": "Símbolo telúrico esencial en la poética de Miguel Hernández que alude a la dureza atemporal, la materia aborigen y la firmeza ontológica.",
+          "content": "<p>La recurrencia a la imaginería geológica (piedras, metales, minerales) es una constante en Hernández. Frente a la fragilidad vegetal o efímera, los «minerales puros» encarnan la permanencia absoluta y la dureza irreducible frente al paso del tiempo.</p><p>Esta imaginería entronca con la visión cósmica y vitalista del autor, donde la naturaleza no es un simple escenario decorativo, sino una sustancia con la que el ser humano comparte composición física y destino trágico.</p>"
+        }
+      },
+      "wikipediaArticle": "Mineral",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Vena de cuarzo mineral en roca",
+      "imageVisualKeywords": [
+        "minerales",
+        "roca pura",
+        "geologia"
+      ],
+      "imageDescription": "Formación de minerales puros grabados en la roca viva",
+      "youtubeSearchQuery": "Simbologia telúrica Miguel Hernández"
+    },
+    "node_5": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "fraguas estériles",
+      "title": "Acepción del espacio industrial y la esterilidad",
+      "annotations": {
+        "short": {
+          "definition": "Metáfora del horno incandescente que arde con enorme fuerza pero no produce vida ni fruto.",
+          "content": "<p>Combina el ardor del fuego transformador con la desesperanza de la esterilidad, simbolizando la pasión intensa pero trágicamente infructuosa del amante.</p>"
+        },
+        "deep": {
+          "definition": "Oximorón implícito y metáfora filológica de la transformación ígnea frustrada, donde el calor extremo resulta incapaz de generar vida o consumación.",
+          "content": "<p>La «fragua» es el taller donde el metal se moldea mediante el fuego; sin embargo, al asociarse con el adjetivo «estéril», se anula su capacidad creadora. Se transforma en un infierno biomecánico que consume energía de forma infructuosa.</p><p>Esta imagen simboliza la angustia del deseo no correspondido o imposible de consumar: un esfuerzo abrasador que no produce fruto alguno, alimentando únicamente la rueda del dolor existencial y la frustración erótica.</p>"
+        }
+      },
+      "wikipediaArticle": "Fragua",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Fragua tradicional yunque y fuego",
+      "imageVisualKeywords": [
+        "fragua",
+        "fuego herrero",
+        "yunque"
+      ],
+      "imageDescription": "Fuego encendido en el interior de una fragua tradicional de herrero",
+      "youtubeSearchQuery": "Metáforas del fuego en la poesía española"
+    },
+    "node_6": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "despliega su tormenta",
+      "title": "Dinamismo verbal y arquitectura de la tempestad",
+      "annotations": {
+        "short": {
+          "definition": "Estructura verbal que expresa la expansión progresiva y violenta del sufrimiento interior.",
+          "content": "<p>Utiliza el verbo 'desplegar' para dramatizar la manera en que la tormenta emocional se abre como un mapa o velamen, ocupando todo el horizonte del alma.</p>"
+        },
+        "deep": {
+          "definition": "Construcción sintáctico-fórica de expansión metáfórica donde el dolor interior adopta los mecanismos cinéticos de un meteoro atmosférico.",
+          "content": "<p>El uso del verbo transitivo «desplegar» sugiere la apertura gradual y sistemática de una fuerza latente. La tormenta deja de ser un evento fortuito para convertirse en una estructura organizada que se extiende sobre la psique del poeta.</p><p>Este dinamismo sintáctico intensifica el dramatismo de la escena interior. Mediante una cuidada selección de verbos de acción y movimiento, Hernández dota al sentimiento trágico de una dimensión física y envolvente.</p>"
+        }
+      },
+      "wikipediaArticle": "Tormenta",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Nubes de tormenta desplegandose en el cielo",
+      "imageVisualKeywords": [
+        "tormenta",
+        "nubes oscuras",
+        "tempestad"
+      ],
+      "imageDescription": "Impresionantes nubes de tormenta desplegándose sobre el horizonte",
+      "youtubeSearchQuery": "Analisis sintactico y estilistico Miguel Hernandez"
+    }
+  },
+  "stanzas": [
+    "<p>¿No cesará este rayo que me habita<br>el corazón de exasperadas fieras<br>y de <span class=\"interactive-word\" data-node=\"node_5\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">fraguas estériles</span> y mansas<br>donde mi juventud se desmorona?</p>",
+    "<p>¿No cesará esta terca estalactita<br>de cultivar sus duras cabelleras<br>como espadas y picos encompasadas<br>sobre mi corazón que se envenena?</p>",
+    "<p>Este <span class=\"interactive-word\" data-node=\"node_1\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">rayo que no cesa</span> ni se agota<br>de labrar en mi pecho su morada,<br>con un <span class=\"interactive-word\" data-node=\"node_3\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">terco pincel</span> de duras brasas,</p>",
+    "<p>esta pena de amor que me consume,<br>este fuego de <span class=\"interactive-word\" data-node=\"node_4\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">minerales puros</span><br>que <span class=\"interactive-word\" data-node=\"node_6\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">despliega su tormenta</span> en mis entrañas.</p>"
+  ]
+}
