@@ -2,20 +2,25 @@ name: Generar index.json automáticamente
 
 on:
   push:
+    branches:
+      - main
+      - master
     paths:
       - 'obras/*.json'
+      - '.github/workflows/generate-index.yml'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar código del repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Generar index.json desde la carpeta obras
         run: |
@@ -32,13 +37,9 @@ jobs:
               const filePath = path.join(obrasDir, file);
               try {
                 let rawData = fs.readFileSync(filePath, "utf8");
-                
-                // Limpiar BOM (\uFEFF) y espacios/caracteres invisibles al inicio
                 rawData = rawData.replace(/^\uFEFF/, "").trim();
-
                 const data = JSON.parse(rawData);
 
-                // Extracción con prioridad en meta.title
                 const title = data.meta?.title || 
                               data.meta?.titulo || 
                               data.title || 
@@ -47,13 +48,13 @@ jobs:
 
                 return { file: file, title: title };
               } catch (e) {
-                console.error(`❌ Error parseando ${file}:`, e.message);
+                console.error(`Error parseando ${file}:`, e.message);
                 return { file: file, title: file };
               }
             });
 
             fs.writeFileSync("./index.json", JSON.stringify(indexContent, null, 2));
-            console.log("✅ index.json generado correctamente:", JSON.stringify(indexContent, null, 2));
+            console.log("✅ index.json generado:", indexContent);
           '
 
       - name: Guardar cambios en el repositorio
@@ -61,5 +62,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add index.json
-          git commit -m "chore: actualizar index.json parseando meta.title [skip ci]" || exit 0
-          git push origin main
+          git commit -m "chore: actualizar index.json [skip ci]" || exit 0
+          git push
