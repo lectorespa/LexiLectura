@@ -1,0 +1,63 @@
+name: Generar index.json automáticamente
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'obras/*.json'
+      - '.github/workflows/generate-index.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generar index.json desde la carpeta obras
+        run: |
+          node -e '
+            const fs = require("fs");
+            const path = require("path");
+
+            const obrasDir = "./obras";
+            if (!fs.existsSync(obrasDir)) process.exit(0);
+
+            const files = fs.readdirSync(obrasDir).filter(f => f.endsWith(".json") && f !== "index.json");
+            
+            const indexContent = files.map(file => {
+              const filePath = path.join(obrasDir, file);
+              try {
+                let rawData = fs.readFileSync(filePath, "utf8");
+                rawData = rawData.replace(/^\uFEFF/, "").trim();
+                const data = JSON.parse(rawData);
+
+                const title = data.meta?.title || data.meta?.titulo || data.title || data.titulo || file;
+                const author = data.meta?.author || data.meta?.autor || data.author || data.autor || "";
+
+                return { file: file, title: title, author: author };
+              } catch (e) {
+                console.error(`Error parseando ${file}:`, e.message);
+                return { file: file, title: file, author: "" };
+              }
+            });
+
+            fs.writeFileSync("./index.json", JSON.stringify(indexContent, null, 2));
+            console.log("✅ index.json generado con títulos y autores:", indexContent);
+          '
+
+      - name: Guardar cambios en el repositorio
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.json
+          git commit -m "chore: actualizar index.json con autor y título [skip ci]" || exit 0
+          git push
