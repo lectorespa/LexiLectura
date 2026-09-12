@@ -146,7 +146,7 @@
     </div>
   </div>
 
-  <!-- Lógica de Control de la Carpeta de Obras (Lectura flexible y tolerante de index.json) -->
+  <!-- Lógica de Control de la Carpeta de Obras (Optimizada para Servidor Online) -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const jsonSelect = document.getElementById('json-select');
@@ -160,7 +160,7 @@
       let localFilesByName = {};
 
       if (isLocal) {
-        // ENTORNO LOCAL: Crear botón de selección de carpeta
+        // ENTORNO LOCAL (file://)
         const selectorContainer = document.querySelector('.selector-container');
         const folderBtn = document.createElement('input');
         folderBtn.type = 'file';
@@ -179,66 +179,73 @@
           let indexFileObj = null;
 
           for (let file of files) {
-            // Extraer el nombre base del archivo ignorando subcarpetas de la ruta
             const baseName = file.name.split(/[/\\]/).pop().trim();
             const cleanName = baseName.toLowerCase();
             
             if (cleanName.endsWith('.json')) {
               localFilesByName[cleanName] = file;
-              
-              // Detectar el archivo index.json
-              if (cleanName === 'index.json') {
-                indexFileObj = file;
-              }
+              if (cleanName === 'index.json') indexFileObj = file;
             }
           }
 
-          // Si se encuentra index.json en la carpeta local, procesarlo con FileReader
           if (indexFileObj) {
             const reader = new FileReader();
             reader.onload = (evt) => {
               try {
-                // Eliminar posibles caracteres BOM UTF-8 al inicio
                 const rawText = evt.target.result.replace(/^\uFEFF/, '');
                 const indexData = JSON.parse(rawText);
                 poblarDesplegable(indexData);
               } catch (err) {
-                console.error("Error al parsear el archivo index.json local:", err);
+                console.error("Error al parsear index.json local:", err);
                 poblarDesplegableFallback();
               }
             };
             reader.readAsText(indexFileObj);
           } else {
-            console.warn("No se localizó index.json en el directorio seleccionado.");
             poblarDesplegableFallback();
           }
         });
       } else {
-        // ENTORNO SERVIDOR: Cargar vía HTTP/HTTPS
-        fetch('./obras/index.json')
-          .then(res => res.json())
-          .then(indexData => poblarDesplegable(indexData))
+        // ENTORNO SERVIDOR ONLINE (http:// o https://)
+        // Se añade timestamp anti-caché (?t=...)
+        const fetchUrl = './obras/index.json?t=' + Date.now();
+
+        fetch(fetchUrl)
+          .then(res => {
+            if (!res.ok) {
+              throw new Error(`Error HTTP ${res.status}: No se encontró el archivo index.json en /obras/`);
+            }
+            return res.json();
+          })
+          .then(indexData => {
+            console.log("✅ index.json cargado con éxito desde servidor:", indexData);
+            poblarDesplegable(indexData);
+          })
           .catch(err => {
-            console.error("Error al cargar index.json remoto:", err);
+            console.error("❌ Fallo en la carga remota de index.json:", err);
+            // Intentar ruta alternativa sin punto inicial por si la estructura de carpetas varía
+            fetch('obras/index.json?t=' + Date.now())
+              .then(r => r.ok ? r.json() : Promise.reject(r.status))
+              .then(data => poblarDesplegable(data))
+              .catch(e => {
+                jsonSelect.innerHTML = '<option value="">⚠️ Error cargando obras/index.json</option>';
+              });
           });
       }
 
       function poblarDesplegable(data) {
         jsonSelect.innerHTML = '';
 
-        // Normalizar estructura: soporta arrays directos o dentro de objetos (obras, files, items)
         const obrasList = Array.isArray(data) ? data : (data.obras || data.files || data.items);
 
         if (!Array.isArray(obrasList)) {
-          console.error("Estructura no válida en index.json:", data);
-          poblarDesplegableFallback();
+          console.error("Formato no válido en index.json:", data);
+          jsonSelect.innerHTML = '<option value="">⚠️ Formato index.json no válido</option>';
           return;
         }
 
         obrasList.forEach(item => {
-          // Extraer propiedad de archivo (soporta "file", "archivo", "filename" o cadena de texto simple)
           const fileProp = typeof item === 'string' ? item : (item.file || item.archivo || item.filename);
-          // Extraer título (soporta "title", "titulo", "nombre")
           const titleProp = typeof item === 'object' ? (item.title || item.titulo || item.nombre) : null;
 
           if (!fileProp) return;
@@ -255,7 +262,7 @@
           jsonSelect.selectedIndex = 0;
           cargarArchivoSeleccionado();
         } else {
-          poblarDesplegableFallback();
+          jsonSelect.innerHTML = '<option value="">⚠️ No se encontraron obras en index.json</option>';
         }
       }
 
@@ -289,17 +296,19 @@
               if (btnLoad) btnLoad.click();
             };
             reader.readAsText(file);
-          } else {
-            console.error(`No se encontró el archivo "${selectedKey}" en los datos cargados.`);
           }
         } else {
-          fetch(`./obras/${selectedKey}`)
-            .then(res => res.text())
+          const fileUrl = `./obras/${selectedKey}?t=` + Date.now();
+          fetch(fileUrl)
+            .then(res => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return res.text();
+            })
             .then(textData => {
               jsonTextarea.value = textData;
               if (btnLoad) btnLoad.click();
             })
-            .catch(err => console.error("Error al cargar el JSON remoto:", err));
+            .catch(err => console.error(`Error al obtener ./obras/${selectedKey}:`, err));
         }
       }
 
