@@ -1,16 +1,10 @@
 [
-
-{
-    "file": "0.json",
-    "title": "Selecciona una obra"
-  },
-
-  {
-    "file": "quijote1.json",
-    "title": "Don Quijote (extracto del cap.1)"
-  },
   {
     "file": "orillasdelduero.json",
-    "title": "Orillas del Duero"
+    "title": "orillasdelduero.json"
+  },
+  {
+    "file": "quijote1.json",
+    "title": "quijote1.json"
   }
 ]
