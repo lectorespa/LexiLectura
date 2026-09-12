@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "title": "El dinosaurio",
+    "author": "Augusto Monterroso",
+    "period": "Microficción y Boom Latinoamericano",
+    "year": "1959",
+    "lang": "es",
+    "audioUrl": null
+  },
+  "categoryLabels": {
+    "author": "Autor",
+    "period": "Época",
+    "vocabulary": "Vocabulario",
+    "culture": "Cultura",
+    "syntax": "Sintaxis",
+    "analysis": "Análisis"
+  },
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "author",
+      "label": "Augusto Monterroso",
+      "title": "Perfil biográfico y literario",
+      "definition": "Escritor hondureño nacionalizado guatemalteco, considerado uno de los grandes maestros de la microficción y la narrativa breve en la literatura hispanoamericana.",
+      "content": "Augusto Monterroso (1921-2003) destaca en el panorama literario del siglo XX por su dominio de la brevedad, la ironía y la parodia. Exiliado en México tras la caída del gobierno democrático de Jacobo Árbenz en Guatemala, desarrolló una vasta obra caracterizada por una profunda concisión formal y una inteligente crítica a la condición humana y a las instituciones políticas.\n\nSu obra cumbre, *Obras completas (y otros cuentos)* (1959), lugar de publicación de «El dinosaurio», sentó las bases para el desarrollo contemporáneo de la minificción. A lo largo de su carrera recibió importantes reconocimientos internacionales, como el Premio Juan Rulfo en 1996 y el Premio Príncipe de Asturias de las Letras en 2000.",
+      "imageSearchQuery": "Augusto Monterroso escritor retrato",
+      "imageDescription": "Retrato fotográfico del escritor Augusto Monterroso",
+      "wikipediaArticle": "Augusto_Monterroso",
+      "wikiLang": "es",
+      "youtubeSearchQuery": "Augusto Monterroso biografia y obra"
+    },
+    "node_period": {
+      "type": "period",
+      "category": "period",
+      "label": "Microficción y Boom latinoamericano",
+      "title": "Contexto histórico y estético",
+      "definition": "Movimiento de renovación narrativa de mediados del siglo XX que exploró la brevedad extrema, lo fantástico y la experimentación formal.",
+      "content": "La publicación de «El dinosaurio» en 1959 coincide con la consolidación del Boom Latinoamericano y la eclosión de la microficción como género literario autónomo en la región. Durante este periodo, autores como Jorge Luis Borges, Julio Cortázar y el propio Monterroso redefinieron las fronteras entre el cuento, el ensayo y la poesía, desafiando la narrativa realista tradicional.\n\nLa minificción hispanoamericana del periodo se caracteriza por exigir una participación activa del lector, el uso del elipsis extrema, la intertextualidad y una fina ironía. En un contexto sociopolítico marcado por regímenes autoritarios en América Latina, la concisión narrativa sirvió también como un vehículo velado de sátira política y reflexión filosófica.",
+      "imageSearchQuery": "Biblioteca libros hispanoamericanos siglo XX",
+      "imageDescription": "Colección de libros de literatura hispanoamericana contemporánea",
+      "wikipediaArticle": "Microrrelato",
+      "wikiLang": "es",
+      "youtubeSearchQuery": "Boom latinoamericano y minificcion"
+    },
+    "node_1": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "Cuando despertó",
+      "title": "Prótasis temporal y elipsis del sujeto",
+      "definition": "Subordinada adverbial de tiempo que establece el marco de la acción omitiendo la identidad del sujeto.",
+      "content": "El inicio del microrrelato recurre a una oración subordinada temporal («Cuando despertó») que genera una inmediatez dramática inmediata. La ausencia del sujeto gramatical explícito configura una elipsis deliberada: el lector no sabe de inmediato quién despierta, lo que abre una multiplicidad de interpretaciones ontológicas.\n\nEsta construcción crea un espacio de incertidumbre donde el acto de despertar marca el límite impreciso entre la vigilia y el sueño. La estructura sintáctica proyecta la atención hacia la consecuencia de la acción, suspendiendo el tiempo narrativo antes de revelar el elemento fantástico.",
+      "imageSearchQuery": "Persona durmiendo en cama silueta",
+      "imageDescription": "Silueta de una persona en el instante de despertar",
+      "wikipediaArticle": "Elipsis_(figura_retórica)",
+      "wikiLang": "es",
+      "youtubeSearchQuery": "Elipsis narrativa y sintaxis"
+    },
+    "node_2": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "el dinosaurio",
+      "title": "Símbolo y significación del dinosaurio",
+      "definition": "Sustantivo central del microrrelato que encarna la permanencia de lo ancestral, lo arcaico o el poder absoluto.",
+      "content": "El «dinosaurio» funciona como un tropo polisémico dentro de la narrativa monterrosiana. Desde el punto de vista del vocabulario y la simbológica literaria, representa una entidad ancestral, extinta en el plano histórico pero persistentemente viva en el ámbito del inconsciente o de la realidad ficcional.\n\nDiversas lecturas críticas han interpretado al dinosaurio como una alegoría del autoritarismo político (las dictaduras atávicas de América Latina), como la personificación de los miedos primordiales, o bien como la persistencia de las ideas obsoletas que no desaparecen al despertar a la modernidad.",
+      "imageSearchQuery": "Esqueleto de Tyrannosaurus rex en museo",
+      "imageDescription": "Fósil de dinosaurio expuesto en un museo de ciencias",
+      "wikipediaArticle": "Dinosauria",
+      "wikiLang": "es",
+      "youtubeSearchQuery": "Simbolismo del dinosaurio Monterroso"
+    },
+    "node_3": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "todavía estaba allí",
+      "title": "Paradoja ontológica y ruptura fantasiosa",
+      "definition": "Sintagma verbal que ratifica la persistencia del sueño dentro de la realidad objetiva.",
+      "content": "La clausura del relato con «todavía estaba allí» invierte las expectativas tradicionales del acto de despertar. Ordinariamente, la vigilia disipa los fantasmas y pesadillas del sueño; sin embargo, aquí la realidad objetiva resulta ser tan amenazante o fantástica como el mundo onírico.\n\nEsta paradoja plantea una profunda reflexión sobre la percepción y la persistencia de los problemas estructurales. El adverbio «todavía» añade una dimensión temporal de permanencia ininterrumpida, sugiriendo que el monstruo o la amenaza nunca se fue, cuestionando los límites entre la ilusión y la existencia tangible.",
+      "imageSearchQuery": "Sombra enigmatica en habitacion",
+      "imageDescription": "Sombra de presencia en un espacio interior",
+      "wikipediaArticle": "Lo_fantástico",
+      "wikiLang": "es",
+      "youtubeSearchQuery": "Analisis literario El dinosaurio Monterroso"
+    }
+  },
+  "stanzas": [
+    "<p><span class=\"interactive-word\" data-node=\"node_1\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Cuando despertó</span>, <span class=\"interactive-word\" data-node=\"node_2\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">el dinosaurio</span> <span class=\"interactive-word\" data-node=\"node_3\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">todavía estaba allí</span>.</p>"
+  ]
+}
