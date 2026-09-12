@@ -1,0 +1,353 @@
+{
+  "meta": {
+    "title": "Las encinas / Campos de Castilla (Poema VI)",
+    "author": "Antonio Machado",
+    "authorNodeId": "node_author",
+    "period": "Generación del 98",
+    "periodNodeId": "node_period",
+    "year": "1912",
+    "lang": "es",
+    "audioUrl": null
+  },
+  "categoryLabels": {
+    "author": "Autor",
+    "period": "Época",
+    "vocabulary": "Vocabulario",
+    "culture": "Cultura",
+    "syntax": "Sintaxis",
+    "analysis": "Análisis"
+  },
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "author",
+      "label": "Antonio Machado",
+      "title": "Perfil biográfico y literario",
+      "annotations": {
+        "short": {
+          "definition": "Antonio Machado (1875-1939) fue uno de los poetas más representativos de la Generación del 98 en España.",
+          "content": "Su obra evoluciona desde un modernismo intimista e introspectivo hacia una poesía preocupada por la decadencia de España, el paisaje castellanizado como espejo ontológico y el diálogo filosófico."
+        },
+        "deep": {
+          "definition": "Poeta, dramaturgo y pensador español encuadrado en la Generación del 98 y miembro de la Real Academia Española.",
+          "content": "Nacido en Sevilla y formado en la Institución Libre de Enseñanza, Machado asimiló el krausismo y la filosofía existencialista europea. Su estancia en Soria como catedrático de francés marcó decisivamente su producción, articulando una poética del tiempo, la memoria y la identidad colectiva.<br><br>En *Campos de Castilla* (1912), la sobriedad formal se acompasa a una mirada crítica y lírica sobre el paisaje noventayochista. Tras la muerte de su esposa Leonor y el posterior exilio republicano, su voz se convirtió en símbolo de la dignidad ética y la nostalgia histórica de la España contemporánea."
+        }
+      },
+      "wikipediaArticle": "Antonio_Machado",
+      "wikiLang": "es",
+      "visualConceptType": "portrait",
+      "locationAnchor": null,
+      "imageSearchQuery": "Retrato Antonio Machado fotografia",
+      "imageVisualKeywords": [
+        "retrato autor",
+        "fotografia historica"
+      ],
+      "imageDescription": "Retrato fotográfico del poeta Antonio Machado",
+      "youtubeSearchQuery": "Antonio Machado Biografía y poesía"
+    },
+    "node_period": {
+      "type": "period",
+      "category": "period",
+      "label": "Generación del 98",
+      "title": "Contexto histórico y estético",
+      "annotations": {
+        "short": {
+          "definition": "Movimiento literario y cultural surgido tras la crisis del Desastre del 98 en España.",
+          "content": "Caracterizado por la reflexión sobre el 'problema de España', el rescate del paisaje de la Meseta y la regeneración cultural frente a la decadencia imperial."
+        },
+        "deep": {
+          "definition": "Noción historiográfica que agrupa a escritores e intelectuales afectados por la pérdida de las últimas colonias españolas en 1898.",
+          "content": "La Generación del 98 reaccionó contra la retórica decimonónica a través de un estilo antirretórico, sobrio y preciso. Utilizaron el ensayo, la novela de depuración formal y la poesía lírica para interrogar el ser de España.<br><br>Castilla fue elevada a categoría símbolo: en sus tierras áridas y sus pueblos decadentes, autores como Unamuno, Azorín y Machado encontraron la síntesis del alma nacional, proyectando sobre el paisaje sus inquietudes existenciales y su anhelo de renovación moral."
+        }
+      },
+      "wikipediaArticle": "Generación_del_98",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Pintura paisaje castellanista 1898",
+      "imageVisualKeywords": [
+        "arte espanol",
+        "paisaje castilla"
+      ],
+      "imageDescription": "Lienzo de finales del siglo XIX representando el paisaje agreste de la meseta",
+      "youtubeSearchQuery": "Generación del 98 contexto historico literario"
+    },
+    "node_1": {
+      "type": "culture",
+      "category": "culture",
+      "label": "una cigüeña",
+      "title": "Simbología de la cigüeña en el ciclo estacional",
+      "annotations": {
+        "short": {
+          "definition": "Ave migratoria asociada tradicionalmente en el folklore europeo a la llegada de la primavera.",
+          "content": "Su aparición sobre la torre marca el inicio del deshielo y el despertar del pueblo soriano tras el invierno."
+        },
+        "deep": {
+          "definition": "Motivo ornitológico de arraigo popular y literario que simboliza el retorno, la piedad y la regeneración cíclica de la naturaleza.",
+          "content": "La presencia de la cigüeña anclada en la arquitectura sacra (el campanario) actúa como un gozne temporal en el poema. Machado utiliza este elemento visual para señalar objetivamente la transición de las estaciones en el entorno rural soriano.<br><br>En el imaginario popular castellano, el regreso de estas aves marcaba los hitos del calendario agrícola, integrando la dimensión humana con los ritmos biológicos del paisaje."
+        }
+      },
+      "wikipediaArticle": "Ciconia_ciconia",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Campanario iglesia con nido de cigueña",
+      "imageVisualKeywords": [
+        "campanario",
+        "cigueña nido"
+      ],
+      "imageDescription": "Nido de cigüeña en la parte superior del campanario de una iglesia rústica",
+      "youtubeSearchQuery": "Cigüeña blanca ciclo migratorio España"
+    },
+    "node_2": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "caserón solitario",
+      "title": "Caserón solitario",
+      "annotations": {
+        "short": {
+          "definition": "Edificación grande y antigua, habitualmente aislada o deshabitada en los pueblos de la meseta.",
+          "content": "Evoca la melancolía, el despoblamiento y la quietud arquitectónica de la Soria rural."
+        },
+        "deep": {
+          "definition": "Sintagma descriptivo de resonancia espacial que alude a las casonas solariegas venidas a menos en el entorno castellanoleonés.",
+          "content": "El término subraya la atmósfera de aislamiento e inmovilidad que contrapone el espacio construido a la vitalidad inminente del reino animal.<br><br>Estructuralmente, el 'caserón solitario' dialoga con la visión noventayochista de las ruinas nobiliarias y los espacios vacíos como testimonios de un pasado esplendoroso contrastado con la sobria austeridad presente."
+        }
+      },
+      "wikipediaArticle": "Arquitectura_popular",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Casona antigua pueblo soria piedra",
+      "imageVisualKeywords": [
+        "arquitectura rural",
+        "casa piedra"
+      ],
+      "imageDescription": "Caserón tradicional castellano construido en piedra y con aspecto austero",
+      "youtubeSearchQuery": "Arquitectura tradicional soriana"
+    },
+    "node_3": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "nevascas y ventiscas",
+      "title": "Bimembriación para intensificar el rigor invernal",
+      "annotations": {
+        "short": {
+          "definition": "Recurso sintáctico consistente en coordinar dos sustantivos de significado afín.",
+          "content": "Refuerza la dureza del invierno soriano a través de la acumulación de fenómenos meteorológicos severos."
+        },
+        "deep": {
+          "definition": "Estructura bimembre de carácter fónico e intensificativo que amplifica la dimensión hostil del clima de la meseta alta.",
+          "content": "A través de la aliteración de consonantes fricativas y oclusivas ('nevascas / ventiscas'), el verso recrea el sonido cortante del aire helado de la sierra de Urbión y Moncayo.<br><br>Esta técnica permite a Machado construir un contraste lírico violento entre el rigor del invierno ártico recién superado y la inminente tibieza del sol primaveral."
+        }
+      },
+      "wikipediaArticle": "Ventisca",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Nevada Sierra Urbion Soria",
+      "imageVisualKeywords": [
+        "nieve montaña",
+        "ventisca sierra"
+      ],
+      "imageDescription": "Paisaje de alta montaña cubierto por una densa capa de nieve y niebla",
+      "youtubeSearchQuery": "Clima de Soria invierno temporal de nieve"
+    },
+    "node_4": {
+      "type": "culture",
+      "category": "culture",
+      "label": "pobre tierra soriana",
+      "title": "Geografía física y afectiva de Soria",
+      "annotations": {
+        "short": {
+          "definition": "Referencia directa a la provincia de Soria, caracterizada por su altitud, clima riguroso y suelo árido.",
+          "content": "El adjetivo 'pobre' muestra la empatía afectiva de Machado hacia la dureza económica y geológica de la región."
+        },
+        "deep": {
+          "definition": "Anclaje geográfico y afectivo clave en la poética machadiana, donde el paisaje real se transmuta en paisaje interior.",
+          "content": "Soria representa el núcleo del descubrimiento lírico de Machado tras su llegada en 1907. La 'pobreza' de la tierra no implica desprecio, sino una valoración franciscana y estética de la austeridad del campo castellanoleonés.<br><br>Este sintagma condensa el eje temático de *Campos de Castilla*: la identificación empática del poeta con una geografía castigada por el clima y el abandono histórico, pero revestida de una dignidad soberana."
+        }
+      },
+      "wikipediaArticle": "Provincia_de_Soria",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Campo de cultivo tierra Soria paisaje",
+      "imageVisualKeywords": [
+        "meseta soriana",
+        "campo castellano"
+      ],
+      "imageDescription": "Oteruelos y tierras de labor características de la provincia de Soria",
+      "youtubeSearchQuery": "Documental Soria Antonio Machado paisajes"
+    },
+    "node_5": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "verdes pinos",
+      "title": "Cromatismo vegetal de la comarca del Urbión",
+      "annotations": {
+        "short": {
+          "definition": "Mención a las masas forestales de pino albar características de la comarca de Pinares en Soria.",
+          "content": "Introduce el matiz cromático permanente frente a la hoja caduca de los chopos."
+        },
+        "deep": {
+          "definition": "Referencia a la masa arbórea perenne que domina la geografía del noroeste soriano (Pinus sylvestris).",
+          "content": "El color verde persistente del pino sirve de fondo estático sobre el cual se perciben las mudanzas cromáticas de las especies caducifolias con el cambio de estación.<br><br>Machado contrapone la perennidad de los pinares con el brote estacional y frágil de los chopos, enriqueciendo la paleta de verdes y azules en la perspectiva visual del valle."
+        }
+      },
+      "wikipediaArticle": "Comarca_de_Pinares",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Pinar pino albar Soria silvestre",
+      "imageVisualKeywords": [
+        "bosque pinos",
+        "pinares soria"
+      ],
+      "imageDescription": "Bosque de pinos albares en la comarca soriana de Pinares",
+      "youtubeSearchQuery": "Pinares de Soria naturaleza"
+    },
+    "node_6": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "El Duero corre",
+      "title": "El río Duero como símbolo temporal e identitario",
+      "annotations": {
+        "short": {
+          "definition": "Eje fluvial de la geografía soriana y símbolo poético del fluir del tiempo.",
+          "content": "El discurrir 'terso y mudo' del río refleja la serenidad y la continuidad de la naturaleza frente a la brevedad humana."
+        },
+        "deep": {
+          "definition": "Eje del paisaje vital machadiano que funciona simultáneamente como coordenada geográfica real y como arquetipo del tiempo heracliteano.",
+          "content": "El río Duero es el arteria narrativa de *Campos de Castilla*. Su discurrir calmo ('terso y mudo, mansamente') encarna la eternidad del flujo natural, impasible ante la agitación histórica del ser humano.<br><br>Al caracterizar las aguas con estos tres adjetivos de apaciguamiento, Machado establece un remanso contemplativo en el poema que contrasta con la agitación de las golondrinas y la fuerza del viento invernal."
+        }
+      },
+      "wikipediaArticle": "Río_Duero",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Rio Duero a su paso por Soria",
+      "imageVisualKeywords": [
+        "rio duero",
+        "soria rio"
+      ],
+      "imageDescription": "El río Duero fluyendo tranquilamente entre los álamos a las afueras de Soria",
+      "youtubeSearchQuery": "El rio Duero en la poesia de Antonio Machado"
+    },
+    "node_7": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "más que joven, adolescente",
+      "title": "Personificación estacional del campo",
+      "annotations": {
+        "short": {
+          "definition": "Metáfora que asigna etapas del desarrollo humano al despertar primaveral de la tierra.",
+          "content": "El término 'adolescente' capta la fragilidad, indecisión y promesa de la naturaleza recién brotada."
+        },
+        "deep": {
+          "definition": "Antropomorfización de la naturaleza mediante una gradación de edad que matiza el concepto de renacimiento estacional.",
+          "content": "Al calificar el campo de 'adolescente' en lugar de 'joven', Machado introduce una matización estética sutil: la adolescencia sugiere un estado transitorio, tierno, incompleto y lleno de potencia latente.<br><br>Esta caracterización psicológica del paisaje es típica de la lírica machadiana, donde el mundo exterior no se describe objetivamente, sino que se tiñe de las intuiciones emocionales del observador."
+        }
+      },
+      "wikipediaArticle": "Adolescencia",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Brotes verdes primavera campo en flor",
+      "imageVisualKeywords": [
+        "brotes primavera",
+        "campo verde"
+      ],
+      "imageDescription": "Primeros brotes de vegetación saliendo de la tierra al inicio de la primavera",
+      "youtubeSearchQuery": "La metáfora del paisaje en Antonio Machado"
+    },
+    "node_8": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "mística primavera",
+      "title": "Transfiguración mística de la naturaleza",
+      "annotations": {
+        "short": {
+          "definition": "Exclamación lírica que eleva el fenómeno biológico del florecimiento a una experiencia espiritual.",
+          "content": "Asocia la sencillez de las flores del campo con una revelación sacra de la hermosura del mundo."
+        },
+        "deep": {
+          "definition": "Concepto de raíz panteísta y krausista que sacraliza la regeneración de la materia vegetal mediante el adjetivo 'mística'.",
+          "content": "La expresión rompe el tono puramente descriptivo para adentrarse en la vivencia gozosa del misterio natural. Para Machado, influido por el pensamiento krausista, la naturaleza es un templo laico donde el ser humano entra en comunión con lo absoluto.<br><br>La piedad hacia la 'humilde flor' (azul o blanca) trasluce una sensibilidad próxima a San Francisco de Asís, donde la belleza no reside en la grandiosidad, sino en lo diminuto y cotidiano."
+        }
+      },
+      "wikipediaArticle": "Panteísmo",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Flor silvestre pequeña en el campo",
+      "imageVisualKeywords": [
+        "flor silvestre",
+        "primavera detalle"
+      ],
+      "imageDescription": "Pequeña flor silvestre azul creciendo entre las hierbas del campo",
+      "youtubeSearchQuery": "El panteísmo y la naturaleza en la poesía española"
+    },
+    "node_9": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "Chopos del camino blanco, álamos de la ribera",
+      "title": "Paralelismo y apóstrofe a la vegetación soriana",
+      "annotations": {
+        "short": {
+          "definition": "Estructura sintáctica paralela que invoca directamente a los árboles característicos del paisaje fluvial.",
+          "content": "Enfatiza el valor icónico del chopo y el álamo como guardianes del camino y del río."
+        },
+        "deep": {
+          "definition": "Recurso estilístico basado en la simetría sintáctica (Sustantivo + Determinante + Sustantivo + Adjetivo // Sustantivo + Determinante + Sustantivo) reforzado por una apóstrofe enfática.",
+          "content": "Los chopos y álamos son los árboles totémicos de la poesía soriana de Machado. Al colocarlos en paralelo exclamativo, el poeta ritmo el verso con la cadencia propia de un paseo a orillas del Duero.<br><br>El 'camino blanco' alude a la cal de las carreteras de polvo de la época, creando un vívido contraste visual con el follaje claro de los álamos y el azul del cielo."
+        }
+      },
+      "wikipediaArticle": "Populus_alba",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Paseo de chopos hilera camino",
+      "imageVisualKeywords": [
+        "chopos alamos",
+        "camino ribera"
+      ],
+      "imageDescription": "Hilera de chopos flanqueando un camino rural en la ribera de un río",
+      "youtubeSearchQuery": "Los chopos del Duero Antonio Machado"
+    },
+    "node_10": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "espuma de la montaña",
+      "title": "Metáfora de las cumbres nevadas",
+      "annotations": {
+        "short": {
+          "definition": "Metáfora lírica que compara la nieve acumulada en las cumbres distantes con la espuma marina.",
+          "content": "Aporta blancura y textura visual al horizonte montañoso que rodea la comarca de Soria."
+        },
+        "deep": {
+          "definition": "Tropos metafórico de base marinera trasladado a la orografía continental de las sierras de Urbión y Moncayo.",
+          "content": "Machado traslada la movilidad y fragilidad de la espuma del mar a la permanencia estática de los nieves perpetuas o tardías en las cumbres montañosas.<br><br>Este recurso dinamiza el fondo del cuadro paisajístico, conectando la blancura de las cumbres con la luz brillante del 'claro día' que corona el cierre del poema."
+        }
+      },
+      "wikipediaArticle": "Picos_de_Urbión",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Cumbres nevadas Sierra de Urbion lejania",
+      "imageVisualKeywords": [
+        "cumbres nieve",
+        "sierra horizonte"
+      ],
+      "imageDescription": "Vista lejana de las cumbres nevadas de la sierra en el horizonte",
+      "youtubeSearchQuery": "Picos de Urbión geografía y paisaje"
+    }
+  },
+  "stanzas": [
+    "<p>Se ha asomado <span class=\"interactive-word\" data-node=\"node_1\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">una cigüeña</span> a lo alto del campanario. <br>Girando en torno a la torre y al <span class=\"interactive-word\" data-node=\"node_2\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">caserón solitario</span>, <br>ya las golondrinas chillan. Pasaron del blanco invierno, <br>de <span class=\"interactive-word\" data-node=\"node_3\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">nevascas y ventiscas</span> los crudos soplos de infierno.</p>",
+    "<p>Es una tibia mañana. <br>El sol calienta un poquito la <span class=\"interactive-word\" data-node=\"node_4\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">pobre tierra soriana</span>.</p>",
+    "<p>Pasados los <span class=\"interactive-word\" data-node=\"node_5\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">verdes pinos</span>, <br>casi azules, primavera <br>se ve brotar en los finos <br>chopos de la carretera <br>y del río. <span class=\"interactive-word\" data-node=\"node_6\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">El Duero corre</span>, terso y mudo, mansamente. <br>El campo parece, <span class=\"interactive-word\" data-node=\"node_7\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">más que joven, adolescente</span>.</p>",
+    "<p>Entre las hierbas alguna humilde flor ha nacido, <br>azul o blanca. ¡Belleza del campo apenas florido, <br>y <span class=\"interactive-word\" data-node=\"node_8\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">mística primavera</span>!</p>",
+    "<p>¡<span class=\"interactive-word\" data-node=\"node_9\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Chopos del camino blanco, álamos de la ribera</span>, <br><span class=\"interactive-word\" data-node=\"node_10\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">espuma de la montaña</span> <br>ante la azul lejanía, <br>sol del día, claro día! <br>¡Hermosa tierra de España!</p>"
+  ]
+}

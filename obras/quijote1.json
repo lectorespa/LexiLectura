@@ -1,0 +1,1110 @@
+{
+  "meta": {
+    "title": "Don Quijote de la Mancha",
+    "author": "Miguel de Cervantes",
+    "authorNodeId": "node_author",
+    "period": "Siglo de Oro",
+    "periodNodeId": "node_period",
+    "year": "1605",
+    "lang": "es",
+    "audioUrl": null
+  },
+  "categoryLabels": {
+    "author": "Autor",
+    "period": "Época",
+    "vocabulary": "Vocabulario",
+    "culture": "Cultura",
+    "syntax": "Sintaxis",
+    "analysis": "Análisis"
+  },
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "author",
+      "label": "Miguel de Cervantes Saavedra",
+      "title": "Perfil biográfico y trayectoria de Miguel de Cervantes",
+      "annotations": {
+        "short": {
+          "definition": "Miguel de Cervantes Saavedra (1547-1616) fue la máxima figura de la literatura española y creador de la novela moderna.",
+          "content": "Militar, poeta y dramaturgo, su azarosa vida estuvo marcada por la batalla de Lepanto y su cautiverio en Argel, experiencias que enriquecieron su visión del mundo plasmada en *Don Quijote de la Mancha*."
+        },
+        "deep": {
+          "definition": "Escritor clave del Siglo de Oro que revolucionó la narrativa occidental instaurando la polifonía, la perspectiva del narrador dialógico y el perspectivismo realista.",
+          "content": "Nacido en Alcalá de Henares, Cervantes experimentó la transición entre el Renacimiento tardío y el Barroco. Tras su participación en Lepanto (donde perdió el uso de la mano izquierda) y un cautiverio de cinco años en Argel, regresó a España para desempeñar oficios administrativos que le permitieron conocer a fondo los estamentos populares.\n\nSu obra cumbre, *Don Quijote de la Mancha* (1605, 1615), trasciende la mera parodia de los libros de caballerías para adentrarse en una profunda reflexión sobre la condición humana, la libertad y los límites de la realidad y la ficción. Su dominio del diálogo y el desarrollo psicológico de sus personajes refundó el género novelesco a nivel universal."
+        }
+      },
+      "wikipediaArticle": "Miguel_de_Cervantes",
+      "wikiLang": "es",
+      "visualConceptType": "portrait",
+      "locationAnchor": null,
+      "imageSearchQuery": "Retrato de Miguel de Cervantes Juan de Jauregui",
+      "imageVisualKeywords": [
+        "retrato cervantes",
+        "pintura siglo de oro"
+      ],
+      "imageDescription": "Retrato atribuido tradicionalmente a Miguel de Cervantes Saavedra",
+      "youtubeSearchQuery": "Miguel de Cervantes vida y obra analisis"
+    },
+    "node_period": {
+      "type": "period",
+      "category": "period",
+      "label": "Siglo de Oro",
+      "title": "Contexto histórico y barroco del Siglo de Oro",
+      "annotations": {
+        "short": {
+          "definition": "Periodo de florecimiento del arte y las letras hispánicas que abarca los siglos XVI y XVII.",
+          "content": "Comprende desde la pujanza del Renacimiento hasta la visión desengañada del Barroco, reflejando las tensiones de la España imperial."
+        },
+        "deep": {
+          "definition": "Epopeya cultural e intelectual de la Monarquía Hispánica caracterizada por una extraordinaria producción literaria, pictórica y teatral en un marco de declive geopolítico.",
+          "content": "El Siglo de Oro español engloba dos corrientes estéticas fundamentales: la luminosidad idealista del Renacimiento en el XVI y la complejidad contrastada del Barroco en el XVII. Durante este periodo, la literatura explora el desengaño, el contraste entre apariencia y realidad y el dinamismo conceptual.\n\nCervantes se sitúa justamente en la charnela de ambos siglos, donde la decadencia económica y las crisis sociales de la España de los Austrias menores entran en diálogo directo con las aspiraciones heroicas del pasado imperial, influyendo determinantemente en la sátira de las estamentos hidalgos."
+        }
+      },
+      "wikipediaArticle": "Siglo_de_Oro",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Pintura barroco espanol siglo de oro",
+      "imageVisualKeywords": [
+        "arte barroco",
+        "siglo de oro espanol"
+      ],
+      "imageDescription": "Representación artística del periodo barroco en España",
+      "youtubeSearchQuery": "Siglo de Oro espanol literatura contexto"
+    },
+    "node_1": {
+      "type": "culture",
+      "category": "culture",
+      "label": "lugar de la Mancha",
+      "title": "La indeterminado entorno manchego",
+      "annotations": {
+        "short": {
+          "definition": "Región geográfica e histórica del centro de España, caracterizada por sus llanuras y clima árido.",
+          "content": "La famosa fórmula de ocultamiento inicial fija la acción en la meseta castellana, lugar desprovisto de tradición caballeresca poética."
+        },
+        "deep": {
+          "definition": "Estrategia narrativa de indefinición espacial que contrapone el realismo topográfico cotidiano con los escenarios exóticos propios de las novelas de caballerías.",
+          "content": "La Mancha representa un territorio prosaico, seco y desprovisto de los bosques encantados o reinos exóticos habituales en la literatura de caballerías. La decisión cervantina de no nombrar la villa específica funciona como un mecanismo narrativo de desmitificación irónica.\n\nAsimismo, ubicar a un pretendido héroe en una de las regiones más rurales e insignificantes a ojos de la corte de la época acentúa la brecha cómica entre las pretensiones de Alonso Quijano y su realidad geográfica."
+        }
+      },
+      "wikipediaArticle": "La_Mancha",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "La Mancha",
+      "imageSearchQuery": "Paisaje llanura La Mancha molinos",
+      "imageVisualKeywords": [
+        "llanura manchega",
+        "paisaje castilla"
+      ],
+      "imageDescription": "Vista general de la llanura de La Mancha",
+      "youtubeSearchQuery": "Geografia e historia de La Mancha Don Quijote"
+    },
+    "node_2": {
+      "type": "culture",
+      "category": "culture",
+      "label": "hidalgo",
+      "title": "El estamento social de la hidalguía",
+      "annotations": {
+        "short": {
+          "definition": "Miembro del escalafón más bajo de la nobleza castellana, exento de pagar ciertos impuestos.",
+          "content": "Refleja la situación socioeconómica de una pequeña nobleza venida a menos que conservaba títulos pero padecía escasez material."
+        },
+        "deep": {
+          "definition": "Estatus nobiliario por linaje ('hijo de algo') de la España Moderna que carecía frecuentemente de sostén económico significativo.",
+          "content": "Los hidalgos formaban una clase castiza caracterizada por el orgullo de su sangre y el rechazo al trabajo manual, considerado deshonroso para un noble. A finales del siglo XVI, muchos de ellos vivían en una precariedad económica crónica, sostenidos por rentas exiguas.\n\nCervantes utiliza la figura del hidalgo para retratar el anacronismo social de quienes pretendían mantener privilegios estamentales y conductas caballerescas en una sociedad que avanzaba hacia el mercantilismo y la burocracia."
+        }
+      },
+      "wikipediaArticle": "Hidalgo",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Escudo de armas hidalguia espanola",
+      "imageVisualKeywords": [
+        "hidalguia",
+        "escudo nobiliario"
+      ],
+      "imageDescription": "Símbolo nobiliario representativo de la hidalguía",
+      "youtubeSearchQuery": "Los hidalgos en el Siglo de Oro espanol"
+    },
+    "node_3": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "lanza en astillero",
+      "title": "Armamento en desuso",
+      "annotations": {
+        "short": {
+          "definition": "Arma blanca de asta colocada sobre un armazón o perchero (astillero) para su almacenamiento.",
+          "content": "Indica que las armas permanecían inactivas y guardadas como viejos recuerdos del pasado bélico familiar."
+        },
+        "deep": {
+          "definition": "Locución nominal que designa la conservación de pertrechos militares vetustos en la percha o armero de la casa.",
+          "content": "El astillero era la estructura de madera destinada a sostener las lanzas verticalmente. Tener la 'lanza en astillero' enfatiza el carácter inútil y oxidado de los utensilios que el protagonista intentará desempolvar.\n\nCervantes usa este elemento en la enumeración inicial para marcar el abismo entre la función guerrera para la que fue creada la lanza y su prolongada inmovilidad en la casa del hidalgo."
+        }
+      },
+      "wikipediaArticle": "Lanza",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Armeria antigua lanzas armadura",
+      "imageVisualKeywords": [
+        "lanza antigua",
+        "armeria medieval"
+      ],
+      "imageDescription": "Armas e pertrechos antiguos guardados en armero",
+      "youtubeSearchQuery": "Armas de caballeria en el siglo XVI"
+    },
+    "node_4": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "adarga antigua",
+      "title": "Escudo defensivo tradicional",
+      "annotations": {
+        "short": {
+          "definition": "Escudo de cuero con forma de corazón o de dos óvalos interceptados, de origen árabe.",
+          "content": "Un elemento de defensa obsoleto en la época que denota el carácter arcaico del equipo del hidalgo."
+        },
+        "deep": {
+          "definition": "Pieza defensiva introducida en la península ibérica por la caballería musulmana y adoptada por las tropas castellanas.",
+          "content": "La adarga estaba confeccionada con pieles superpuestas de ante o vaca curada, ligera pero resistente a armas cortantes. Hacia 1600, el uso de la adarga en la guerra moderna había sido completamente reemplazado por la infantería de arcabuceros y espadas de taza.\n\nCalificarla de 'antigua' resalta de nuevo que los objetos del protagonista son reliquias del siglo anterior, inapropiadas para las batallas de su época."
+        }
+      },
+      "wikipediaArticle": "Adarga",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Adarga de cuero antigua",
+      "imageVisualKeywords": [
+        "adarga",
+        "escudo cuero"
+      ],
+      "imageDescription": "Ejemplar histórico de adarga de cuero",
+      "youtubeSearchQuery": "Evolucion de los escudos adarga medieval"
+    },
+    "node_5": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "rocín flaco",
+      "title": "Caballo de trabajo desgastado",
+      "annotations": {
+        "short": {
+          "definition": "Caballo de mala traza, usado para faenas del campo y de escaso valor.",
+          "content": "Se opone irónicamente a los potentes corceles de los héroes de la literatura de caballerías."
+        },
+        "deep": {
+          "definition": "Término despectivo para un equino de trabajo, desnutrido y falto de las condiciones físicas para la cabalgada bélica.",
+          "content": "En la jerarquía ecuestre del Barroco, el rocín ocupaba el peldaño inferior frente al diestro caballo de guerra o al elegante corcel de paseo. La adjetivación de 'flaco' evidencia el estado de penuria y poca atención que recibía el animal.\n\nLa figura del rocín sienta las bases de la desmitificación novelesca, proyectando la falta de medios reales frente al ideal de las monturas fabulosas de los libros que el hidalgo pretende imitar."
+        }
+      },
+      "wikipediaArticle": "Rocín",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Caballo flaco dibujo antiguo",
+      "imageVisualKeywords": [
+        "caballo flaco",
+        "grabado antiguo"
+      ],
+      "imageDescription": "Ilustración de época de un equino escuálido",
+      "youtubeSearchQuery": "Importancia del caballo en el Quijote Rocinante"
+    },
+    "node_6": {
+      "type": "culture",
+      "category": "culture",
+      "label": "galgo corredor",
+      "title": "Perro de caza de la nobleza rural",
+      "annotations": {
+        "short": {
+          "definition": "Raza de perro ágil y esbelto empleada comúnmente en la caza menor de liebres.",
+          "content": "Elemento tradicional del ocio cinegético propio de los hidalgos de provincia."
+        },
+        "deep": {
+          "definition": "Cánido caracterizado por su velocidad que constituía el acompañante habitual de la hidalguía rural castellana para el deporte de la caza.",
+          "content": "La posesión de perros de caza como el galgo formaba parte de las distinciones estéticas y cotidianas del estilo de vida aristocrático rural. La caza servía como simulacro en tiempos de paz para la nobleza que ya no acudía al combate.\n\nLa presencia del galgo matiza la vida cotidiana de Alonso Quijano antes de adentrarse en la locura, completando la estampa del noble comarcano dedicado a actividades contemplativas y deportivas."
+        }
+      },
+      "wikipediaArticle": "Galgo_español",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Galgo espanol perro de caza pintura",
+      "imageVisualKeywords": [
+        "galgo espanol",
+        "perro caza"
+      ],
+      "imageDescription": "Pintura clásica de un galgo español de caza",
+      "youtubeSearchQuery": "El galgo espanol historia y tradicion"
+    },
+    "node_7": {
+      "type": "culture",
+      "category": "culture",
+      "label": "olla",
+      "title": "Guiso cotidiano castellano",
+      "annotations": {
+        "short": {
+          "definition": "Plato cocido diario a base de legumbres, verduras y carne, base de la alimentación peninsular.",
+          "content": "Simboliza la dieta estandarizada y modesta de la época."
+        },
+        "deep": {
+          "definition": "Preparación culinaria por cocción lenta que servía como sustento principal diario en la gastronomía española del Siglo de Oro.",
+          "content": "La 'olla podrida' o el cocido diario estructuraban la mesa del campesinado y de la baja nobleza. El contenido de la olla determinaba el estatus social y económico del comensal según la abundancia y calidad de sus carnes.\n\nCervantes recurre a la descripción gastronómica precisa para dar un baño de realismo sociológico al pasaje, haciendo perceptible la condición financiera de su personaje central."
+        }
+      },
+      "wikipediaArticle": "Olla_podrida",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Bodegon espanol siglo XVII comida olla",
+      "imageVisualKeywords": [
+        "bodegon barroco",
+        "cocina barroca"
+      ],
+      "imageDescription": "Bodegón del siglo XVII con utillaje de cocina y guiso",
+      "youtubeSearchQuery": "Alimentacion en el Siglo de Oro espanol"
+    },
+    "node_8": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "vaca que carnero",
+      "title": "Gradación económica alimenticia",
+      "annotations": {
+        "short": {
+          "definition": "Consumo de carne de vaca, más barata y ordinaria, por encima de la de carnero, de mayor precio.",
+          "content": "Pauta de ahorro doméstico que revela la economía apretada de la casa."
+        },
+        "deep": {
+          "definition": "Contraste sociológico en la dieta moderna: la carne bovina era considerada inferior en sabor y valor digestivo respecto al ovino.",
+          "content": "En la medicina y la gastronomía del Siglo de Oro, el carnero ostentaba un prestigio superior y un precio considerablemente más elevado por su ternura. Consumir mayor proporción de vaca implicaba una dieta ajustada a un presupuesto limitado.\n\nEsta distinción no es casual: Cervantes la utiliza como indicador preciso del poder adquisitivo del hidalgo, que debe recurrir a ingredientes más económicos para mantener el decoro diario."
+        }
+      },
+      "wikipediaArticle": "Carne_de_vacuno",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Carniceria o bodegon de carnes antiguo",
+      "imageVisualKeywords": [
+        "bodegon carne",
+        "arte culinario barroco"
+      ],
+      "imageDescription": "Bodegón barroco con piezas de carne",
+      "youtubeSearchQuery": "Gastronomia en el Quijote de Cervantes"
+    },
+    "node_9": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "salpicón",
+      "title": "Plato de frío de aprovechamiento",
+      "annotations": {
+        "short": {
+          "definition": "Plato frío elaborado con carne picada, picada con cebolla, vinagre y sal.",
+          "content": "Guiso frugal preparado por las noches reutilizando las sobras del almuerzo."
+        },
+        "deep": {
+          "definition": "Receta gastronómica de aprovechamiento culinario típica de los hogares de recursos moderados en la España de los Austrias.",
+          "content": "El salpicón consistía en picar la carne magra sobrante de la olla del mediodía y aliñarla con cebolla, aceite y vinagre para consumirla fría en la cena. Evitaba el gasto de encender de nuevo el fuego y aprovechar al máximo las raciones.\n\nSu inclusión en el menú semanal subraya la disciplina de frugalidad que imperaba en el hogar del hidalgo durante los días laborales."
+        }
+      },
+      "wikipediaArticle": "Salpicón",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Bodegon de cocina hispana plato preparado",
+      "imageVisualKeywords": [
+        "bodegon comida",
+        "cocina clasica"
+      ],
+      "imageDescription": "Bodegón castellano con viandas e ingredientes",
+      "youtubeSearchQuery": "Recetas historicas de la España moderna"
+    },
+    "node_10": {
+      "type": "culture",
+      "category": "culture",
+      "label": "duelos y quebrantos",
+      "title": "Plato tradicional de precepto",
+      "annotations": {
+        "short": {
+          "definition": "Manjar sabatino a base de huevos salteados con chacina, tocino o casquería.",
+          "content": "Plato vinculado a las costumbres dietéticas castellanas y la observancia religiosa del sábado."
+        },
+        "deep": {
+          "definition": "Fórmula culinaria del ámbito hispánico cuyo origen y nombre se relacionan con la abstinencia parcial de carnes en cumplimiento de votos locales.",
+          "content": "Se trata de un salteado de casquería (grosuras, asaduras o tocino) mezclado con huevo. La tradición castellana permitía el consumo de ciertas partes del cerdo los sábados en conmemoración de victorias sobre el islam o como distinción de los conversos de origen judío o musulmán.\n\nLa inclusión de esta vianda en el inventario semanal aporta un marcado valor etnográfico y refleja la observancia estricta de los usos y preceptos religiosos de la época."
+        }
+      },
+      "wikipediaArticle": "Duelos_y_quebrantos",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Huevos con tocino plato barroco",
+      "imageVisualKeywords": [
+        "duelos y quebrantos",
+        "comida barroca"
+      ],
+      "imageDescription": "Representación de una sartenada con tocino y huevos",
+      "youtubeSearchQuery": "Origen del plato duelos y quebrantos Quijote"
+    },
+    "node_11": {
+      "type": "culture",
+      "category": "culture",
+      "label": "lentejas",
+      "title": "Legumbre de vigilia",
+      "annotations": {
+        "short": {
+          "definition": "Plato sencillo consumido habitualmente los viernes por la prohibición religiosa de comer carne.",
+          "content": "Representa la austeridad marcada por el calendario litúrgico católico."
+        },
+        "deep": {
+          "definition": "Alimento humilde por excelencia que garantizaba la observancia de la vigilia obligatoria prescrita por la Iglesia Católica.",
+          "content": "En la España de la Contrarreforma, los viernes estaban rigurosamente estipulados para la abstinencia de carnes rojas. Las lentejas, por su bajo coste y fácil conservación, constituían la base del menú de abstinencia en la mayor parte del territorio hispano.\n\nEl apego del hidalgo a estas normas demuestra su integración dentro del marco normativo y devocional de la sociedad de su tiempo."
+        }
+      },
+      "wikipediaArticle": "Lenteja",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Lentejas platico de barro antiguo",
+      "imageVisualKeywords": [
+        "lentejas",
+        "vasija barro"
+      ],
+      "imageDescription": "Vasija de barro con legumbres en un entorno rústico",
+      "youtubeSearchQuery": "La dieta de la vigilia en la Espana del siglo XVII"
+    },
+    "node_12": {
+      "type": "culture",
+      "category": "culture",
+      "label": "palomino",
+      "title": "Pichón de pichonera",
+      "annotations": {
+        "short": {
+          "definition": "Cría de la paloma doméstica consumida como un lujo dominical extraordinario.",
+          "content": "Elemento de gratificación festiva que rompía la monotonía de la semana."
+        },
+        "deep": {
+          "definition": "Ave de corral criada en palomares anejos a las casas solariegas que sumaba proteína fina a la mesa de los días festivos.",
+          "content": "La crianza de palomas era un privilegio extendido entre los propietarios rurales. El 'palomino de añadidura' consistía en un refuerzo festivo para la comida de los domingos, añadiendo un matiz de distinción social sobre la alimentación llana del resto de la semana.\n\nEste suplemento resalta cómo el domingo marcaba un paréntesis de relativo refinamiento dentro del modesto presupuesto del hogar."
+        }
+      },
+      "wikipediaArticle": "Columba_livia",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Bodegon aves caza paloma",
+      "imageVisualKeywords": [
+        "bodegon aves",
+        "palomino"
+      ],
+      "imageDescription": "Bodegón pictórico con aves de corral y caza",
+      "youtubeSearchQuery": "Crianza de palomares en la Castilla del Siglo de Oro"
+    },
+    "node_13": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "añadidura",
+      "title": "Extra gastronómico",
+      "annotations": {
+        "short": {
+          "definition": "Gratificación o suplemento extraordinario concedido sobre lo ordinario.",
+          "content": "Indica un plato adicional otorgado en días de especial solemnidad."
+        },
+        "deep": {
+          "definition": "Término del léxico económico-doméstico que alude a lo concedido por encima del gasto corriente o estipulado.",
+          "content": "En la estructura sintáctica del texto, la 'añadidura' resalta el carácter excepcional del palomino. La contabilidad del hidalgo estaba tan pautada que cualquier desvío hacia el consumo de carne fina exigía ser tipificado como una adición singular a la regla habitual."
+        }
+      },
+      "wikipediaArticle": "Alimentación",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Mesa servida comida festiva antigua",
+      "imageVisualKeywords": [
+        "banquete rustico",
+        "mesa servida"
+      ],
+      "imageDescription": "Representación simbólica del suplemento en la mesa",
+      "youtubeSearchQuery": "Estilo de vida de la hidalguia en Castilla"
+    },
+    "node_14": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "hacienda",
+      "title": "Patrimonio económico familiar",
+      "annotations": {
+        "short": {
+          "definition": "Conjunto de bienes, tierras y rentas de una persona o familia.",
+          "content": "Cervantes cuantifica con precisión el coste del sustento sobre los ingresos de la casa."
+        },
+        "deep": {
+          "definition": "Patrimonio rústico e inmueble del hidalgo cuya renta determinaba su solvencia frente al estamento social.",
+          "content": "La afirmación de que el sustento 'consumían las tres partes de su hacienda' expone con nitidez la fragilidad de su economía: el 75% de sus ingresos se destinaba única y exclusivamente a la manutención alimentaria diaria.\n\nEsta minuciosa radiografía financiera prepara al lector para comprender más adelante cómo el hidalgo venderá tierras de sembradura para adquirir libros de caballerías, descalabrando por completo su presupuesto patrimonial."
+        }
+      },
+      "wikipediaArticle": "Patrimonio",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Tierras de cultivo castellanas siglo XVII",
+      "imageVisualKeywords": [
+        "campos castilla",
+        "tierras labranza"
+      ],
+      "imageDescription": "Campos de cultivo y tierras de hacienda castellana",
+      "youtubeSearchQuery": "La economia rural en la Espana del siglo XVII"
+    },
+    "node_15": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "sayo de velarte",
+      "title": "Indumentaria sobria de paño de calidad",
+      "annotations": {
+        "short": {
+          "definition": "Túnica holgada sin mangas hecha de velarte, un paño de lana tupido y teñido de negro.",
+          "content": "Vestimenta dominical que expresaba decencia y dignidad social sin ostentación."
+        },
+        "deep": {
+          "definition": "Prenda exterior de vestir elaborada con velarte, tejido denso de lana fina muy estimado por su durabilidad y sobriedad.",
+          "content": "El velarte era un paño confeccionado con lana de altísima calidad, generalmente teñido de negro o colores oscuros siguiendo la moda cortesana impuesta por Felipe II. El sayo servía como prenda principal de abrigo para las ocasiones formales.\n\nSu uso indica que Alonso Quijano reservaba sus mejores prendas para mantener las apariencias de nobleza en los días solemnes frente a sus convecinos."
+        }
+      },
+      "wikipediaArticle": "Sayo",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Vestimenta negra espanola siglo XVI velarte",
+      "imageVisualKeywords": [
+        "traje negro barroco",
+        "moda siglo de oro"
+      ],
+      "imageDescription": "Retrato de época con vestimenta castellana de lana oscura",
+      "youtubeSearchQuery": "La indumentaria masculina en la España de Cervantes"
+    },
+    "node_16": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "calzas de velludo",
+      "title": "Pantalones de terciopelo de gala",
+      "annotations": {
+        "short": {
+          "definition": "Prenda que cubría desde la cintura hasta los muslos, hecha de velludo o terciopelo.",
+          "content": "Ropa galana reservada estrictamente para días de fiesta."
+        },
+        "deep": {
+          "definition": "Prenda de vestir ceñida de felpa o terciopelo ('velludo') que formaba parte del traje de etiqueta de la época.",
+          "content": "Las calzas de terciopelo representaban un vestuario suntuario de coste elevado. Al utilizarlas únicamente 'para las fiestas', se constata el cuidado extremo que el personaje ponía en la preservación de su atuendo más valioso para evitar su desgaste.\n\nEsta dualidad entre el vestir festivo y el cotidiano es una muestra representativa del afán de representación de la hidalguía castellana."
+        }
+      },
+      "wikipediaArticle": "Calzas",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Calzas terciopelo traje barroco noble",
+      "imageVisualKeywords": [
+        "calzas",
+        "terciopelo antiguo"
+      ],
+      "imageDescription": "Detalle de ropa de vestir con terciopelo y calzas",
+      "youtubeSearchQuery": "Evolucion del traje masculino calzas de velludo"
+    },
+    "node_17": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "pantuflos",
+      "title": "Calzado cómodo de gala indoor",
+      "annotations": {
+        "short": {
+          "definition": "Calzado sin talón, suave y fino, empleado en interiores o para mudar las botas.",
+          "content": "Complemento de distinción que combinaba con las calzas festivas."
+        },
+        "deep": {
+          "definition": "Calzado suntuario de suela ligera elaborado en telas finas o cordobanes para el descanso o eventos de etiqueta.",
+          "content": "Los pantuflos de terciopelo o velludo formaban un conjunto refinado con las calzas. No deben confundirse con las zapatillas domésticas modernas, pues constituían un calzado de distinción social para lucir en visitas e iglesias.\n\nSu mención añade rigor al vestuario dominical del protagonista, reforzando la construcción del personaje desde sus atributos formales."
+        }
+      },
+      "wikipediaArticle": "Pantufla",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Calzado antiguo siglo XVII pantuflos",
+      "imageVisualKeywords": [
+        "calzado antiguo",
+        "pantuflos barrocos"
+      ],
+      "imageDescription": "Muestra de calzado histórico de tela fina",
+      "youtubeSearchQuery": "Historia del calzado en la Europa Moderna"
+    },
+    "node_18": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "honraba",
+      "title": "Verbo de prestigio estamental",
+      "annotations": {
+        "short": {
+          "definition": "Enorgullecerse o lucir con dignidad una prenda ordinaria.",
+          "content": "Soberbia irónica del hidalgo respecto a su atuendo diario de paño basto."
+        },
+        "deep": {
+          "definition": "Uso irónico del verbo 'honrarse' para elevar la acción de llevar una prenda de trabajo modesta a la categoría de dignidad moral.",
+          "content": "El empleo de 'honrarse' con un paño de 'vellori' refleja la obsesión castellana de la época por la honra y las apariencias externas. El texto sugiere con ironía que vestirse con decencia y pulcritud durante los días laborables satisfacía el decoro nobiliario del personaje.\n\nCervantes contrapone el concepto sagrado del honor de la época con la simple calidad de los materiales textiles que el hidalgo podía pagar."
+        }
+      },
+      "wikipediaArticle": "Honor",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Simbolo de honra o linaje nobiliario",
+      "imageVisualKeywords": [
+        "honra",
+        "decoro barroco"
+      ],
+      "imageDescription": "Alegoría del honor y la dignidad en la época moderna",
+      "youtubeSearchQuery": "El concepto del honor en el teatro del Siglo de Oro"
+    },
+    "node_19": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "vellori",
+      "title": "Paño rústico de lana",
+      "annotations": {
+        "short": {
+          "definition": "Tejido de lana común sin teñir, de tono pardo o grisáceo.",
+          "content": "Material de la vestimenta de diario del hidalgo."
+        },
+        "deep": {
+          "definition": "Paño basto sin teñir confeccionado con la lana natural de ovejas pardas o castañas, de origen humilde pero resistente.",
+          "content": "El vellori era la tela habitual para la indumentaria de trabajo o de entresemana de campesinos y la baja nobleza rural. Aunque Cervantes aclara que era 'de lo más fino', no dejaba de ser un paño rústico e infinitamente más modesto que las sedas o terciopelos.\n\nSe completa así el contraste entre el atuendo de gala del hidalgo y su indumentaria cotidiana."
+        }
+      },
+      "wikipediaArticle": "Tejido_de_lana",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Tejido lana parda rústico antiguo",
+      "imageVisualKeywords": [
+        "paño de lana",
+        "textil artesanal"
+      ],
+      "imageDescription": "Muestra de tejido de lana rústica tradicional",
+      "youtubeSearchQuery": "La industria textil en la Castilla del siglo XVII"
+    },
+    "node_20": {
+      "type": "culture",
+      "category": "culture",
+      "label": "ama",
+      "title": "Servidumbre del hogar rural",
+      "annotations": {
+        "short": {
+          "definition": "Mujer encargada del gobierno de la casa y las tareas domésticas.",
+          "content": "Representa el personal de servicio maduro habitual en casas solariegas."
+        },
+        "deep": {
+          "definition": "Llave de llaves y administradora del espacio doméstico en las familias de la pequeña aristocracia rural.",
+          "content": "El ama de llaves ostentaba la responsabilidad sobre la cocina, el orden interno y la gestión de la despensa. Que pasara de 'los cuarenta' indica una edad madura para la época, garante de experiencia y respetabilidad social dentro del hogar soltero del hidalgo.\n\nEn la novela, el ama encarnará la voz del sentido común popular y el temor supersticioso frente a la locura caballeresca de su señor."
+        }
+      },
+      "wikipediaArticle": "Ama_de_llaves",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Bodegon velazquez cocinera mujer mayor",
+      "imageVisualKeywords": [
+        "escena de cocina",
+        "pintura genero barroco"
+      ],
+      "imageDescription": "Cocinera o ama de llaves en un ambiente doméstico del XVII",
+      "youtubeSearchQuery": "La mujer en el ámbito doméstico del Siglo de Oro"
+    },
+    "node_21": {
+      "type": "culture",
+      "category": "culture",
+      "label": "sobrina",
+      "title": "El núcleo familiar dependiente",
+      "annotations": {
+        "short": {
+          "definition": "Joven familiar a cargo del hidalgo, menor de veinte años.",
+          "content": "Representa a la juventud dentro del modesto entorno doméstico."
+        },
+        "deep": {
+          "definition": "Familiar directo bajo la tutela y protección del hidalgo, que encarna a la generación joven en la hacienda.",
+          "content": "Antonia Quijana, la sobrina, simboliza la continuidad familiar y la dependencia económica respecto a la figura paterna del hidalgo. Su edad ('que no llegaba a los veinte') contrasta vivamente con la madurez del ama y del propio Alonso Quijano.\n\nSu papel cobra relieve cuando intenta disuadir a su tío de sus lecturas fantásticas, aliándose con el cura y el barbero para quemar los libros."
+        }
+      },
+      "wikipediaArticle": "Familia",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Joven hispana retrato siglo XVII",
+      "imageVisualKeywords": [
+        "retrato joven barroco",
+        "mujer siglo XVII"
+      ],
+      "imageDescription": "Retrato de época de una joven dama castellana",
+      "youtubeSearchQuery": "Estructura familiar en la Espana Moderna"
+    },
+    "node_22": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "mozo de campo y plaza",
+      "title": "Criado polivalente del medio rural",
+      "annotations": {
+        "short": {
+          "definition": "Sirviente masculino encargado tanto de las labores agrícolas como de los recados urbanos.",
+          "content": "Único empleado masculino de la casa para tareas pesadas."
+        },
+        "deep": {
+          "definition": "Locución que define la versatilidad de un criado capaz de desarrollar faenas agrícolas en el campo y diligencias públicas en la villa.",
+          "content": "Disponer de un solo mozo para la totalidad de las tareas exteriores señala los límites de la servidumbre que podía costear el protagonista. Este sirviente desempeñaba trabajos tan dispares como cuidar al animal, podar e ir al mercado.\n\nEsta figura anticipa la necesidad de Alonso Quijano de buscar más tarde a un verdadero escudero de mayor calado como Sancho Panza."
+        }
+      },
+      "wikipediaArticle": "Criado",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Campesino joven pintura siglo XVII",
+      "imageVisualKeywords": [
+        "campesino barroco",
+        "mozo trabajo"
+      ],
+      "imageDescription": "Representación de un joven mozo de labranza de la época",
+      "youtubeSearchQuery": "El trabajo rural en la España del Siglo de Oro"
+    },
+    "node_23": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "ensillaba",
+      "title": "Preparación de la montura",
+      "annotations": {
+        "short": {
+          "definition": "Acción de poner la silla de montar al caballo para salir a cabalgar.",
+          "content": "Labor diaria del mozo para el cuidado del rocín."
+        },
+        "deep": {
+          "definition": "Tarea del aparataje ecuestre que implicaba colocar cinchas, estribos y la silla sobre el lomo del animal.",
+          "content": "Verbo empleado para explicitar las competencias ecuestres del mozo. Ensillar era el paso previo a las salidas de caza o paseos del hidalgo, vinculando el cuidado del caballo con el estatus de su dueño."
+        }
+      },
+      "wikipediaArticle": "Silla_de_montar",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Silla de montar antigua cuero",
+      "imageVisualKeywords": [
+        "silla de montar",
+        "arnés ecuestre"
+      ],
+      "imageDescription": "Silla de montar tradicional de cuero",
+      "youtubeSearchQuery": "Aperos y guarniciones ecuestres de época"
+    },
+    "node_24": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "podadera",
+      "title": "Herramienta de labranza",
+      "annotations": {
+        "short": {
+          "definition": "Cuchillo curvo de hierro con mango de madera usado para podar árboles y viñas.",
+          "content": "Instrumento agrícola que demuestra las faenas del campo en la finca."
+        },
+        "deep": {
+          "definition": "Utensilio agrícola corvo indispensable para la poda de viñedos y frutales en la agricultura mediterránea.",
+          "content": "La mención de la podadera ilustra las labores agrícolas concretas que ejecutaba el mozo en las tierras del hidalgo. Refuerza el realismo material de la finca, donde la producción vitivinícola o arbolada formaba parte del sustento doméstico."
+        }
+      },
+      "wikipediaArticle": "Podadera",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Podadera antigua herramienta hierro",
+      "imageVisualKeywords": [
+        "herramienta agricola",
+        "podadera antigua"
+      ],
+      "imageDescription": "Herramienta agrícola de hierro tradicional para el campo",
+      "youtubeSearchQuery": "Herramientas de labranza tradicionales en Espana"
+    },
+    "node_25": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "Frisaba",
+      "title": "Aproximación cronológica",
+      "annotations": {
+        "short": {
+          "definition": "Estar cerca o rozar una edad determinada.",
+          "content": "Cervantes indica que el hidalgo estaba próximo a cumplir los cincuenta años."
+        },
+        "deep": {
+          "definition": "Verbo de origen textil ('frisar' o levantar la lana) empleado figuradamente para indicar la cercanía a un límite o cifra determinada.",
+          "content": "El empleo de 'frisaba' permite fijar la edad del protagonista con cierta flexibilidad. En la época barroca, alcanzar los cincuenta años equivalía a adentrarse de lleno en la vejez o senectud, lo que hace aún más extravagante la decisión de iniciar una vida errante de caballero andante."
+        }
+      },
+      "wikipediaArticle": "Edad",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Reloj de arena antiguo concepto tiempo",
+      "imageVisualKeywords": [
+        "tiempo",
+        "reloj de arena"
+      ],
+      "imageDescription": "Reloj de arena como alegoría del paso de los años",
+      "youtubeSearchQuery": "La esperanza de vida en la España del siglo XVII"
+    },
+    "node_26": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "hidalgo",
+      "title": "El protagonista sin nombre aún",
+      "annotations": {
+        "short": {
+          "definition": "Referencia de nuevo al estamento del personaje, eje central de la caracterización inicial.",
+          "content": "Consolida la figura del noble rural maduro antes de su transformación."
+        },
+        "deep": {
+          "definition": "Anclaje del tipo social del personaje previa a su metamorfosis psicológica en Don Quijote de la Mancha.",
+          "content": "Al reiterar la condición de hidalgo vinculada a su edad, Cervantes afianza el retrato sociológico de Alonso Quijano. El autor prepara el terreno para el choque entre el individuo gris de provincias y la deslumbrante identidad caballeresca que adoptará tras enloquecer."
+        }
+      },
+      "wikipediaArticle": "Don_Quijote",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Ilustracion Don Quijote en su estudio libros",
+      "imageVisualKeywords": [
+        "don quijote",
+        "estudio quijote"
+      ],
+      "imageDescription": "Grabado clásico de Don Quijote en su despacho",
+      "youtubeSearchQuery": "Analisis del personaje Don Quijote de la Mancha"
+    },
+    "node_27": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "complexión recia",
+      "title": "Constitución física resistente",
+      "annotations": {
+        "short": {
+          "definition": "Estructura corporal fuerte, muelle y dotada de resistencia física.",
+          "content": "Indica que el hidalgo poseía una salud básica fuerte pese a su delgadez."
+        },
+        "deep": {
+          "definition": "Atributo de la teoría de los humores médica según la cual la constitución recia denota vigor orgánico y capacidad de aguante.",
+          "content": "Según la medicina galénica propia del Renacimiento y Barroco (como la expuesta por Huarte de San Juan en su *Examen de ingenios*), una complexión recia combinada con la sequedad física indicaba un temperamento cálido y seco, propenso a la imaginación desmedida y la colera pasional.\n\nEsta descripción física prepara la verosimilitud de sus posteriores resistencias ante los azotes y caídas que sufrirá en sus aventuras."
+        }
+      },
+      "wikipediaArticle": "Teoría_de_los_cuatro_humores",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Dibujo anatomia humana antigua siglo XVI",
+      "imageVisualKeywords": [
+        "humores medicos",
+        "anatomia antigua"
+      ],
+      "imageDescription": "Grabado médico renacentista sobre la constitución física",
+      "youtubeSearchQuery": "La medicina y los humores en el Quijote Huarte de San Juan"
+    },
+    "node_28": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "enjuto de rostro",
+      "title": "Rasgos faciales afilados y secos",
+      "annotations": {
+        "short": {
+          "definition": "Cara delgada, magra y desprovista de grasa sobrante.",
+          "content": "Rasgo iconográfico definitorio del semblante de Don Quijote."
+        },
+        "deep": {
+          "definition": "Caracterización fisonómica que la tradición crítica vincula al predominio del humor colérico y la atrabilis.",
+          "content": "El rostro enjuto y la delgadez corporal son signos distintivos del hombre entregado a la vigilia y al esfuerzo intelectivo o pasional. El exceso de lectura y la falta de sueño 'secarán' literalmente el cerebro del protagonista conforme avanza la narración.\n\nEste rasgo fisonómico ha sido la base de toda la iconografía plástica del personaje, desde Gustave Doré hasta Picasso."
+        }
+      },
+      "wikipediaArticle": "Fisonomía",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Retrato hombre enjuto dibujo barroco",
+      "imageVisualKeywords": [
+        "rostro enjuto",
+        "dibujo barroco"
+      ],
+      "imageDescription": "Estudio fisonómico de un hombre maduro y enjuto",
+      "youtubeSearchQuery": "Iconografia de Don Quijote a lo largo de la historia"
+    },
+    "node_29": {
+      "type": "culture",
+      "category": "culture",
+      "label": "madrugador",
+      "title": "Hábito de disciplina matutina",
+      "annotations": {
+        "short": {
+          "definition": "Persona acostumbrada a levantarse muy temprano al amanecer.",
+          "content": "Costumbre vinculada a la caza y al aprovechamiento del día."
+        },
+        "deep": {
+          "definition": "Hábito vital del mundo rural asociado con la actividad cinegética y la disciplina activa de la pequeña nobleza.",
+          "content": "Ser 'gran madrugador' reforzaba la imagen de un hombre activo en contraste con la holgazanería sedentaria de otros nobles urbanos. Sin embargo, este insomnio parcial terminará canalizándose hacia la lectura nocturna e ininterrumpida de novelas caballerescas."
+        }
+      },
+      "wikipediaArticle": "Amanecer",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Amanecer en el campo castellano",
+      "imageVisualKeywords": [
+        "amanecer campo",
+        "luz matutina"
+      ],
+      "imageDescription": "Luz del amanecer sobre la llanura de Castilla",
+      "youtubeSearchQuery": "Vida cotidiana y costumbres en el campo barroco"
+    },
+    "node_30": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "sobrenombre",
+      "title": "Apodo o apellido fluctuante",
+      "annotations": {
+        "short": {
+          "definition": "Nombre adicional o apodo que se añade al verdadero apellido.",
+          "content": "Incertidumbre inicial sobre la denominación exacta de la familia."
+        },
+        "deep": {
+          "definition": "Variante antroponímica que evidencia el juego cervantino sobre la identidad incierta del héroe.",
+          "content": "El uso del sobrenombre pone de manifiesto la inestabilidad de la memoria oral o de las crónicas en los entornos rurales. Cervantes aprovecha este detalle para burlarse de la exactitud historiográfica de los libros de caballerías, que pretendían documentar hasta el menor detalle noble de sus protagonistas."
+        }
+      },
+      "wikipediaArticle": "Apellido",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Documento antiguo firma manuscrito siglo XVII",
+      "imageVisualKeywords": [
+        "manuscrito antiguo",
+        "firma archivo"
+      ],
+      "imageDescription": "Manuscrito de archivo con nombres y firmas del Siglo de Oro",
+      "youtubeSearchQuery": "Los nombres y apellidos en la Espana del siglo XVI"
+    },
+    "node_31": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "Quijada",
+      "title": "Primera variante del apellido",
+      "annotations": {
+        "short": {
+          "definition": "Posible apellido original del hidalgo, con resonancias óseas y cómicas.",
+          "content": "Una de las versiones que barajan los supuestos historiadores."
+        },
+        "deep": {
+          "definition": "Opción antroponímica que alude irónicamente a la fisonomía alargada de la cara del personaje.",
+          "content": "El apellido 'Quijada' evoca la mandíbula promietente o magra del hidalgo. Formará parte de la base sonora que el propio Alonso Quijano modificará más tarde para confeccionar su deslumbrante nombre de guerra: Don Quijote."
+        }
+      },
+      "wikipediaArticle": "Onomástica",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Escritura caligrafia antigua barroca",
+      "imageVisualKeywords": [
+        "caligrafia antigua",
+        "onomastica"
+      ],
+      "imageDescription": "Muestra de caligrafía procesal de los siglos XVI y XVII",
+      "youtubeSearchQuery": "Significado de los nombres en Don Quijote"
+    },
+    "node_32": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "Quesada",
+      "title": "Segunda variante del apellido",
+      "annotations": {
+        "short": {
+          "definition": "Otra hipótesis de la tradición oral sobre la verdadera identidad del hidalgo.",
+          "content": "Muestra la divergencia de opiniones entre los historiadores citados."
+        },
+        "deep": {
+          "definition": "Segunda conjetura onomástica que aporta resonancias cotidianas y rurales al origen del personaje.",
+          "content": "Al introducir 'Quesada', Cervantes insiste en la ambigüedad novelesca. Esta disparidad en las fuentes escritas es un recurso metanarrativo con el que parodia los textos de los cronistas de Indias y las crónicas medievales."
+        }
+      },
+      "wikipediaArticle": "Onomástica",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Texto impreso libro antiguo siglo XVII",
+      "imageVisualKeywords": [
+        "libro antiguo",
+        "imrenta barroca"
+      ],
+      "imageDescription": "Página impresa de una edición antigua del siglo XVII",
+      "youtubeSearchQuery": "Recursos de metaliteratura en Cervantes"
+    },
+    "node_33": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "los autores",
+      "title": "Sátira de las fuentes historiográficas",
+      "annotations": {
+        "short": {
+          "definition": "Referencia burlesca a los supuestos cronistas que documentaron la vida del héroe.",
+          "content": "Mecanismo paródico contra la erudición pedante de los libros de la época."
+        },
+        "deep": {
+          "definition": "Estrategia de voz narrativa múltiple que mina la autoridad absolutista del narrador unisciente.",
+          "content": "Al apelar a 'los autores que deste caso escriben', Cervantes introduce la ficción de que su relato es una compilación crítica de fuentes previas divergentes. Esta invención alcanzará su punto cumbre más adelante con la aparición de la figura del sabio aljamiado Cide Hamete Benengeli."
+        }
+      },
+      "wikipediaArticle": "Metaficción",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Escritor antiguo pluma grabado barroco",
+      "imageVisualKeywords": [
+        "escritor barroco",
+        "grabado cronista"
+      ],
+      "imageDescription": "Grabado de un erudito o cronista trabajando en su escritorio",
+      "youtubeSearchQuery": "La parodia de los historiadores en el Quijote"
+    },
+    "node_34": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "conjeturas verosímiles",
+      "title": "Criterio de verosimilitud narrativa",
+      "annotations": {
+        "short": {
+          "definition": "Deducciones lógicas basadas en la probabilidad razonable y el sentido común.",
+          "content": "Principio estético fundamental del realismo cervantino."
+        },
+        "deep": {
+          "definition": "Concepto poético de raíz aristotélica central en las discusiones literarias del Renacimiento tardío.",
+          "content": "Frente a la desmesura inverosímil de los libros de caballerías (con monstruos y magia desenfrenada), Cervantes abraza la verosimilitud como eje de su poética. Aunque el narrador no posea el dato definitivo, opera mediante la razón probabilística para reconstruir la verdad histórica de Alonso Quijano."
+        }
+      },
+      "wikipediaArticle": "Verosimilitud",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Balanza de la justicia o verdad concepto",
+      "imageVisualKeywords": [
+        "verosimilitud",
+        "razonamiento"
+      ],
+      "imageDescription": "Alegoría de la razón y la búsqueda de la verdad",
+      "youtubeSearchQuery": "La poética de Aristoteles y la verosimilitud en Cervantes"
+    },
+    "node_35": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "Quijana",
+      "title": "La forma patronímica definitiva",
+      "annotations": {
+        "short": {
+          "definition": "Nombre más probable del hidalgo según la lógica del relato cervantino.",
+          "content": "Opción que finalmente se revela como la más exacta."
+        },
+        "deep": {
+          "definition": "Nombre de familia asentado por la tradición crítica cervantina como la verdadera identidad civil del personaje.",
+          "content": "Alonso Quijano (o Quijana en este primer capítulo) es la identidad real que la locura sepultará bajo el título caballeresco de Don Quijote. El juego entre Quijada, Quesada y Quijana pone en evidencia la fluidez de las identidades en la obra."
+        }
+      },
+      "wikipediaArticle": "Alonso_Quijano",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Don Quijote retratado anciano Alonso Quijano",
+      "imageVisualKeywords": [
+        "alonso quijano",
+        "don quijote"
+      ],
+      "imageDescription": "Retrato idealizado de Alonso Quijano el Bueno",
+      "youtubeSearchQuery": "De Alonso Quijano a Don Quijote la transformacion"
+    },
+    "node_36": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "cuento",
+      "title": "Término para la narración novelesca",
+      "annotations": {
+        "short": {
+          "definition": "Relato o narración de acontecimientos ficticios o reales.",
+          "content": "Designación llana del propio texto literario."
+        },
+        "deep": {
+          "definition": "Uso del vocablo 'cuento' en su acepción de la época para designar la relación de hechos o historia novelada.",
+          "content": "A través de esta palabra, Cervantes resta solemnidad épica a su narración. No la califica de 'cantar', 'epopeya' o 'gesta', sino de un humilde 'cuento', distanciándose del tono pomposo de los libros de caballerías que pretende satirizar."
+        }
+      },
+      "wikipediaArticle": "Cuento",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Lectura de un libro en grupo barroco",
+      "imageVisualKeywords": [
+        "lectura",
+        "relato"
+      ],
+      "imageDescription": "Escena de lectura pública de un relato en el siglo XVII",
+      "youtubeSearchQuery": "El nacimiento de la novela moderna Don Quijote"
+    },
+    "node_37": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "narración",
+      "title": "La estructura del discurso novelesco",
+      "annotations": {
+        "short": {
+          "definition": "La articulación del relato de los hechos en el texto literario.",
+          "content": "Proceso mediante el cual se construye la historia del personaje."
+        },
+        "deep": {
+          "definition": "Estructura formal del discurso que sostiene la ilusión de veracidad histórica en la obra.",
+          "content": "La narración en el Quijote destaca por su dinamismo y por integrar múltiples voces narrativas. Al asegurar que 'en la narración dél no se salga un punto', se autoimpone un compromiso con la fidelidad a los hechos relatados que contrasta con las desmesuradas invenciones de la literatura fantástica de la época."
+        }
+      },
+      "wikipediaArticle": "Narración",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Pluma de escribir sobre papel pergamino",
+      "imageVisualKeywords": [
+        "escritura",
+        "pergamino antiguo"
+      ],
+      "imageDescription": "Elementos de escritura histórica simbolizando el acto narrativo",
+      "youtubeSearchQuery": "Técnicas narrativas en Don Quijote de la Mancha"
+    },
+    "node_38": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "verdad",
+      "title": "El compromiso con la verdad poética",
+      "annotations": {
+        "short": {
+          "definition": "Fidelidad a los hechos y a la coherencia humana dentro de la ficción.",
+          "content": "Cierre irónico de la presentación que afirma la veracidad absoluta del relato."
+        },
+        "deep": {
+          "definition": "Concepto ético y poético fundamental sobre el que orbita toda la sátira cervantina.",
+          "content": "La afirmación de que la historia no debe separarse 'un punto de la verdad' culmina el prólogo del personaje con una refinada ironía. Cervantes denuncia la falsedad embustera de los libros de caballerías prometiendo al lector una 'verdad' humana, psicológica y realista, infinitamente más auténtica que la mera precisión del apellido del protagonista."
+        }
+      },
+      "wikipediaArticle": "Verdad",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Alegoria de la verdad espejo pintura",
+      "imageVisualKeywords": [
+        "alegoria verdad",
+        "arte barroco"
+      ],
+      "imageDescription": "Representación alegórica de la Verdad en el arte clásico",
+      "youtubeSearchQuery": "El concepto de verdad en la obra de Cervantes"
+    }
+  },
+  "stanzas": [
+    "<p>En un <span class=\"interactive-word\" data-node=\"node_1\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">lugar de la Mancha</span>, de cuyo nombre no quiero acordarme, no ha mucho tiempo que vivía un <span class=\"interactive-word\" data-node=\"node_2\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">hidalgo</span> de los de <span class=\"interactive-word\" data-node=\"node_3\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">lanza en astillero</span>, <span class=\"interactive-word\" data-node=\"node_4\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">adarga antigua</span>, <span class=\"interactive-word\" data-node=\"node_5\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">rocín flaco</span> y <span class=\"interactive-word\" data-node=\"node_6\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">galgo corredor</span>.</p>",
+    "<p>Una <span class=\"interactive-word\" data-node=\"node_7\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">olla</span> de algo más <span class=\"interactive-word\" data-node=\"node_8\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">vaca que carnero</span>, <span class=\"interactive-word\" data-node=\"node_9\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">salpicón</span> las más noches, <span class=\"interactive-word\" data-node=\"node_10\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">duelos y quebrantos</span> los sábados, <span class=\"interactive-word\" data-node=\"node_11\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">lentejas</span> los viernes, algún <span class=\"interactive-word\" data-node=\"node_12\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">palomino</span> de <span class=\"interactive-word\" data-node=\"node_13\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">añadidura</span> los domingos, consumían las tres partes de su <span class=\"interactive-word\" data-node=\"node_14\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">hacienda</span>.</p>",
+    "<p>El resto della concluían <span class=\"interactive-word\" data-node=\"node_15\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">sayo de velarte</span>, <span class=\"interactive-word\" data-node=\"node_16\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">calzas de velludo</span> para las fiestas con sus <span class=\"interactive-word\" data-node=\"node_17\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">pantuflos</span> de lo mismo, los días de entre semana se <span class=\"interactive-word\" data-node=\"node_18\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">honraba</span> con su <span class=\"interactive-word\" data-node=\"node_19\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">vellori</span> de lo más fino.</p>",
+    "<p>Tenía en su casa una <span class=\"interactive-word\" data-node=\"node_20\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">ama</span> que pasaba de los cuarenta, y una <span class=\"interactive-word\" data-node=\"node_21\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">sobrina</span> que no llegaba a los veinte, y un <span class=\"interactive-word\" data-node=\"node_22\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">mozo de campo y plaza</span>, que así <span class=\"interactive-word\" data-node=\"node_23\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">ensillaba</span> el rocín como tomaba la <span class=\"interactive-word\" data-node=\"node_24\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">podadera</span>.</p>",
+    "<p><span class=\"interactive-word\" data-node=\"node_25\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Frisaba</span> la edad de nuestro <span class=\"interactive-word\" data-node=\"node_26\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">hidalgo</span> con los cincuenta años, era de <span class=\"interactive-word\" data-node=\"node_27\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">complexión recia</span>, seco de carnes, <span class=\"interactive-word\" data-node=\"node_28\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">enjuto de rostro</span>; gran <span class=\"interactive-word\" data-node=\"node_29\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">madrugador</span> y amigo de la caza.</p>",
+    "<p>Quieren decir que tenía el <span class=\"interactive-word\" data-node=\"node_30\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">sobrenombre</span> de <span class=\"interactive-word\" data-node=\"node_31\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Quijada</span> o <span class=\"interactive-word\" data-node=\"node_32\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Quesada</span> (que en esto hay alguna diferencia en <span class=\"interactive-word\" data-node=\"node_33\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">los autores</span> que deste caso escriben), aunque por <span class=\"interactive-word\" data-node=\"node_34\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">conjeturas verosímiles</span> se deja entender que se llama <span class=\"interactive-word\" data-node=\"node_35\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Quijana</span>; pero esto importa poco a nuestro <span class=\"interactive-word\" data-node=\"node_36\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">cuento</span>; basta que en la <span class=\"interactive-word\" data-node=\"node_37\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">narración</span> dél no se salga un punto de la <span class=\"interactive-word\" data-node=\"node_38\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">verdad</span>.</p>"
+  ]
+}
