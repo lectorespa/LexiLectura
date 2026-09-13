@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visor de lectura interactiva — Ediciones anotadas</title>
-  <!-- Nombre de CSS con parámetro de versión renovado -->
-  <link rel="stylesheet" href="./styles.css?v=10">
+  <title>Visor de Lectura Interactiva — Ediciones Críticas</title>
+  <link rel="stylesheet" href="./styles.css?v=4">
   <style>
     .selector-container {
       display: flex;
@@ -33,8 +32,8 @@
     .hidden { display: none !important; }
   </style>
 
-  <!-- Carga directa del catálogo -->
-  <script src="./catalogo.js?v=10"></script>
+  <!-- Carga del catálogo directo en memoria para saltar AdBlockers -->
+  <script src="./catalogo.js"></script>
 </head>
 <body>
 
@@ -200,10 +199,11 @@
           }
         });
       } else {
+        // ENTORNO SERVIDOR: Lee directamente la variable global inyectada por catalogo.js
         if (window.CATALOGO_OBRAS && Array.isArray(window.CATALOGO_OBRAS)) {
           poblarDesplegable(window.CATALOGO_OBRAS);
         } else {
-          jsonSelect.innerHTML = '<option value="">⚠️ Error al cargar catálogo</option>';
+          jsonSelect.innerHTML = '<option value="">⚠️ No se pudo obtener el catálogo</option>';
         }
       }
 
@@ -292,7 +292,6 @@
     });
   </script>
 
-  <!-- Si app.js te sigue dando problemas en Opera, renombra el archivo físico a visor.js -->
-  <script src="./app.js?v=10"></script>
+  <script src="./app.js?v=4"></script>
 </body>
 </html>
