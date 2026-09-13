@@ -13,5 +13,10 @@ window.OBRAS_CATALOGO = [
     "file": "orillasdelduero.json",
     "title": "Las encinas / Campos de Castilla (Poema VI)",
     "author": "Antonio Machado"
+  },
+  {
+    "file": "quijote1.json",
+    "title": "Don Quijote de la Mancha",
+    "author": "Miguel de Cervantes"
   }
 ];
