@@ -177,10 +177,9 @@
       function obtenerCatalogo() {
         if (isLocal) return;
 
-        // Lee el catalogo.json que genera GitHub Actions automáticamente
-        fetch(`./catalogo.json?v=${Date.now()}`, { cache: 'no-store' })
+        fetch('./catalogo.json?v=' + Date.now(), { cache: 'no-store' })
           .then(res => {
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             return res.json();
           })
           .then(data => poblarDesplegable(data))
@@ -200,7 +199,7 @@
         list.forEach(item => {
           const opt = document.createElement('option');
           opt.value = item.file.toLowerCase();
-          opt.textContent = item.author ? `${item.title} — ${item.author}` : item.title;
+          opt.textContent = item.author ? item.title + ' — ' + item.author : item.title;
           jsonSelect.appendChild(opt);
         });
 
@@ -226,23 +225,21 @@
           }
         } else {
           const cleanFileName = selectedKey.replace(/^textos\//i, '');
-          // Apunta a la carpeta /textos/
-          fetch(`./textos/${cleanFileName}?v=${Date.now()}`, { cache: 'no-store' })
+          fetch('./textos/' + cleanFileName + '?v=' + Date.now(), { cache: 'no-store' })
             .then(res => {
-              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              if (!res.ok) throw new Error('HTTP ' + res.status);
               return res.text();
             })
             .then(textData => {
               jsonTextarea.value = textData;
               if (btnLoad) btnLoad.click();
             })
-            .catch(err => console.error(`Error al obtener ./textos/${cleanFileName}:`, err));
+            .catch(err => console.error('Error al obtener ./textos/' + cleanFileName + ':', err));
         }
       }
 
       jsonSelect.addEventListener('change', cargarArchivoSeleccionado);
 
-      // Inicializar
       obtenerCatalogo();
     });
   </script>
