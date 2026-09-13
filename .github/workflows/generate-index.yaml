@@ -6,7 +6,7 @@ on:
       - main
       - master
     paths:
-      - 'obras/*.json'
+      - 'textos/*.json'
       - '.github/workflows/generate-index.yml'
   workflow_dispatch:
 
@@ -22,19 +22,19 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generar catalogo.json desde la carpeta obras
+      - name: Generar catalogo.json desde la carpeta textos
         run: |
           node -e '
             const fs = require("fs");
             const path = require("path");
 
-            const obrasDir = "./obras";
-            if (!fs.existsSync(obrasDir)) process.exit(0);
+            const textosDir = "./textos";
+            if (!fs.existsSync(textosDir)) process.exit(0);
 
-            const files = fs.readdirSync(obrasDir).filter(f => f.endsWith(".json") && f !== "catalogo.json");
+            const files = fs.readdirSync(textosDir).filter(f => f.endsWith(".json") && f !== "catalogo.json");
             
             const indexContent = files.map(file => {
-              const filePath = path.join(obrasDir, file);
+              const filePath = path.join(textosDir, file);
               try {
                 let rawData = fs.readFileSync(filePath, "utf8");
                 rawData = rawData.replace(/^\uFEFF/, "").trim();
