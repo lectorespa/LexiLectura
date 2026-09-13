@@ -31,9 +31,6 @@
     }
     .hidden { display: none !important; }
   </style>
-
-  <!-- Carga del catálogo directo en memoria para saltar AdBlockers -->
-  <script src="./catalogo.js"></script>
 </head>
 <body>
 
@@ -139,6 +136,14 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Catálogo incrustado directamente en memoria local para evitar problemas de CORS y bloqueos de red
+      const CATALOGO_LOCAL = [
+        { "file": "eldino2.json", "title": "El dinosaurio", "author": "Augusto Monterroso" },
+        { "file": "elrayo.json", "title": "El rayo que no cesa", "author": "Miguel Hernández" },
+        { "file": "orillasdelduero.json", "title": "Las encinas / Campos de Castilla (Poema VI)", "author": "Antonio Machado" },
+        { "file": "quijote1.json", "title": "Don Quijote de la Mancha", "author": "Miguel de Cervantes" }
+      ];
+
       const jsonSelect = document.getElementById('json-select');
       const jsonTextarea = document.getElementById('json-input');
       const btnLoad = document.getElementById('btn-load-json');
@@ -165,89 +170,24 @@
         folderBtn.addEventListener('change', (e) => {
           const files = e.target.files;
           localFilesByName = {};
-          let indexFileObj = null;
 
           for (let file of files) {
             const baseName = file.name.split(/[/\\]/).pop().trim();
             const cleanName = baseName.toLowerCase();
-            
             if (cleanName.endsWith('.json')) {
               localFilesByName[cleanName] = file;
-            } else if (cleanName === 'catalogo.js') {
-              indexFileObj = file;
             }
           }
-
-          if (indexFileObj) {
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-              try {
-                const rawText = evt.target.result;
-                const jsonMatch = rawText.match(/window\.CATALOGO_OBRAS\s*=\s*(\[[\s\S]*?\]);/);
-                if (jsonMatch && jsonMatch[1]) {
-                  poblarDesplegable(JSON.parse(jsonMatch[1]));
-                } else {
-                  poblarDesplegableFallback();
-                }
-              } catch (err) {
-                poblarDesplegableFallback();
-              }
-            };
-            reader.readAsText(indexFileObj);
-          } else {
-            poblarDesplegableFallback();
-          }
+          poblarDesplegable(CATALOGO_LOCAL);
         });
-      } else {
-        // ENTORNO SERVIDOR: Lee directamente la variable global inyectada por catalogo.js
-        if (window.CATALOGO_OBRAS && Array.isArray(window.CATALOGO_OBRAS)) {
-          poblarDesplegable(window.CATALOGO_OBRAS);
-        } else {
-          jsonSelect.innerHTML = '<option value="">⚠️ No se pudo obtener el catálogo</option>';
-        }
       }
 
-      function poblarDesplegable(data) {
+      function poblarDesplegable(list) {
         jsonSelect.innerHTML = '';
-        const obrasList = Array.isArray(data) ? data : (data.obras || data.files || data.items);
-
-        if (!Array.isArray(obrasList)) {
-          jsonSelect.innerHTML = '<option value="">⚠️ Formato de catálogo no válido</option>';
-          return;
-        }
-
-        obrasList.forEach(item => {
-          const fileProp = typeof item === 'string' ? item : (item.file || item.archivo || item.filename);
-          const titleProp = typeof item === 'object' ? (item.title || item.titulo || item.nombre) : null;
-          const authorProp = typeof item === 'object' ? (item.author || item.autor) : null;
-
-          if (!fileProp) return;
-
+        list.forEach(item => {
           const opt = document.createElement('option');
-          const baseFileName = fileProp.split(/[/\\]/).pop().trim();
-          
-          opt.value = baseFileName.toLowerCase(); 
-          
-          const displayTitle = titleProp || baseFileName;
-          opt.textContent = authorProp ? `${displayTitle} — ${authorProp}` : displayTitle;
-
-          jsonSelect.appendChild(opt);
-        });
-
-        if (jsonSelect.options.length > 0) {
-          jsonSelect.selectedIndex = 0;
-          cargarArchivoSeleccionado();
-        } else {
-          jsonSelect.innerHTML = '<option value="">⚠️ No se encontraron obras</option>';
-        }
-      }
-
-      function poblarDesplegableFallback() {
-        jsonSelect.innerHTML = '';
-        Object.keys(localFilesByName).forEach(fileName => {
-          const opt = document.createElement('option');
-          opt.value = fileName;
-          opt.textContent = fileName;
+          opt.value = item.file.toLowerCase();
+          opt.textContent = item.author ? `${item.title} — ${item.author}` : item.title;
           jsonSelect.appendChild(opt);
         });
 
@@ -273,9 +213,7 @@
           }
         } else {
           const cleanFileName = selectedKey.replace(/^obras\//i, '');
-          const fileUrl = `./obras/${cleanFileName}?v=${Date.now()}`;
-          
-          fetch(fileUrl, { cache: 'no-store' })
+          fetch(`./obras/${cleanFileName}?v=${Date.now()}`, { cache: 'no-store' })
             .then(res => {
               if (!res.ok) throw new Error(`HTTP ${res.status}`);
               return res.text();
@@ -289,9 +227,13 @@
       }
 
       jsonSelect.addEventListener('change', cargarArchivoSeleccionado);
+
+      // Carga inicial directa
+      poblarDesplegable(CATALOGO_LOCAL);
     });
   </script>
 
+  <!-- Script principal del visor -->
   <script src="./app.js?v=4"></script>
 </body>
 </html>
