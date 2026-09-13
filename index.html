@@ -30,6 +30,47 @@
       font-size: 0.9rem;
     }
     .hidden { display: none !important; }
+
+    /* Estilos del Acordeón */
+    .json-accordion {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .json-accordion-summary {
+      padding: 12px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f9f9f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      list-style: none;
+    }
+    .json-accordion-summary::-webkit-details-marker {
+      display: none;
+    }
+    .json-accordion-summary::after {
+      content: "▼";
+      font-size: 0.8rem;
+      transition: transform 0.2s ease;
+    }
+    .json-accordion[open] .json-accordion-summary::after {
+      transform: rotate(180deg);
+    }
+    .json-accordion-content {
+      padding: 16px;
+      border-top: 1px solid #eee;
+    }
+    .json-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -50,19 +91,29 @@
       </div>
     </section>
 
-    <section class="json-box-container">
-      <div class="json-box-header">
+    <!-- Acordeón Plegable JSON -->
+    <details class="json-accordion">
+      <summary class="json-accordion-summary">
         <span class="json-box-title">📄 Configuración e Importación JSON</span>
-        <div class="json-toolbar">
+      </summary>
+      <div class="json-accordion-content">
+        <div class="json-toolbar" style="margin-bottom: 10px; display: flex; gap: 8px; justify-content: flex-end;">
           <button id="btn-sample-json" class="btn btn-secondary">📋 Cargar Ejemplo</button>
           <button id="btn-clear-json" class="btn btn-danger" title="Limpiar cajetín">🗑️ Limpiar</button>
         </div>
+        
+        <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el código JSON de la edición crítica..."></textarea>
+        
+        <div class="json-actions">
+          <button id="btn-load-json" class="btn btn-primary">🚀 Renderizar texto</button>
+          <button id="btn-open-file" class="btn btn-secondary">📂 Cargar archivo JSON</button>
+          <button id="btn-paste-json" class="btn btn-secondary">📋 Pegar portapapeles</button>
+          
+          <!-- Input oculto para selección de archivo -->
+          <input type="file" id="input-json-upload" accept=".json" class="hidden">
+        </div>
       </div>
-      <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el código JSON de la edición crítica..."></textarea>
-      <div class="json-actions">
-        <button id="btn-load-json" class="btn btn-primary">🚀 Cargar y Renderizar Texto</button>
-      </div>
-    </section>
+    </details>
 
     <section class="top-controls">
       <div class="filter-header">
@@ -142,7 +193,40 @@
       const fileInputGroup = document.getElementById('file-input-group');
       const isLocal = window.location.protocol === 'file:';
 
+      // Botones e Inputs adicionales
+      const btnOpenFile = document.getElementById('btn-open-file');
+      const btnPasteJson = document.getElementById('btn-paste-json');
+      const inputJsonUpload = document.getElementById('input-json-upload');
+
       if (fileInputGroup) fileInputGroup.classList.add('hidden');
+
+      // Funcionalidad: Cargar archivo JSON local desde el nuevo botón
+      if (btnOpenFile && inputJsonUpload) {
+        btnOpenFile.addEventListener('click', () => inputJsonUpload.click());
+        inputJsonUpload.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            jsonTextarea.value = event.target.result;
+            if (btnLoad) btnLoad.click();
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      // Funcionalidad: Pegar del portapapeles
+      if (btnPasteJson) {
+        btnPasteJson.addEventListener('click', async () => {
+          try {
+            const text = await navigator.clipboard.readText();
+            jsonTextarea.value = text;
+            if (btnLoad) btnLoad.click();
+          } catch (err) {
+            alert('No se pudo acceder al portapapeles. Otorga los permisos o pega manualmente.');
+          }
+        });
+      }
 
       let localFilesByName = {};
 
