@@ -174,20 +174,25 @@
         });
       }
 
-      function obtenerCatalogo() {
-        if (isLocal) return;
+      
+  // Si catalogo.js asigna window.CATALOGO_DATA = [...]
+  function cargarScriptCatalogo() {
+    if (window.location.protocol === 'file:') return;
 
-        fetch('./catalogo.json?v=' + Date.now(), { cache: 'no-store' })
-          .then(res => {
-            if (!res.ok) throw new Error('HTTP ' + res.status);
-            return res.json();
-          })
-          .then(data => poblarDesplegable(data))
-          .catch(err => {
-            console.error('Error al cargar catalogo.json:', err);
-            jsonSelect.innerHTML = '<option value="">⚠️ Error cargando catálogo</option>';
-          });
+    const script = document.createElement('script');
+    script.src = './catalogo.js?v=' + Date.now();
+    script.onload = () => {
+      if (window.CATALOGO_DATA) {
+        poblarDesplegable(window.CATALOGO_DATA);
       }
+    };
+    script.onerror = () => {
+      console.error('Error al cargar catalogo.js');
+      jsonSelect.innerHTML = '<option value="">⚠️ Error cargando catálogo</option>';
+    };
+    document.head.appendChild(script);
+  }
+
 
       function poblarDesplegable(list) {
         jsonSelect.innerHTML = '';
