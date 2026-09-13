@@ -1,5 +1,5 @@
 - name: Generar catalogo en archivo JS
-        run: |
+        run: 
           node -e '
             const fs = require("fs");
             const path = require("path");
