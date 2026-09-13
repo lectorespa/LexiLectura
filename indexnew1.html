@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visor de Lectura Interactiva — Ediciones Críticas</title>
+  <link rel="stylesheet" href="./styles.css?v=5">
+  <style>
+    .selector-container {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      padding: 12px 16px;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    .selector-container label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-right: 6px;
+    }
+    .selector-container select, 
+    .selector-container input[type="file"] {
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background: #fff;
+      font-size: 0.9rem;
+    }
+    .hidden { display: none !important; }
+  </style>
+
+  <!-- Carga del catálogo directo como JavaScript JS (inmune a AdBlockers) -->
+  <script src="./catalogo.js?v=5"></script>
+</head>
+<body>
+
+  <main class="main-container">
+    
+    <section class="selector-container">
+      <div id="server-selector-group">
+        <label for="json-select">Seleccionar obra:</label>
+        <select id="json-select">
+          <option value="">Cargando catálogo...</option>
+        </select>
+      </div>
+
+      <div id="file-input-group">
+        <label for="json-file-input">Cargar archivo JSON local:</label>
+        <input type="file" id="json-file-input" accept=".json">
+      </div>
+    </section>
+
+    <section class="json-box-container">
+      <div class="json-box-header">
+        <span class="json-box-title">📄 Configuración e Importación JSON</span>
+        <div class="json-toolbar">
+          <button id="btn-sample-json" class="btn btn-secondary">📋 Cargar Ejemplo</button>
+          <button id="btn-clear-json" class="btn btn-danger" title="Limpiar cajetín">🗑️ Limpiar</button>
+        </div>
+      </div>
+      <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el código JSON de la edición crítica..."></textarea>
+      <div class="json-actions">
+        <button id="btn-load-json" class="btn btn-primary">🚀 Cargar y Renderizar Texto</button>
+      </div>
+    </section>
+
+    <section class="top-controls">
+      <div class="filter-header">
+        <span class="filter-title">Filtro de Categorías de Anotación</span>
+        <div class="filter-actions">
+          <button id="btn-select-all-cats" class="btn btn-secondary">Mostrar todas</button>
+          <button id="btn-deselect-all-cats" class="btn btn-secondary">Ocultar todas</button>
+        </div>
+      </div>
+      <div id="category-filter-bar" class="category-filter-bar"></div>
+    </section>
+
+    <section class="top-controls">
+      <div class="filter-header">
+        <span class="filter-title">Selección de nivel académico de las anotaciones</span>
+        <div class="filter-actions">
+          <div class="annotation-level-selector">
+            <div class="toggle-buttons">
+              <button type="button" class="level-btn active" data-level="short">Básico</button>
+              <button type="button" class="level-btn" data-level="deep">Avanzado</button>
+            </div>
+            
+            <span id="levelIndicatorBadge" class="level-badge short-mode">
+              Modo Lectura Básica
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <header class="doc-header">
+      <h1 id="doc-title">Avanzado</h1>
+      <div class="meta-details">
+        <span id="doc-author" class="meta-item"></span>
+        <span id="doc-period" class="meta-item"></span>
+        <span id="doc-year" class="meta-item"></span>
+      </div>
+    </header>
+
+    <article class="text-card">
+      <div id="text-stanzas" class="stanzas-wrapper">
+        <p class="loading-state">Pega tu código JSON en el cajetín superior o selecciona una obra para comenzar.</p>
+      </div>
+    </article>
+
+  </main>
+
+  <div id="annotation-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <span id="modal-category" class="modal-category-badge">Categoría</span>
+          <h2 id="modal-title" class="modal-title">Anotación</h2>
+        </div>
+        <button id="modal-close-btn" class="modal-close-btn" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="modal-definition" class="modal-definition" style="display: none;"></div>
+        <div id="modal-content" class="modal-content"></div>
+
+        <div id="modal-image-wrapper" class="modal-image-wrapper hidden">
+          <img id="modal-image" src="" alt="">
+          <p id="modal-image-caption" class="modal-image-caption"></p>
+        </div>
+
+        <div id="modal-links" class="modal-links-container hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const jsonSelect = document.getElementById('json-select');
+      const jsonTextarea = document.getElementById('json-input');
+      const btnLoad = document.getElementById('btn-load-json');
+      const fileInputGroup = document.getElementById('file-input-group');
+      const isLocal = window.location.protocol === 'file:';
+
+      if (fileInputGroup) fileInputGroup.classList.add('hidden');
+
+      let localFilesByName = {};
+
+      if (isLocal) {
+        // ENTORNO LOCAL (file://)
+        const selectorContainer = document.querySelector('.selector-container');
+        const folderBtn = document.createElement('input');
+        folderBtn.type = 'file';
+        folderBtn.webkitdirectory = true; 
+        folderBtn.id = 'folder-picker';
+        
+        const label = document.createElement('label');
+        label.innerHTML = ' 📁 <strong>Cargar carpeta local:</strong> ';
+        
+        selectorContainer.appendChild(label);
+        selectorContainer.appendChild(folderBtn);
+
+        folderBtn.addEventListener('change', (e) => {
+          const files = e.target.files;
+          localFilesByName = {};
+          let indexFileObj = null;
+
+          for (let file of files) {
+            const baseName = file.name.split(/[/\\]/).pop().trim();
+            const cleanName = baseName.toLowerCase();
+            
+            if (cleanName.endsWith('.json')) {
+              localFilesByName[cleanName] = file;
+            } else if (cleanName === 'catalogo.js') {
+              indexFileObj = file;
+            }
+          }
+
+          if (indexFileObj) {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+              try {
+                const rawText = evt.target.result;
+                const jsonMatch = rawText.match(/window\.CATALOGO_OBRAS\s*=\s*(\[[\s\S]*?\]);/);
+                if (jsonMatch && jsonMatch[1]) {
+                  const parsedData = JSON.parse(jsonMatch[1]);
+                  poblarDesplegable(parsedData);
+                } else {
+                  poblarDesplegableFallback();
+                }
+              } catch (err) {
+                poblarDesplegableFallback();
+              }
+            };
+            reader.readAsText(indexFileObj);
+          } else {
+            poblarDesplegableFallback();
+          }
+        });
+      } else {
+        // ENTORNO SERVIDOR ONLINE (http:// o https://)
+        if (window.CATALOGO_OBRAS && Array.isArray(window.CATALOGO_OBRAS)) {
+          poblarDesplegable(window.CATALOGO_OBRAS);
+        } else {
+          jsonSelect.innerHTML = '<option value="">⚠️ No se pudo cargar catalogo.js</option>';
+        }
+      }
+
+      function poblarDesplegable(data) {
+        jsonSelect.innerHTML = '';
+        const obrasList = Array.isArray(data) ? data : (data.obras || data.files || data.items);
+
+        if (!Array.isArray(obrasList)) {
+          jsonSelect.innerHTML = '<option value="">⚠️ Formato de catálogo no válido</option>';
+          return;
+        }
+
+        obrasList.forEach(item => {
+          const fileProp = typeof item === 'string' ? item : (item.file || item.archivo || item.filename);
+          const titleProp = typeof item === 'object' ? (item.title || item.titulo || item.nombre) : null;
+          const authorProp = typeof item === 'object' ? (item.author || item.autor) : null;
+
+          if (!fileProp) return;
+
+          const opt = document.createElement('option');
+          const baseFileName = fileProp.split(/[/\\]/).pop().trim();
+          
+          opt.value = baseFileName.toLowerCase(); 
+          
+          const displayTitle = titleProp || baseFileName;
+          opt.textContent = authorProp ? `${displayTitle} — ${authorProp}` : displayTitle;
+
+          jsonSelect.appendChild(opt);
+        });
+
+        if (jsonSelect.options.length > 0) {
+          jsonSelect.selectedIndex = 0;
+          cargarArchivoSeleccionado();
+        } else {
+          jsonSelect.innerHTML = '<option value="">⚠️ No se encontraron obras en el catálogo</option>';
+        }
+      }
+
+      function poblarDesplegableFallback() {
+        jsonSelect.innerHTML = '';
+        Object.keys(localFilesByName).forEach(fileName => {
+          const opt = document.createElement('option');
+          opt.value = fileName;
+          opt.textContent = fileName;
+          jsonSelect.appendChild(opt);
+        });
+
+        if (jsonSelect.options.length > 0) {
+          jsonSelect.selectedIndex = 0;
+          cargarArchivoSeleccionado();
+        }
+      }
+
+      function cargarArchivoSeleccionado() {
+        const selectedKey = jsonSelect.value ? jsonSelect.value.toLowerCase() : '';
+        if (!selectedKey) return;
+
+        if (isLocal) {
+          const file = localFilesByName[selectedKey];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              jsonTextarea.value = e.target.result;
+              if (btnLoad) btnLoad.click();
+            };
+            reader.readAsText(file);
+          }
+        } else {
+          const cleanFileName = selectedKey.replace(/^obras\//i, '');
+          const fileUrl = `./obras/${cleanFileName}?v=${Date.now()}`;
+          
+          fetch(fileUrl, { cache: 'no-store' })
+            .then(res => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+              return res.text();
+            })
+            .then(textData => {
+              jsonTextarea.value = textData;
+              if (btnLoad) btnLoad.click();
+            })
+            .catch(err => console.error(`Error al obtener ./obras/${cleanFileName}:`, err));
+        }
+      }
+
+      jsonSelect.addEventListener('change', cargarArchivoSeleccionado);
+    });
+  </script>
+
+  <script src="./app.js?v=5"></script>
+</body>
+</html>
