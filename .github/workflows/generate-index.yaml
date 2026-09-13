@@ -1,28 +1,4 @@
-name: Generar catalogo automáticamente
-
-on:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - 'textos/*.json'
-      - '.github/workflows/generate-index.yml'
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Descargar código del repositorio
-        uses: actions/checkout@v4
-
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Generar catalogo.json desde la carpeta textos
+- name: Generar catalogo en archivo JS
         run: |
           node -e '
             const fs = require("fs");
@@ -31,7 +7,7 @@ jobs:
             const textosDir = "./textos";
             if (!fs.existsSync(textosDir)) process.exit(0);
 
-            const files = fs.readdirSync(textosDir).filter(f => f.endsWith(".json") && f !== "catalogo.json");
+            const files = fs.readdirSync(textosDir).filter(f => f.endsWith(".json"));
             
             const indexContent = files.map(file => {
               const filePath = path.join(textosDir, file);
@@ -49,13 +25,16 @@ jobs:
               }
             });
 
-            fs.writeFileSync("./catalogo.js", "window.CATALOGO_DATA = " + JSON.stringify(indexContent, null, 2) + ";");
+            // Se guarda como un objeto JS global para evitar bloqueos de fetch/JSON
+            const jsContent = "window.OBRAS_CATALOGO = " + JSON.stringify(indexContent, null, 2) + ";";
+            fs.writeFileSync("./obras-data.js", jsContent);
+            console.log("✅ obras-data.js generado correctamente");
           '
 
       - name: Guardar cambios en el repositorio
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add catalogo.json
-          git commit -m "chore: actualizar catalogo.json [skip ci]" || exit 0
+          git add obras-data.js
+          git commit -m "chore: actualizar obras-data.js [skip ci]" || exit 0
           git push
