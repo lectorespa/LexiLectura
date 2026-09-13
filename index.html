@@ -170,7 +170,7 @@
             
             if (cleanName.endsWith('.json')) {
               localFilesByName[cleanName] = file;
-              if (cleanName === 'index.json') indexFileObj = file;
+              if (cleanName === 'catalogo.json') indexFileObj = file;
             }
           }
 
@@ -193,9 +193,9 @@
       } else {
         const timestamp = Date.now();
         const candidateUrls = [
-          `./index.json?v=${timestamp}`,
-          `/LexiLectura/index.json?v=${timestamp}`,
-          `./obras/index.json?v=${timestamp}`
+          `./catalogo.json?v=${timestamp}`,
+          `/LexiLectura/catalogo.json?v=${timestamp}`,
+          `./obras/catalogo.json?v=${timestamp}`
         ];
 
         function intentarFetch(index) {
@@ -226,7 +226,7 @@
         const obrasList = Array.isArray(data) ? data : (data.obras || data.files || data.items);
 
         if (!Array.isArray(obrasList)) {
-          jsonSelect.innerHTML = '<option value="">⚠️ Formato index.json no válido</option>';
+          jsonSelect.innerHTML = '<option value="">⚠️ Formato catalogo.json no válido</option>';
           return;
         }
 
@@ -252,14 +252,14 @@
           jsonSelect.selectedIndex = 0;
           cargarArchivoSeleccionado();
         } else {
-          jsonSelect.innerHTML = '<option value="">⚠️ No se encontraron obras en index.json</option>';
+          jsonSelect.innerHTML = '<option value="">⚠️ No se encontraron obras en catalogo.json</option>';
         }
       }
 
       function poblarDesplegableFallback() {
         jsonSelect.innerHTML = '';
         Object.keys(localFilesByName).forEach(fileName => {
-          if (fileName !== 'index.json') {
+          if (fileName !== 'catalogo.json') {
             const opt = document.createElement('option');
             opt.value = fileName;
             opt.textContent = fileName;
