@@ -175,17 +175,34 @@
       }
 
       
-  // Si catalogo.js asigna window.CATALOGO_DATA = [...]
-  function cargarScriptCatalogo() {
-    if (window.location.protocol === 'file:') return;
+ function obtenerCatalogo() {
+  if (isLocal) return;
 
-    const script = document.createElement('script');
-    script.src = './catalogo.js?v=' + Date.now();
-    script.onload = () => {
-      if (window.CATALOGO_DATA) {
-        poblarDesplegable(window.CATALOGO_DATA);
-      }
-    };
+  // Si ya existe en memoria, poblar directamente
+  if (window.OBRAS_CATALOGO) {
+    poblarDesplegable(window.OBRAS_CATALOGO);
+    return;
+  }
+
+  // Carga el archivo JS dinámicamente como un script estándar
+  const script = document.createElement('script');
+  script.src = './obras-data.js?v=' + Date.now();
+  
+  script.onload = () => {
+    if (window.OBRAS_CATALOGO) {
+      poblarDesplegable(window.OBRAS_CATALOGO);
+    } else {
+      jsonSelect.innerHTML = '<option value="">⚠️ Error en formato de datos</option>';
+    }
+  };
+
+  script.onerror = () => {
+    console.error('No se pudo cargar obras-data.js');
+    jsonSelect.innerHTML = '<option value="">⚠️ Error cargando obras</option>';
+  };
+
+  document.head.appendChild(script);
+}
     script.onerror = () => {
       console.error('Error al cargar catalogo.js');
       jsonSelect.innerHTML = '<option value="">⚠️ Error cargando catálogo</option>';
