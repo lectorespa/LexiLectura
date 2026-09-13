@@ -10,7 +10,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const jsonFile = urlParams.get('file') || 'default.json'; // valor por defecto
 
 async function inicializarVisor() {
-  const response = await fetch(`./obras/${filename}`);
+  const response = await fetch(`./textos/${filename}`);
   const data = await response.json();
   renderizarVisor(data);
 }
