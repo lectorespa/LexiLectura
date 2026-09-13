@@ -8,5 +8,10 @@ window.OBRAS_CATALOGO = [
     "file": "elrayo.json",
     "title": "El rayo que no cesa",
     "author": "Miguel Hernández"
+  },
+  {
+    "file": "orillasdelduero.json",
+    "title": "Las encinas / Campos de Castilla (Poema VI)",
+    "author": "Antonio Machado"
   }
 ];
