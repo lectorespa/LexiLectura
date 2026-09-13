@@ -4,24 +4,38 @@ on:
   push:
     paths:
       - 'textos/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout del repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configurar Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Generar obras-data.js
         run: node generate-index.js
 
-      - name: Guardar cambios
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "auto: actualizar catálogo obras-data.js"
-          file_pattern: "obras-data.js"
+      - name: Hacer commit y push del catalogo
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add obras-data.js
+          
+          # Solo hace commit si hay cambios reales en obras-data.js
+          if git diff --staged --quiet; then
+            echo "No hay cambios en el catálogo."
+          else
+            git commit -m "auto: actualizar catálogo obras-data.js"
+            git push origin ${{ github.ref_name }}
+          fi
