@@ -1,0 +1,27 @@
+name: Actualizar Catálogo de Obras
+
+on:
+  push:
+    paths:
+      - 'textos/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Generar obras-data.js
+        run: node generate-index.js
+
+      - name: Guardar cambios
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "auto: actualizar catálogo obras-data.js"
+          file_pattern: "obras-data.js"
