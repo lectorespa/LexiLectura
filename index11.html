@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LexiLectura - Lector Interactivo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <h1>LexiLectura</h1>
+    <div class="controls-container">
+      <label for="jsonSelect">Catálogo de obras:</label>
+      <select id="jsonSelect" onchange="cargarArchivoSeleccionado()">
+        <option value="">Cargando catálogo...</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <textarea id="jsonTextarea" style="display:none;"></textarea>
+    <button id="btnLoad" style="display:none;"></button>
+    <div id="reader-container"></div>
+  </main>
+
+  <script src="visor.js"></script>
+
+  <script>
+    const isLocal = window.location.protocol === 'file:';
+    const jsonSelect = document.getElementById('jsonSelect');
+    const jsonTextarea = document.getElementById('jsonTextarea');
+    const btnLoad = document.getElementById('btnLoad');
+    const localFilesByName = {};
+
+    function obtenerCatalogo() {
+      if (isLocal) return;
+
+      if (window.OBRAS_CATALOGO && window.OBRAS_CATALOGO.length > 0) {
+        poblarDesplegable(window.OBRAS_CATALOGO);
+        return;
+      }
+
+      // Evita caché del navegador
+      const script = document.createElement('script');
+      script.src = './obras-data.js?v=' + Date.now();
+      
+      script.onload = () => {
+        if (Array.isArray(window.OBRAS_CATALOGO)) {
+          poblarDesplegable(window.OBRAS_CATALOGO);
+        } else {
+          jsonSelect.innerHTML = '<option value="">⚠️ Error en formato de datos</option>';
+        }
+      };
+
+      script.onerror = () => {
+        console.error('No se pudo cargar obras-data.js');
+        jsonSelect.innerHTML = '<option value="">⚠️ Error cargando catálogo</option>';
+      };
+
+      document.head.appendChild(script);
+    }
+
+    function poblarDesplegable(list) {
+      jsonSelect.innerHTML = '';
+      if (!Array.isArray(list) || list.length === 0) {
+        jsonSelect.innerHTML = '<option value="">⚠️ Catálogo vacío</option>';
+        return;
+      }
+
+      list.forEach(item => {
+        const opt = document.createElement('option');
+        const cleanFileName = item.file.replace(/^textos\//i, '').toLowerCase();
+        opt.value = cleanFileName;
+        opt.textContent = item.author ? `${item.title} — ${item.author}` : item.title;
+        jsonSelect.appendChild(opt);
+      });
+
+      if (jsonSelect.options.length > 0) {
+        jsonSelect.selectedIndex = 0;
+        cargarArchivoSeleccionado();
+      }
+    }
+
+    function cargarArchivoSeleccionado() {
+      const selectedKey = jsonSelect.value ? jsonSelect.value.toLowerCase().replace(/^textos\//i, '') : '';
+      if (!selectedKey) return;
+
+      if (isLocal) {
+        const file = localFilesByName[selectedKey];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            jsonTextarea.value = e.target.result;
+            if (btnLoad) btnLoad.click();
+          };
+          reader.readAsText(file);
+        }
+      } else {
+        fetch('./textos/' + selectedKey + '?v=' + Date.now(), { cache: 'no-store' })
+          .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
+          })
+          .then(textData => {
+            jsonTextarea.value = textData;
+            if (btnLoad) btnLoad.click();
+          })
+          .catch(err => console.error('Error al obtener ./textos/' + selectedKey + ':', err));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', obtenerCatalogo);
+  </script>
+</body>
+</html>
