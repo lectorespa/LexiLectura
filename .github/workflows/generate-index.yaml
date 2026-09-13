@@ -45,13 +45,11 @@ jobs:
 
                 return { file: file, title: title, author: author };
               } catch (e) {
-                console.error(`Error parseando ${file}:`, e.message);
                 return { file: file, title: file, author: "" };
               }
             });
 
             fs.writeFileSync("./catalogo.json", JSON.stringify(indexContent, null, 2));
-            console.log("✅ catalogo generado con títulos y autores:", indexContent);
           '
 
       - name: Guardar cambios en el repositorio
@@ -59,5 +57,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add catalogo.json
-          git commit -m "chore: actualizar catalogo.json con autor y título [skip ci]" || exit 0
+          git commit -m "chore: actualizar catalogo.json [skip ci]" || exit 0
           git push
