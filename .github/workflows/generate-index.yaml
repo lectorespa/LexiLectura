@@ -49,7 +49,7 @@ jobs:
               }
             });
 
-            fs.writeFileSync("./catalogo.json", JSON.stringify(indexContent, null, 2));
+            fs.writeFileSync("./catalogo.js", "window.CATALOGO_DATA = " + JSON.stringify(indexContent, null, 2) + ";");
           '
 
       - name: Guardar cambios en el repositorio
