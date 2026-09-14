@@ -4,19 +4,6 @@
  * selector de niveles duales (short/deep), accesibilidad ARIA y filtrado de medios.
  */
 
-// Leer la URL (ej: visor.html?file=egloga_1.json)
-
-const urlParams = new URLSearchParams(window.location.search);
-const jsonFile = urlParams.get('file') || 'default.json'; // valor por defecto
-
-async function inicializarVisor() {
-  const response = await fetch(`./textos/${filename}`);
-  const data = await response.json();
-  renderizarVisor(data);
-}
-
-inicializarVisor();
-
 const LEVEL_CONFIG = {
   short: {
     label: "Modo Lectura Rápida",
@@ -169,6 +156,7 @@ class InteractiveReaderApp {
 
     this.initElements();
     this.bindEvents();
+    this.checkUrlParams();
   }
 
   initElements() {
@@ -286,6 +274,27 @@ class InteractiveReaderApp {
         }
       }
     });
+  }
+
+  checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fileParam = urlParams.get('file');
+    if (fileParam) {
+      this.fetchAndRenderFile(fileParam);
+    }
+  }
+
+  async fetchAndRenderFile(filename) {
+    try {
+      const response = await fetch(`./textos/${filename}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      if (this.jsonInput) this.jsonInput.value = JSON.stringify(data, null, 2);
+      this.data = data;
+      this.render();
+    } catch (err) {
+      console.error(`Error al cargar el archivo especificado por URL (${filename}):`, err);
+    }
   }
 
   setAnnotationLevel(level) {
@@ -578,7 +587,6 @@ class InteractiveReaderApp {
       this.modalContent.innerHTML = contentText || '';
     }
 
-    // Muestra el Skeleton / Placeholder inmediatamente al abrir el modal
     this.showImagePlaceholder("Buscando y cargando imagen representativa...");
     this.renderExternalLinks(nodeData);
 
@@ -623,10 +631,6 @@ class InteractiveReaderApp {
     this.modalLinksContainer.innerHTML = html;
     this.modalLinksContainer.classList.toggle('hidden', !html);
   }
-
-  // =========================================================================
-  //  SKELETON, PRECARGA Y GESTIÓN DE PLACEHOLDERS
-  // =========================================================================
 
   showImagePlaceholder(message = "Cargando imagen...") {
     if (!this.modalImgWrapper) return;
@@ -710,10 +714,6 @@ class InteractiveReaderApp {
     }
     if (this.modalCaption) this.modalCaption.textContent = '';
   }
-
-  // =========================================================================
-  //  MOTOR DE BÚSQUEDA Y FILTRADO AVANZADO DE IMÁGENES
-  // =========================================================================
 
   extractKeywords(query, maxN = 3) {
     if (!query) return [];
