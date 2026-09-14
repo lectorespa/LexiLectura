@@ -1,4 +1,4 @@
-:root {
+[cite: 1]:root {
   --primary-color: #2563eb;
   --primary-hover: #1d4ed8;
   --bg-color: #f8fafc;
@@ -351,12 +351,13 @@ header.doc-header h1 {
   display: inline;
 }
 
-[data-category="author"] { background: var(--cat-author); color: var(--cat-author-text); border-color: #3b82f6; }
-[data-category="period"] { background: var(--cat-period); color: var(--cat-period-text); border-color: #22c55e; }
-[data-category="vocabulary"] { background: var(--cat-vocabulary); color: var(--cat-vocabulary-text); border-color: #eab308; }
-[data-category="culture"] { background: var(--cat-culture); color: var(--cat-culture-text); border-color: #a855f7; }
-[data-category="syntax"] { background: var(--cat-syntax); color: var(--cat-syntax-text); border-color: #ec4899; }
-[data-category="analysis"] { background: var(--cat-analysis); color: var(--cat-analysis-text); border-color: #0284c7; }
+/* Selectores actualizados con coincidencia parcial (*=) para soportar capas compuestas */
+[data-category*="author"] { background: var(--cat-author); color: var(--cat-author-text); border-color: #3b82f6; }
+[data-category*="period"] { background: var(--cat-period); color: var(--cat-period-text); border-color: #22c55e; }
+[data-category*="vocabulary"], [data-category*="lexico"] { background: var(--cat-vocabulary); color: var(--cat-vocabulary-text); border-color: #eab308; }
+[data-category*="culture"] { background: var(--cat-culture); color: var(--cat-culture-text); border-color: #a855f7; }
+[data-category*="syntax"], [data-category*="metrica"] { background: var(--cat-syntax); color: var(--cat-syntax-text); border-color: #ec4899; }
+[data-category*="analysis"] { background: var(--cat-analysis); color: var(--cat-analysis-text); border-color: #0284c7; }
 
 [data-node]:hover, .interactive-word:hover {
   filter: brightness(0.92);
