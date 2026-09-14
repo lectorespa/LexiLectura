@@ -5,78 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visor de Lectura Interactiva — Ediciones Críticas</title>
   <link rel="stylesheet" href="./styles.css?v=4">
-  <style>
-    .selector-container {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      padding: 12px 16px;
-      background: #f5f5f5;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    .selector-container label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-right: 6px;
-    }
-    .selector-container select, 
-    .selector-container input[type="file"] {
-      padding: 6px 10px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      background: #fff;
-      font-size: 0.9rem;
-    }
-    .hidden { display: none !important; }
-
-    /* Estilos del Acordeón */
-    .json-accordion {
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      overflow: hidden;
-    }
-    .json-accordion-summary {
-      padding: 12px 16px;
-      font-weight: 600;
-      cursor: pointer;
-      background: #f9f9f9;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      user-select: none;
-      list-style: none;
-    }
-    .json-accordion-summary::-webkit-details-marker {
-      display: none;
-    }
-    .json-accordion-summary::after {
-      content: "▼";
-      font-size: 0.8rem;
-      transition: transform 0.2s ease;
-    }
-    .json-accordion[open] .json-accordion-summary::after {
-      transform: rotate(180deg);
-    }
-    .json-accordion-content {
-      padding: 16px;
-      border-top: 1px solid #eee;
-    }
-    .json-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-  </style>
 </head>
 <body>
 
   <main class="main-container">
     
+    <!-- Selector de Obras / Ficheros -->
     <section class="selector-container">
       <div id="server-selector-group">
         <label for="json-select">Seleccionar obra:</label>
@@ -85,7 +19,7 @@
         </select>
       </div>
 
-      <div id="file-input-group">
+      <div id="file-input-group" class="hidden">
         <label for="json-file-input">Cargar archivo JSON local:</label>
         <input type="file" id="json-file-input" accept=".json">
       </div>
@@ -97,7 +31,7 @@
         <span class="json-box-title">📄 Configuración e Importación JSON</span>
       </summary>
       <div class="json-accordion-content">
-        <div class="json-toolbar" style="margin-bottom: 10px; display: flex; gap: 8px; justify-content: flex-end;">
+        <div class="json-toolbar">
           <button id="btn-sample-json" class="btn btn-secondary">📋 Cargar Ejemplo</button>
           <button id="btn-clear-json" class="btn btn-danger" title="Limpiar cajetín">🗑️ Limpiar</button>
         </div>
@@ -109,12 +43,12 @@
           <button id="btn-open-file" class="btn btn-secondary">📂 Cargar archivo JSON</button>
           <button id="btn-paste-json" class="btn btn-secondary">📋 Pegar portapapeles</button>
           
-          <!-- Input oculto para selección de archivo -->
           <input type="file" id="input-json-upload" accept=".json" class="hidden">
         </div>
       </div>
     </details>
 
+    <!-- Control de Filtros por Categoría -->
     <section class="top-controls">
       <div class="filter-header">
         <span class="filter-title">Filtro de Categorías de Anotación</span>
@@ -126,6 +60,7 @@
       <div id="category-filter-bar" class="category-filter-bar"></div>
     </section>
 
+    <!-- Control de Nivel de Anotación -->
     <section class="top-controls">
       <div class="filter-header">
         <span class="filter-title">Selección de nivel académico de las anotaciones</span>
@@ -137,15 +72,16 @@
             </div>
             
             <span id="levelIndicatorBadge" class="level-badge short-mode">
-              Modo Lectura Básica
+              Modo Lectura Rápida
             </span>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Cabecera del Documento -->
     <header class="doc-header">
-      <h1 id="doc-title">Avanzado</h1>
+      <h1 id="doc-title">Edición Crítica</h1>
       <div class="meta-details">
         <span id="doc-author" class="meta-item"></span>
         <span id="doc-period" class="meta-item"></span>
@@ -153,6 +89,7 @@
       </div>
     </header>
 
+    <!-- Texto de las Estrofas -->
     <article class="text-card">
       <div id="text-stanzas" class="stanzas-wrapper">
         <p class="loading-state">Pega tu código JSON en el cajetín superior o selecciona una obra para comenzar.</p>
@@ -161,6 +98,7 @@
 
   </main>
 
+  <!-- Modal Flotante de Anotación -->
   <div id="annotation-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog">
     <div class="modal-card">
       <div class="modal-header">
@@ -185,6 +123,7 @@
     </div>
   </div>
 
+  <!-- Lógica de Catálogo y Carga Local -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const jsonSelect = document.getElementById('json-select');
@@ -193,14 +132,10 @@
       const fileInputGroup = document.getElementById('file-input-group');
       const isLocal = window.location.protocol === 'file:';
 
-      // Botones e Inputs adicionales
       const btnOpenFile = document.getElementById('btn-open-file');
       const btnPasteJson = document.getElementById('btn-paste-json');
       const inputJsonUpload = document.getElementById('input-json-upload');
 
-      if (fileInputGroup) fileInputGroup.classList.add('hidden');
-
-      // Funcionalidad: Cargar archivo JSON local desde el nuevo botón
       if (btnOpenFile && inputJsonUpload) {
         btnOpenFile.addEventListener('click', () => inputJsonUpload.click());
         inputJsonUpload.addEventListener('change', (e) => {
@@ -215,7 +150,6 @@
         });
       }
 
-      // Funcionalidad: Pegar del portapapeles
       if (btnPasteJson) {
         btnPasteJson.addEventListener('click', async () => {
           try {
