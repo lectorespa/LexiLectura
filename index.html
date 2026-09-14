@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visor de Lectura Interactiva — Ediciones Críticas</title>
-  <link rel="stylesheet" href="./styles.css?v=4">
+  <link rel="stylesheet" href="./styles.css?v=5">
 </head>
 <body>
 
@@ -66,9 +66,9 @@
         <span class="filter-title">Selección de nivel académico de las anotaciones</span>
         <div class="filter-actions">
           <div class="annotation-level-selector">
-            <div class="toggle-buttons">
-              <button type="button" class="level-btn active" data-level="short">Básico</button>
-              <button type="button" class="level-btn" data-level="deep">Avanzado</button>
+            <div class="toggle-buttons" role="group" aria-label="Nivel de anotación">
+              <button type="button" class="level-btn active" data-level="short" aria-pressed="true">Básico</button>
+              <button type="button" class="level-btn" data-level="deep" aria-pressed="false">Avanzado</button>
             </div>
             
             <span id="levelIndicatorBadge" class="level-badge short-mode">
@@ -99,7 +99,7 @@
   </main>
 
   <!-- Modal Flotante de Anotación -->
-  <div id="annotation-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog">
+  <div id="annotation-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
     <div class="modal-card">
       <div class="modal-header">
         <div>
@@ -129,7 +129,6 @@
       const jsonSelect = document.getElementById('json-select');
       const jsonTextarea = document.getElementById('json-input');
       const btnLoad = document.getElementById('btn-load-json');
-      const fileInputGroup = document.getElementById('file-input-group');
       const isLocal = window.location.protocol === 'file:';
 
       const btnOpenFile = document.getElementById('btn-open-file');
@@ -326,6 +325,6 @@
     });
   </script>
 
-  <script src="./app.js?v=4"></script>
+  <script src="./app.js?v=5"></script>
 </body>
 </html>
