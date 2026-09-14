@@ -165,6 +165,7 @@ class InteractiveReaderApp {
     this.btnSampleJson = document.getElementById('btn-sample-json');
     this.btnClearJson = document.getElementById('btn-clear-json');
 
+    this.annotationLevelSelect = document.getElementById('annotation-level-select');
     this.levelIndicatorBadge = document.getElementById('levelIndicatorBadge');
 
     this.docTitle = document.getElementById('doc-title');
@@ -211,6 +212,12 @@ class InteractiveReaderApp {
         if (this.docAuthor) this.docAuthor.innerHTML = '';
         if (this.docPeriod) this.docPeriod.innerHTML = '';
         if (this.docYear) this.docYear.textContent = '';
+      });
+    }
+
+    if (this.annotationLevelSelect) {
+      this.annotationLevelSelect.addEventListener('change', (e) => {
+        this.setAnnotationLevel(e.target.value);
       });
     }
 
