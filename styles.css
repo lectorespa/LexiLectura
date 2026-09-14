@@ -41,23 +41,77 @@ body {
   margin: 0 auto;
 }
 
-/* Panel JSON */
-.json-box-container {
+/* Selector de Archivo / Carpeta */
+.selector-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.selector-container label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-right: 6px;
+  color: var(--text-main);
+}
+
+.selector-container select, 
+.selector-container input[type="file"] {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: #fff;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+/* Acordeón Plegable JSON */
+.json-accordion {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 12px;
-  padding: 18px 20px;
   margin-bottom: 24px;
+  overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
-.json-box-header {
+.json-accordion-summary {
+  padding: 14px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #ffffff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
-  gap: 10px;
+  user-select: none;
+  list-style: none;
+}
+
+.json-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.json-accordion-summary::after {
+  content: "▼";
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+
+.json-accordion[open] .json-accordion-summary::after {
+  transform: rotate(180deg);
+}
+
+.json-accordion-content {
+  padding: 18px 20px;
+  border-top: 1px solid var(--border-color);
+  background: #ffffff;
 }
 
 .json-box-title {
@@ -69,6 +123,8 @@ body {
 .json-toolbar {
   display: flex;
   gap: 8px;
+  margin-bottom: 10px;
+  justify-content: flex-end;
 }
 
 .json-textarea {
@@ -93,8 +149,10 @@ body {
 
 .json-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 /* Botones */
@@ -120,7 +178,7 @@ body {
 .btn-danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 .btn-danger:hover { background: #fee2e2; }
 
-/* Filtros de Categorías */
+/* Controles de Filtros y Nivel */
 .top-controls {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
@@ -147,7 +205,7 @@ body {
   color: var(--text-muted);
 }
 
-.filter-actions { display: flex; gap: 8px; }
+.filter-actions { display: flex; gap: 8px; align-items: center; }
 .category-filter-bar { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .filter-chip {
@@ -186,6 +244,62 @@ body {
   opacity: 0.7;
 }
 
+/* Selector de nivel de anotación */
+.annotation-level-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toggle-buttons {
+  display: flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.level-btn {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.level-btn.active {
+  background: #ffffff;
+  color: var(--primary-color);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.level-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.level-badge.short-mode {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+}
+
+.level-badge.deep-mode {
+  background-color: #f3e5f5;
+  color: #6a1b9a;
+  border: 1px solid #e1bee7;
+}
+
 /* Cabecera del Documento */
 header.doc-header {
   background: var(--card-bg);
@@ -212,39 +326,6 @@ header.doc-header h1 {
   font-size: 0.95rem;
   color: var(--text-muted);
   flex-wrap: wrap;
-}
-
-/* Selector de nivel */
-.annotation-level-selector {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.level-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  border-radius: 12px;
-  transition: all 0.25s ease;
-}
-
-.level-badge.short-mode {
-  background-color: #e3f2fd;
-  color: #1565c0;
-  border: 1px solid #bbdefb;
-}
-
-.level-badge.deep-mode {
-  background-color: #f3e5f5;
-  color: #6a1b9a;
-  border: 1px solid #e1bee7;
 }
 
 /* Cuerpo del Texto */
