@@ -1,4 +1,4 @@
-/**
+[cite: 2]/**
  * Visor de Lectura Intermitente e Interactiva para Ediciones Críticas
  * Incluye: precarga de imágenes, estado de carga (skeleton/placeholder),
  * selector de niveles duales (short/deep), accesibilidad ARIA y filtrado de medios.
