@@ -1,9 +1,9 @@
 {
   "meta": {
-    "title": "El rayo que no cesa",
+    "title": "«¿No cesará este rayo que me habita...» / El rayo que no cesa",
     "author": "Miguel Hernández",
     "authorNodeId": "node_author",
-    "period": "Generación del 36",
+    "period": "Generación del 36 / Vanguardismo y Neopopularismo",
     "periodNodeId": "node_period",
     "year": "1936",
     "lang": "es",
@@ -22,19 +22,442 @@
       "type": "author",
       "category": "author",
       "label": "Miguel Hernández",
-      "title": "Perfil biográfico y literario de Miguel Hernández",
+      "title": "Perfil biográfico y literario",
       "annotations": {
         "short": {
-          "definition": "Poeta español de la Generación del 36, clave en la transición del neogongorismo a la poesía social.",
-          "content": "<p>Nacido en Orihuela, su formación autodidacta y su origen humilde marcaron una obra caracterizada por el apasionamiento trágico, la fuerza del lenguaje telúrico y un profundo compromiso político durante la Guerra Civil española.</p>"
+          "definition": "Miguel Hernández (1910-1942) fue uno de los poetas más relevantes de la lírica española del siglo XX.",
+          "content": "Pasó de una formación autodidacta en Orihuela a integrarse en los círculos literarios madrileños. Su poesía evoluciona desde el barroquismo y la vanguardia hacia la tragedia pasional, el compromiso político en la Guerra Civil y la introspección trágica desde la cárcel."
         },
         "deep": {
-          "definition": "Poeta y dramaturgo de la Generación del 36 y del Neopopularismo, cuya trayectoria trasciende desde el rigor clasicista e imágenes neobarrocas hacia una lírica humanizada, comprometida y trágica.",
-          "content": "<p>Miguel Hernández Gilabert (1910-1942) representa una de las voces más singulares y desgarradoras de la lírica hispánica del siglo XX. Su asimilación temprana de los clásicos del Siglo de Oro (Garcilaso, Góngora, Quevedo) se funde con una sensibilidad telúrica vinculada a su infancia campesina en Orihuela y la influencia posterior del surrealismo de la Generación del 27.</p><p>Su poemario <em>El rayo que no cesa</em> (1936) constituye el cenit de su poesía amorosa y pasional, articulada mayoritariamente a través del soneto clásico. Durante la Guerra Civil, su poesía se transformó en un instrumento de lucha y testimonio social (<em>Viento del pueblo</em>). Tras la contienda, encarcelado por el régimen franquista, redactó sus emotivas <em>Cancionero y romancero de ausencias</em> antes de morir tuberculosis en presidio a los 31 años.</p>"
+          "definition": "Figura clave del tránsito entre la Generación del 27 y la promoción de 1936, caracterizado por una voz pasional, panteísta y trágica.",
+          "content": "Nacido en Orihuela en el seno de una familia humilde, Miguel Hernández desarrolló una formación poética autodidacta impregnada de las lecturas de los Clásicos del Siglo de Oro (Góngora, Garcilaso, Quevedo). Tras su traslado a Madrid, su relación con autores como Vicente Aleixandre y Pablo Neruda orientó su poética hacia un neorromanticismo surrealista de gran impacto vivencial y emotivo.<br><br>Su trayectoria queda trágicamente truncada por la Guerra Civil Española y su posterior encarcelamiento bajo el régimen franquista, donde falleció consumido por la tuberculosis. Su obra representa una de las cumbres de la poesía amorosa, social y elegíaca de la literatura hispánica, caracterizada por la fusión entre la naturaleza física y la desgarradura existencial."
         }
       },
       "wikipediaArticle": "Miguel_Hernández",
       "wikiLang": "es",
+      "visualConceptType": "portrait",
+      "locationAnchor": "Orihuela",
+      "imageSearchQuery": "Retrato fotográfico de Miguel Hernández poeta",
+      "imageVisualKeywords": [
+        "retrato autor",
+        "fotografia historica"
+      ],
+      "imageDescription": "Retrato fotográfico en blanco y negro del poeta español Miguel Hernández",
+      "youtubeSearchQuery": "Miguel Hernández biografia y poesia"
+    },
+    "node_period": {
+      "type": "period",
+      "category": "period",
+      "label": "Generación del 36 / Vanguardismo y Neopopularismo",
+      "title": "Contexto histórico y estético",
+      "annotations": {
+        "short": {
+          "definition": "Movimiento literario desarrollado en la década de 1930 marcada por la polarización política y el rearme emocional.",
+          "content": "La lírica de este periodo combina el rigor métrico neoclásico y clasicista con la influencia de las vanguardias surrealistas, rehumanizando la poesía e impregnándola de urgencia existencial y conflicto político previo a la Guerra Civil Española."
+        },
+        "deep": {
+          "definition": "Periodo de rehumanización poética y tensión ideológica en la literatura española anterior y coetánea a la Guerra Civil.",
+          "content": "Durante los años treinta, la poesía española experimentó un alejamiento del 'arte puro' deshumanizado para abrazar una lírica comprometida con el hombre, la pasión y las tensiones sociales. La influencia del surrealismo sirvió para encauzar fuerzas emocionales oscuras, pulsiones eróticas y conflictos de identidad que desbordaban las formas métricas tradicionales.<br><br>En este contexto, la recuperación del soneto clásico por parte de poetas como Hernández constituyó una vía para disciplinar y canalizar una desbordante erupción afectiva. El rigor formal del endecasílabo actúa como un recipiente rígido ante el vendaval vital y doloroso del sujeto poético."
+        }
+      },
+      "wikipediaArticle": "Generación_del_36",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": "Madrid",
+      "imageSearchQuery": "Manuscrito o portada libro El rayo que no cesa 1936",
+      "imageVisualKeywords": [
+        "arte epoca",
+        "literatura hispanica"
+      ],
+      "imageDescription": "Primera edición o manuscrito representativo de la poética española de los años treinta",
+      "youtubeSearchQuery": "Generación del 36 contexto historico literario"
+    },
+    "node_1": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "este rayo que me habita",
+      "title": "El rayo como metáfora de la pasión destructiva",
+      "annotations": {
+        "short": {
+          "definition": "Símbolo central de la pasión amorosa vivida como una fuerza fulminante, dolorosa e incontrolable.",
+          "content": "Abre el poema presentando el amor no como un sentimiento apacible, sino como una energía violenta que reside dentro del propio cuerpo y consume al poeta de forma incesante."
+        },
+        "deep": {
+          "definition": "Símbolo dinámico del amor fatal y doloroso que abrasa internamente al sujeto poético desde su propia interioridad.",
+          "content": "El 'rayo' constituye la metáfora estructurante de todo el muestrario pasional del poemario. A diferencia de la luz benéfica, el rayo representa una fulguración trágica, una herida cósmica que no procede del exterior, sino que ha quedado alojada de forma permanente dentro del ser ('me habita').<br><br>Esta vivencia del amor desgarrador vincula la poética hernandiana con la tradición del amor cortés y el petrarquismo trágico, donde la pasión es concebida como un veneno o una llama interior irresoluble, matizada aquí por el vitalismo telúrico propio del autor."
+        }
+      },
+      "wikipediaArticle": "El_rayo_que_no_cesa",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Rayo tormenta nocturna cielo oscuro",
+      "imageVisualKeywords": [
+        "rayo",
+        "tormenta"
+      ],
+      "imageDescription": "Descarga eléctrica de un rayo hendiendo la oscuridad de un cielo de tormenta",
+      "youtubeSearchQuery": "El rayo que no cesa Miguel Hernandez analisis"
+    },
+    "node_2": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "exasperadas fieras",
+      "title": "Animalización e instinto en el conflicto interior",
+      "annotations": {
+        "short": {
+          "definition": "Imagen de animales enfurecidos que representan las pulsiones internas descontroladas e irritadas por el sufrimiento.",
+          "content": "Sustantiva el fuero interno del corazón como un espacio salvaje donde las emociones luchan violentamente entre sí de manera incesante."
+        },
+        "deep": {
+          "definition": "Recurso de animalización que proyecta la agitación pulsional y la rabia del sufrimiento amoroso sobre el corazón.",
+          "content": "La caracterización del corazón como un receptáculo de 'exasperadas fieras' traslada el conflicto pasional al plano de la naturaleza desatada e irracional. El adjetivo 'exasperadas' enfatiza el grado de irritación y desesperación en el que se encuentran las fuerzas vitales del poeta.<br><br>Existe una clara filiación surrealista y neopopular en esta atribución de salvajismo a la intimidad emocional. El corazón deja de ser la sede del afecto lírico suave para convertirse en una jaula de pasiones desbocadas."
+        }
+      },
+      "wikipediaArticle": "Metáfora",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Fiera salvaje sombra oscuridad",
+      "imageVisualKeywords": [
+        "fiera",
+        "animal salvaje"
+      ],
+      "imageDescription": "Representación simbólica del perfil de una fiera salvaje en actitud tensa",
+      "youtubeSearchQuery": "Simbolismo animal en la poesia de Miguel Hernandez"
+    },
+    "node_3": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "fraguas estériles y mansas",
+      "title": "Oxímoron y polaridad del fuego creativo y destructivo",
+      "annotations": {
+        "short": {
+          "definition": "Asociación contradictoria de un taller donde se forja el hierro con la esterilidad y la mansedumbre.",
+          "content": "Expresa la paradoja del sufrimiento amoroso, que genera un intenso fuego interno que no produce fruto alguno, consumiendo inútilmente al sujeto."
+        },
+        "deep": {
+          "definition": "Construcción oximorónica que contrapone la potencia transformadora de la fragua con adjetivos de impotencia y pasividad.",
+          "content": "La fragua es tradicionalmente el lugar del trabajo ígneo, del calor transformador y la creación de formas. Sin embargo, al calificarla de 'estériles y mansas', el poeta subvierte el símbolo: el fuego interior arde, pero no logra forjar nada perdurable ni liberar la tensión, resultando en un esfuerzo estéril.<br><br>Esta imagen conecta con la estética de la materia inerte y la frustración vital que recorre la poética hernandiana, combinando el vocabulario del trabajo manual con el dolor existencial de la juventud baldía."
+        }
+      },
+      "wikipediaArticle": "Oxímoron",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Fragua antigua carbon y fuego apaga",
+      "imageVisualKeywords": [
+        "fragua",
+        "fuego herrero"
+      ],
+      "imageDescription": "Yunque y fuego de una fragua tradicional en penumbra",
+      "youtubeSearchQuery": "Oximoron y figuras de contraste en literatura"
+    },
+    "node_4": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "donde mi juventud se desmorona",
+      "title": "La ruina y erosión del tiempo vital",
+      "annotations": {
+        "short": {
+          "definition": "Proceso de destrucción paulatina y colapso de los años de plenitud de la vida.",
+          "content": "Muestra el efecto devastador del sufrimiento sentimental, que destruye la fuerza y vitalidad de los años mozos antes de tiempo."
+        },
+        "deep": {
+          "definition": "Visualización arquitectónica y geológica del desgaste existencial provocado por el dolor amoroso incesante.",
+          "content": "El verbo 'desmoronarse' traslada el concepto abstracto de la 'juventud' a la materia física de un edificio o montaña que se desmorona en ruinas. Esta erosión progresiva es consecuencia directa del fuego inútil y el rayo que azotan su interior.<br><br>El tema de la juventud malograda o devorada por la tragedia es constante en la vida y obra de Hernández, cobrando una resonancia casi profética respecto al destino trágico que truncaría su vida a una edad temprana."
+        }
+      },
+      "wikipediaArticle": "Tempus_fugit",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Ruinas de piedra colapso antiguo",
+      "imageVisualKeywords": [
+        "ruinas",
+        "desmoronamiento"
+      ],
+      "imageDescription": "Estructura de piedra antigua desmoronada por el paso del tiempo",
+      "youtubeSearchQuery": "El tema del tiempo y la ruina en la poesia"
+    },
+    "node_5": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "terca estalactita",
+      "title": "Metáfora geológica de la fijación obsesiva",
+      "annotations": {
+        "short": {
+          "definition": "Formación de piedra calcárea que gota a gota se petrifica y crece obstinadamente hacia abajo.",
+          "content": "Representa cómo la pena y la obsesión se van acumulando y endureciendo lentamente dentro del alma del poeta, volviéndose inamovibles."
+        },
+        "deep": {
+          "definition": "Imagen geológica que traslada la paciencia mineral y la rigidez de la materia a la constancia de la pena.",
+          "content": "La estalactita se forma por la acumulación incesante y lenta de gotas mineralizadas en las cúpulas de las cuevas. La adjetivación de 'terca' le otorga una voluntad obstinada: el sufrimiento no es un hecho repentino, sino una filtración constante que se petrifica y punza en el interior del poeta.<br><br>Esta imaginería mineral y subterránea es característica del universo expresivo hernandiano, donde los elementos del paisaje telúrico (piedras, minerales, tierra) encarnan los estados anímicos más puros y dolorosos."
+        }
+      },
+      "wikipediaArticle": "Estalactita",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Estalactitas en cueva cueva de piedra",
+      "imageVisualKeywords": [
+        "estalactita",
+        "cueva"
+      ],
+      "imageDescription": "Formaciones minerales de estalactitas colgando del techo de una cueva subterránea",
+      "youtubeSearchQuery": "Metagora de la estalactita poesia espanola"
+    },
+    "node_6": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "cultivar sus duras cabelleras",
+      "title": "Prosopopeya del crecimiento doloroso de las espinas minerales",
+      "annotations": {
+        "short": {
+          "definition": "Acción metafórica de hacer crecer prolongaciones punzantes y rígidas como si fueran mechones de pelo.",
+          "content": "Simbólicamente alude al desarrollo ininterrumpido de las puntas afiladas de la pena que se multiplican amenazando al corazón."
+        },
+        "deep": {
+          "definition": "Personificación que fusiona el reino vegetal-agrícola ('cultivar') con lo mineral y lo anatómico ('duras cabelleras').",
+          "content": "El uso del verbo 'cultivar' introduce una paradoja respecto a la 'estalactita': lo inerte adquiere una vida vegetal que se reproduce activamente. Las 'cabelleras' representan las ramificaciones filosas que la masa mineral va formando a medida que se despliega en su interior.<br><br>Esta imagen revela el trasfondo campesino de Hernández, que aplica términos propios del trabajo de la tierra a la proliferación subterránea del dolor y las vivencias anatómicas."
+        }
+      },
+      "wikipediaArticle": "Personificación",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Formación mineral afilada cristales de cueva",
+      "imageVisualKeywords": [
+        "minerales",
+        "cristales afilados"
+      ],
+      "imageDescription": "Agrupación de cristales minerales afilados emergiendo en la roca",
+      "youtubeSearchQuery": "La imagen vegetal y mineral en Miguel Hernandez"
+    },
+    "node_7": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "como espadas y picos encompasadas",
+      "title": "Comparación agresiva y geometrización del dolor",
+      "annotations": {
+        "short": {
+          "definition": "Símil que equipara las puntas minerales a armas cortantes y herramientas pesadas orientadas de forma precisa.",
+          "content": "Aumenta la sensación de amenaza física sobre el pecho del poeta, sugiriendo un ataque metódico y milimétricamente medido."
+        },
+        "deep": {
+          "definition": "Símil belicista reforzado por un participio de precisión geométrica ('encompasadas') que intensifica la violencia punzante.",
+          "content": "Las 'espadas' y 'picos' transforman la mineralogía del dolor en un armamento de tortura. El adjetivo 'encompasadas' sugiere que esta agresión no es caótica, sino calculada con la precisión de un compás, rodeando quirúrgicamente al órgano vital.<br><br>Esta violencia instrumental evidencia la influencia del barroquismo de Quevedo en Hernández, donde la angustia física y el instrumental bélico sirven para certificar la asfixia del alma ante el amor destructivo."
+        }
+      },
+      "wikipediaArticle": "Símil",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Espada de acero filo afilado",
+      "imageVisualKeywords": [
+        "espada",
+        "armas afiladas"
+      ],
+      "imageDescription": "Hoja afilada de una espada antigua de acero",
+      "youtubeSearchQuery": "El lenguaje de las armas en la poesia del Siglo de Oro"
+    },
+    "node_8": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "sobre mi corazón que se envenena",
+      "title": "La ponzoña del desamor y la corrupción vital",
+      "annotations": {
+        "short": {
+          "definition": "Efecto tóxico del dolor prolongado que altera de forma letal la salud emocional del poeta.",
+          "content": "Culmina la segunda estrofa mostrando cómo el acoso incesante de la pena acaba por emponzoñar y corromper la vitalidad del corazón."
+        },
+        "deep": {
+          "definition": "Metáfora patológica del amor no correspondido o trágico concebido como una sustancia ponzoñosa en la sangre.",
+          "content": "El envenenamiento representa la fase final del asedio de la 'estalactita' y las 'espadas'. El dolor no solo herida físicamente, sino que altera la naturaleza misma del sentimiento, corrompiéndolo y transformando la vida en agonía permanente.<br><br>El motivo del amor como ponzoña reaparece continuamente en la lírica hernandiana, conectando la amargura personal con una visión del destino biológico sometido a la descomposición y el veneno del sufrimiento."
+        }
+      },
+      "wikipediaArticle": "Veneno",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Gota liquida oscura cayendo veneno",
+      "imageVisualKeywords": [
+        "veneno",
+        "gota oscura"
+      ],
+      "imageDescription": "Gota de líquido espeso cayendo en un recipiente sombrío",
+      "youtubeSearchQuery": "El amor trágico como veneno en la literatura"
+    },
+    "node_9": {
+      "type": "syntax",
+      "category": "syntax",
+      "label": "Este rayo que no cesa ni se agota",
+      "title": "Anáfora y tematización de la perseverancia del dolor",
+      "annotations": {
+        "short": {
+          "definition": "Reiteración del motivo del rayo enfatizando su condición ininterrumpida e inagotable.",
+          "content": "Refuerza la insistencia del suplicio amoroso, dando nombre al concepto que titula la obra entera de Miguel Hernández."
+        },
+        "deep": {
+          "definition": "Repetición anafórica del sintagma motivador de la obra que articula el ritmo obsesivo de la composición.",
+          "content": "Al reiterar 'Este rayo', el poeta retoma el hilo interrogativo del inicio para convertirlo en una constatación rotunda. Los verbos 'no cesa ni se agota' enfatizan el carácter infinito y sobrehumano de la pasión que lo consume, superior a sus fuerzas físicas.<br><br>Este verso inmortaliza la cláusula constitutiva del libro 'El rayo que no cesa' (1936), quintaesencia del neorromanticismo hernandiano donde la energía pasional desborda todo límite temporal y humano."
+        }
+      },
+      "wikipediaArticle": "Anáfora_(retórica)",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Reloj de arena y fuego continuo",
+      "imageVisualKeywords": [
+        "inagotable",
+        "fuego continuo"
+      ],
+      "imageDescription": "Símbolo de la continuidad temporal incesante frente a una llama de fuego",
+      "youtubeSearchQuery": "El rayo que no cesa estructura y temas principales"
+    },
+    "node_10": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "de labrar en mi pecho su morada",
+      "title": "La apropiación física y la escisión del espacio interior",
+      "annotations": {
+        "short": {
+          "definition": "Acción de esculpir o construir una vivienda permanente en el interior de la cavidad torácica.",
+          "content": "Simboliza cómo la causa del dolor ha fijado su residencia definitiva dentro de la propia carne y ser del poeta."
+        },
+        "deep": {
+          "definition": "Trabajo escultural y arquitectónico ejercido violentamente sobre la propia anatomía del sujeto emisor.",
+          "content": "El verbo 'labrar' sugiere un cincelado doloroso, una modificación activa del cuerpo por parte de la fuerza pasional. El 'pecho' deja de ser un refugio propio para transformarse en la 'morada' de la entidad invasora (el rayo/la pena).<br><br>Esta idea de la invasión corporal por una pasión ajena y tiránica hunde sus raíces en la tradición mística y profana castellana, donde el enamorado pasa a ser mero contenedor del objeto amado o de su martirio."
+        }
+      },
+      "wikipediaArticle": "Escultura",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Escultura de marmol labrada en bajorrelieve",
+      "imageVisualKeywords": [
+        "esculpir",
+        "marmol labrado"
+      ],
+      "imageDescription": "Detalle del trabajo de labrado en piedra de una escultura clásica",
+      "youtubeSearchQuery": "La metáfora del cuerpo en Miguel Hernandez"
+    },
+    "node_11": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "label": "con un terco pincel de duras brasas",
+      "title": "Sinestesia de la pintura ígnea y martirio",
+      "annotations": {
+        "short": {
+          "definition": "Herramienta imaginaria que pinta o graba usando ascuas encendidas y obstinadas.",
+          "content": "Muestra la delicadeza combinada con la atrocidad del fuego: el dolor dibuja su huella en el cuerpo abrasando la piel."
+        },
+        "deep": {
+          "definition": "Cruce sinestésico que une la sutileza artística del 'pincel' con la agresividad térmica de las 'duras brasas'.",
+          "content": "El 'pincel' evoca una labor de detalle, un trazado minucioso sobre el pecho del poeta. Sin embargo, al ser 'de duras brasas', cada trazo es una quemadura profunda. La adjetivación 'terco' reitera la obstinación de la agresión que ya vimos en la estalactita.<br><br>Esta combinación de lirismo plástico y tormento físico refleja la capacidad del autor para sublimar el dolor sensorial más extremo en imágenes de una plasticidad fascinante."
+        }
+      },
+      "wikipediaArticle": "Sinestesia",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Brasas incandescentes carbon rojo fuego",
+      "imageVisualKeywords": [
+        "brasas",
+        "fuego incandescente"
+      ],
+      "imageDescription": "Carbones y brasas ardiendo al rojo vivo en la oscuridad",
+      "youtubeSearchQuery": "La sinestesia en la poesia vanguardista espanola"
+    },
+    "node_12": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "esta pena de amor que me consume",
+      "title": "La devoración del yo por el sentimiento amoroso",
+      "annotations": {
+        "short": {
+          "definition": "Padecimiento sentimental que desgasta y destruye progresivamente la existencia del individuo.",
+          "content": "Nombra abiertamente la causa oculta tras los símbolos minerales y de fuego: un sufrimiento amoroso de intensidad destructiva."
+        },
+        "deep": {
+          "definition": "Explicitación del referente pasional que motiva toda la imaginería agónica del soneto.",
+          "content": "Tras una tupida red metafórica de rayos, fieras, estalactitas y brasas, el poeta identifica de forma directa la raíz de su tormento: 'esta pena de amor'. El verbo 'consumir' opera en el doble sentido de gastar la vida y abrasarla en el fuego interior.<br><br>La alineación entre amor y consumción mortal es la piedra angular del romanticismo y del amor cortés, asumida por Hernández con un vigor corpóreo y material donde la angustia psicológica es inseparable del dolor fisiológico."
+        }
+      },
+      "wikipediaArticle": "Amor_cortés",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Silueta humana en penumbra angustia",
+      "imageVisualKeywords": [
+        "pena",
+        "soledad"
+      ],
+      "imageDescription": "Silueta contemplativa de una persona marcada por la sombra y el aislamiento",
+      "youtubeSearchQuery": "El amor cortes y su influencia en la lírica moderna"
+    },
+    "node_13": {
+      "type": "culture",
+      "category": "culture",
+      "label": "este fuego de minerales puros",
+      "title": "Alquimia y pureza elemental del sentimiento",
+      "annotations": {
+        "short": {
+          "definition": "Calor o combustión originada en elementos terrestres limpios y sin mezclas de la corteza terrestre.",
+          "content": "Elogia la nobleza e intensidad inalterable del dolor amoroso, equiparándolo a la fuerza primaria de las vetas subterráneas."
+        },
+        "deep": {
+          "definition": "Visualización telúrica que conecta la pasión con la materia geológica primordial e incorruptible.",
+          "content": "Al calificar al fuego de 'minerales puros', Hernández aleja su amor de la condición vana o pasajera. Es un fuego terrenal, intrínseco a la corteza misma del planeta, con la dureza del diamante y la incorruptibilidad del metal noble.<br><br>El imaginario geológico (minerales, vetas, piedras, carbón) constituye una de las marcas de identidad más profundas de la poética hernandiana, entroncada con su comunión panteísta con la tierra y el trabajo físico."
+        }
+      },
+      "wikipediaArticle": "Mineralogía",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Veta mineral en roca cuarzo piedra",
+      "imageVisualKeywords": [
+        "minerales",
+        "roca pura"
+      ],
+      "imageDescription": "Veta brillante de mineral puro incrustada en una masa de roca geológica",
+      "youtubeSearchQuery": "La simbologia de la tierra en Miguel Hernandez"
+    },
+    "node_14": {
+      "type": "analysis",
+      "category": "analysis",
+      "label": "que despliega su tormenta en mis entrañas",
+      "title": "La interiorización del cataclismo cósmico",
+      "annotations": {
+        "short": {
+          "definition": "Desarrollo de un temporal de viento y truenos dentro de los órganos internos y lo más profundo del ser.",
+          "content": "Cierra el pasaje proyectando el fenómeno meteorológico salvaje al plano viscera, evidenciando el colapso fisiológico y emocional."
+        },
+        "deep": {
+          "definition": "Internalización del fenómeno atmosférico que sitúa el epicentro del caos cósmico en el ámbito visceral del poético.",
+          "content": "El término 'entrañas' desplaza el sufrimiento desde el plano puramente espiritual o anímico hasta la cavidad visceral humana. La 'tormenta' ya no se contempla en el cielo exterior, sino que estalla en los órganos vitales del sujeto.<br><br>Esta dimensión visceral e íntima es emblemática de la poética de la 'sangre' y la 'carne' de Hernández, donde el sentimiento rompe cualquier contención intelectual para hacerse experiencia puramente biológica y agónica."
+        }
+      },
+      "wikipediaArticle": "Patetismo",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Tormenta electrica campo abierto relampago",
+      "imageVisualKeywords": [
+        "tormenta",
+        "relampagos"
+      ],
+      "imageDescription": "Cielo convulso cruzado por rayos durante una tormenta sobre el campo",
+      "youtubeSearchQuery": "El neorromanticismo y las entrañas en la poesia"
+    }
+  },
+  "stanzas": [
+    "<p>¿No cesará <span class=\"interactive-word\" data-node=\"node_1\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">este rayo que me habita</span><br>el corazón de <span class=\"interactive-word\" data-node=\"node_2\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">exasperadas fieras</span><br>y de <span class=\"interactive-word\" data-node=\"node_3\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">fraguas estériles y mansas</span><br><span class=\"interactive-word\" data-node=\"node_4\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">donde mi juventud se desmorona</span>?</p>",
+    "<p>¿No cesará esta <span class=\"interactive-word\" data-node=\"node_5\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">terca estalactita</span><br>de <span class=\"interactive-word\" data-node=\"node_6\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">cultivar sus duras cabelleras</span><br><span class=\"interactive-word\" data-node=\"node_7\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">como espadas y picos encompasadas</span><br><span class=\"interactive-word\" data-node=\"node_8\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">sobre mi corazón que se envenena</span>?</p>",
+    "<p><span class=\"interactive-word\" data-node=\"node_9\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Este rayo que no cesa ni se agota</span><br><span class=\"interactive-word\" data-node=\"node_10\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">de labrar en mi pecho su morada</span>,<br><span class=\"interactive-word\" data-node=\"node_11\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">con un terco pincel de duras brasas</span>,</p>",
+    "<p><span class=\"interactive-word\" data-node=\"node_12\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">esta pena de amor que me consume</span>,<br><span class=\"interactive-word\" data-node=\"node_13\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">este fuego de minerales puros</span><br><span class=\"interactive-word\" data-node=\"node_14\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">que despliega su tormenta en mis entrañas</span>.</p>"
+  ]
+}      "wikiLang": "es",
       "visualConceptType": "portrait",
       "locationAnchor": "Orihuela",
       "imageSearchQuery": "Retrato de Miguel Hernández poeta",
