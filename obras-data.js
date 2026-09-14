@@ -6,8 +6,8 @@ window.OBRAS_CATALOGO = [
   },
   {
     "file": "elrayo.json",
-    "title": "elrayo.json",
-    "author": ""
+    "title": "«¿No cesará este rayo que me habita...» / El rayo que no cesa",
+    "author": "Miguel Hernández"
   },
   {
     "file": "orillasdelduero.json",
