@@ -41,6 +41,7 @@ const STOPWORDS = new Set([
   "mi","tu","ha","han","fue","ser","era","será","the","of","in","on","at","with","and","or","an"
 ]);
 
+// Estructura integrada con los nodos interactivos adicionales de gemini.js
 const EJEMPLO_JSON = {
   "meta": {
     "title": "Cantar de mio Cid (Fragmento)",
@@ -85,10 +86,47 @@ const EJEMPLO_JSON = {
         "short": { "definition": "Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
         "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
       }
+    },
+    // Nodos integrados desde gemini.js
+    "node_sintaxis": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Paredro sintáctico / Hipérbaton",
+      "annotations": {
+        "short": { "definition": "Estructura sintáctica bimembre.", "content": "Explicación de la estructura sintáctica de la frase y alteración del orden habitual." },
+        "deep": { "definition": "Recurso retórico estilístico.", "content": "Análisis profundo de la alteración sintáctica orientada al ritmo de recitación épica." }
+      }
+    },
+    "node_vocab": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "title": "Llorando (Glosario)",
+      "annotations": {
+        "short": { "definition": "Expresión del llanto en la épica.", "content": "Definición del verbo y notas léxicas del Cantar." },
+        "deep": { "definition": "Semántica del llanto heroico.", "content": "Uso del léxico del llanto para humanizar al héroe en el mester de juglaría." }
+      }
+    },
+    "node_vocab_1": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "title": "Tornar la cabeza",
+      "annotations": {
+        "short": { "definition": "Girar la mirada atrás.", "content": "Nota léxica sobre la expresión de despedida y nostalgia." },
+        "deep": { "definition": "Expresión idiomatica medieval.", "content": "Gesto expresivo que representa el desapego físico de la patria." }
+      }
+    },
+    "node_cultura_2": {
+      "type": "culture",
+      "category": "culture",
+      "title": "Gesto del héroe",
+      "annotations": {
+        "short": { "definition": "Simbolismo del dolor del héroe.", "content": "Nota sobre la gestualidad en la épica medieval y el llanto público." },
+        "deep": { "definition": "Antropología de las emociones medievales.", "content": "Manifestación exteriorizada del honor mancillado según los códigos feudales." }
+      }
     }
   },
   "stanzas": [
-    "<p>De los sus ojos <span class=\"interactive-word\" data-node=\"node_1\" tabindex=\"0\" role=\"button\">tan fuemente llorando</span>,<br>tornaba la cabeza i estábalos mirando.</p>"
+    "<p><span class=\"interactive-word\" data-node=\"node_1 node_sintaxis node_vocab\" tabindex=\"0\" role=\"button\">De los sus ojos tan fuemente llorando</span>,<br><span class=\"interactive-word\" data-node=\"node_vocab_1 node_cultura_2\" tabindex=\"0\" role=\"button\">tornaba la cabeza i estábalos mirando</span>.</p>"
   ]
 };
 
@@ -200,7 +238,8 @@ function renderizarTextoAnotado(datosObra) {
 
     contenedorEstrofas.querySelectorAll('[data-node]').forEach(el => {
       const nodeId = el.getAttribute('data-node');
-      const nodo = datosObra.interactiveNodes?.[nodeId];
+      const primerNodoId = nodeId ? nodeId.split(/\s+/)[0] : null;
+      const nodo = datosObra.interactiveNodes?.[primerNodoId];
       if (nodo) {
         const capaObj = resolverCapa(nodo.type || nodo.category);
         if (capaObj) el.setAttribute('data-category', capaObj.id);
@@ -252,12 +291,15 @@ function alternarVisibilidadCapa(capaId, visible) {
 
   const elementos = document.querySelectorAll('[data-node]');
   elementos.forEach(el => {
-    const nodeId = el.getAttribute('data-node');
-    const nodo = obraActiva.interactiveNodes?.[nodeId];
-    const rawCapa = el.getAttribute('data-category') || nodo?.type || nodo?.category;
-    const capaObj = resolverCapa(rawCapa);
+    const nodeIds = (el.getAttribute('data-node') || '').trim().split(/\s+/);
+    const coincide = nodeIds.some(id => {
+      const nodo = obraActiva.interactiveNodes?.[id];
+      const rawCapa = nodo?.type || nodo?.category;
+      const capaObj = resolverCapa(rawCapa);
+      return capaObj?.id === capaId || rawCapa === capaId;
+    });
     
-    if (capaObj?.id === capaId || rawCapa === capaId) {
+    if (coincide) {
       el.classList.toggle('layer-disabled', !visible);
     }
   });
@@ -291,7 +333,11 @@ async function abrirModalAnotacion(datosNodo) {
     modalTitle.style.color = colorCategoria;
   }
 
-  const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {};
+  const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {
+    definition: datosNodo.text || '',
+    content: datosNodo.text || ''
+  };
+
   const modalDef = document.getElementById('modal-definition');
   const modalContent = document.getElementById('modal-content');
 
@@ -353,12 +399,10 @@ function cerrarModal() {
 // =========================================================================
 
 document.addEventListener('click', (e) => {
-  // Ignorar clics dentro del modal o del menú desplegable de capas
   if (e.target.closest('#annotation-modal') || e.target.closest('.overlap-selector-popup')) {
     return;
   }
 
-  // Recopilar TODOS los nodos anotados desde el elemento pulsado hacia arriba en el DOM
   const nodosDetectados = [];
   let el = e.target.closest('[data-node], .meta-link');
 
@@ -375,21 +419,17 @@ document.addEventListener('click', (e) => {
     el = el.parentElement ? el.parentElement.closest('[data-node], .meta-link') : null;
   }
 
-  // Cerrar selector previo si existe
   cerrarSelectorSolapamiento();
 
   if (nodosDetectados.length === 0) return;
 
-  // Si solo hay una anotación, abrir modal directamente
   if (nodosDetectados.length === 1) {
     abrirModalAnotacion(nodosDetectados[0].data);
   } else {
-    // Si hay varias capas/anotaciones solapadas, mostrar menú de selección
     mostrarMenuSolapamiento(nodosDetectados, e.clientX, e.clientY);
   }
 });
 
-// Cierre mediante la tecla Escape
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     cerrarSelectorSolapamiento();
@@ -457,7 +497,6 @@ function mostrarMenuSolapamiento(nodos, x, y) {
 
   document.body.appendChild(popup);
 
-  // Control de colisión con los bordes del viewport
   const rect = popup.getBoundingClientRect();
   let posX = x + 10;
   let posY = y + 10;
