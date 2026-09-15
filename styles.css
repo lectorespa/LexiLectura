@@ -133,6 +133,20 @@ body {
 .btn-danger:hover { background: #fee2e2; }
 
 /* Filtros de Categorías */
+
+/* Sobrescribir el azul de .btn-secondary.active para los chips */
+.filter-chip.active {
+  border-color: transparent;
+}
+
+.filter-chip[data-category="author"].active { background: var(--cat-author) !important; color: var(--cat-author-text) !important; border-color: #bfdbfe !important; }
+.filter-chip[data-category="period"].active { background: var(--cat-period) !important; color: var(--cat-period-text) !important; border-color: #bbf7d0 !important; }
+.filter-chip[data-category="vocabulary"].active { background: var(--cat-vocabulary) !important; color: var(--cat-vocabulary-text) !important; border-color: #fef08a !important; }
+.filter-chip[data-category="culture"].active { background: var(--cat-culture) !important; color: var(--cat-culture-text) !important; border-color: #e9d5ff !important; }
+.filter-chip[data-category="syntax"].active { background: var(--cat-syntax) !important; color: var(--cat-syntax-text) !important; border-color: #fbcfe8 !important; }
+.filter-chip[data-category="analysis"].active { background: var(--cat-analysis) !important; color: var(--cat-analysis-text) !important; border-color: #bae6fd !important; }
+
+
 .top-controls {
   background: var(--card-bg);
   border: 1px solid var(--border-color);
