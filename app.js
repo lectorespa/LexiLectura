@@ -43,20 +43,36 @@ const EJEMPLO_JSON = {
   "interactiveNodes": {
     "node_author": {
       "type": "author",
-      "category": "Autor",
+      "category": "author",
       "title": "Autor Anónimo",
       "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Cantar_de_mio_Cid_f._1r.jpg/320px-Cantar_de_mio_Cid_f._1r.jpg",
-      "imageCaption": "Manuscrito del Cantar de mio Cid",
+      "imageCaption": "Manuscrito del Cantar de mio Cid (f. 1r)",
       "wikipediaArticle": "Cantar_de_mio_Cid",
+      "youtubeUrl": "https://www.youtube.com/results?search_query=Cantar+de+mio+Cid+analisis+literario",
       "annotations": {
         "short": { "definition": "Autor desconocido del Mío Cid.", "content": "Obra cumbre del cantar de gesta hispánico." },
         "deep": { "definition": "Tradición juglaresca mester de juglaría.", "content": "Composición de transmisión oral preservada en manuscrito." }
       }
     },
+    "node_period": {
+      "type": "period",
+      "category": "period",
+      "title": "Contexto Medieval (Siglo XII-XIII)",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Reconquista_1200.svg/320px-Reconquista_1200.svg.png",
+      "imageCaption": "Península Ibérica hacia el año 1200",
+      "wikipediaArticle": "Literatura_espa%C3%B1ola_del_Medievo",
+      "youtubeUrl": "https://www.youtube.com/results?search_query=Contexto+historico+Cantar+de+mio+Cid",
+      "annotations": {
+        "short": { "definition": "Época de consolidación del castellano.", "content": "Contexto de Reconquista y difusión oral por medio de la juglaría." },
+        "deep": { "definition": "Mester de juglaría y sociedad feudal.", "content": "Refleja los valores de honor, lealtad y vasallaje propios de la Edad Media hispánica." }
+      }
+    },
     "node_1": {
       "type": "syntax",
-      "category": "Sintaxis",
+      "category": "syntax",
       "title": "De los sus ojos",
+      "imageUrl": "",
+      "youtubeSearchQuery": "Pleonasmo recursos literarios Mio Cid",
       "annotations": {
         "short": { "definition": "Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
         "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
@@ -191,6 +207,7 @@ function renderizarFiltrosCategorias(datosObra) {
     btn.textContent = capa.label;
     btn.dataset.layerId = capa.id;
     btn.dataset.category = capa.id;
+    btn.style.borderColor = capa.color;
 
     btn.addEventListener('click', () => {
       const isActive = btn.classList.toggle('active');
@@ -226,30 +243,49 @@ function abrirModalAnotacion(datosNodo) {
   const modalTitle = document.getElementById('modal-title');
   
   const capaObj = resolverCapa(datosNodo.type || datosNodo.category);
+  const colorCategoria = capaObj ? capaObj.color : '#4A90E2';
+
+  // --- FASE 2: Aplicación de color dinámico por categoría ---
   if (modalCat) {
     modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || 'Anotación');
     modalCat.setAttribute('data-category', capaObj?.id || '');
+    modalCat.style.backgroundColor = colorCategoria;
+    modalCat.style.color = '#FFFFFF';
+    modalCat.style.padding = '4px 8px';
+    modalCat.style.borderRadius = '4px';
   }
-  if (modalTitle) modalTitle.textContent = datosNodo.title || '';
+  if (modalTitle) {
+    modalTitle.textContent = datosNodo.title || '';
+    modalTitle.style.color = colorCategoria;
+  }
 
   const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {};
   const modalDef = document.getElementById('modal-definition');
   const modalContent = document.getElementById('modal-content');
 
   if (modalDef) modalDef.innerHTML = anotacion.definition || '';
-  if (modalContent) modalContent.innerHTML = anotacion.content || '';
+  if (modalContent) {
+    modalContent.innerHTML = anotacion.content || '';
+    modalContent.style.borderLeft = `3px solid ${colorCategoria}`;
+    modalContent.style.paddingLeft = '10px';
+  }
 
+  // --- FASE 3: Renderizado de imágenes con fallback ---
   const imgWrapper = document.getElementById('modal-image-wrapper');
   const imgElem = document.getElementById('modal-image');
   const imgCaption = document.getElementById('modal-image-caption');
 
   const urlImagen = datosNodo.imageUrl || datosNodo.image || anotacion.imageUrl;
-  const captionImagen = datosNodo.imageCaption || anotacion.imageCaption || '';
+  const captionImagen = datosNodo.imageCaption || datosNodo.imageDescription || anotacion.imageCaption || '';
 
   if (imgWrapper && urlImagen) {
     if (imgElem) {
       imgElem.src = urlImagen;
+      imgElem.alt = captionImagen || datosNodo.title || 'Imagen explicativa';
       imgElem.style.display = 'block';
+      imgElem.onerror = () => {
+        imgWrapper.classList.add('hidden');
+      };
     }
     if (imgCaption) imgCaption.textContent = captionImagen;
     imgWrapper.classList.remove('hidden');
@@ -257,13 +293,26 @@ function abrirModalAnotacion(datosNodo) {
     imgWrapper.classList.add('hidden');
   }
 
+  // --- FASE 3: Renderizado de enlaces a Wikipedia y YouTube ---
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
     let htmlEnlaces = '';
+    
+    // Wikipedia
     const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikipedia;
     if (wikiRef) {
-      let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://es.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
+      let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://${datosNodo.wikiLang || 'es'}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
       htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Ver en Wikipedia ↗</a>`;
+    }
+
+    // YouTube
+    let urlYoutube = datosNodo.youtubeUrl;
+    if (!urlYoutube && datosNodo.youtubeSearchQuery) {
+      urlYoutube = `https://www.youtube.com/results?search_query=${encodeURIComponent(datosNodo.youtubeSearchQuery)}`;
+    }
+
+    if (urlYoutube) {
+      htmlEnlaces += `<a href="${urlYoutube}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link" style="color: #FF0000; font-weight: bold; margin-left: 10px;">📺 Ver en YouTube ↗</a>`;
     }
 
     if (htmlEnlaces !== '') {
