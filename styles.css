@@ -7,7 +7,7 @@
   --text-muted: #64748b;
   --border-color: #e2e8f0;
 
-  /* Paleta por Categorías */
+  /* Paleta por CategorÃ­as */
   --cat-author: #dbeafe;
   --cat-author-text: #1e40af;
   --cat-author-border: #3b82f6;
@@ -169,7 +169,7 @@ body {
   opacity: 0.5;
 }
 
-/* Tooltip emergente de categoría al pasar el cursor */
+/* Tooltip emergente de categorÃ­a al pasar el cursor */
 [data-category]::after {
   content: attr(data-category);
   position: absolute;
@@ -197,7 +197,7 @@ body {
 }
 
 /* ==========================================================================
-   SISTEMA DE COLOREADO REFORZADO (POR CATEGORÍA Y CAPA)
+   SISTEMA DE COLOREADO REFORZADO (POR CATEGORÃA Y CAPA)
    ========================================================================== */
 
 /* 1. Mapeado por Atributo data-category */
@@ -385,7 +385,7 @@ header.doc-header h1 {
   flex-wrap: wrap;
 }
 
-/* Selector de Nivel de Anotación */
+/* Selector de Nivel de AnotaciÃ³n */
 .annotation-level-selector {
   display: flex;
   align-items: center;
@@ -606,7 +606,7 @@ header.doc-header h1 {
   outline-offset: 2px;
 }
 
-/* Modo Impresión */
+/* Modo ImpresiÃ³n */
 @media print {
   .json-box-container,
   .top-controls,
@@ -637,7 +637,7 @@ header.doc-header h1 {
    MEJORAS Y SUGERENCIAS ADICIONALES
    ========================================================================== */
 
-/* 1. Animación de apertura suave para el modal (Efecto Fade & Scale) */
+/* 1. AnimaciÃ³n de apertura suave para el modal (Efecto Fade & Scale) */
 .modal-overlay:not(.hidden) .modal-card {
   animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -653,7 +653,7 @@ header.doc-header h1 {
   }
 }
 
-/* 2. Optimización visual de las imágenes en el modal */
+/* 2. OptimizaciÃ³n visual de las imÃ¡genes en el modal */
 .modal-image-wrapper img {
   max-width: 100%;
   max-height: 300px;
@@ -664,7 +664,7 @@ header.doc-header h1 {
   padding: 4px;
 }
 
-/* 3. Indicador de color dinámico para los puntos de los filtros (Chips) */
+/* 3. Indicador de color dinÃ¡mico para los puntos de los filtros (Chips) */
 .filter-chip .chip-dot {
   width: 8px;
   height: 8px;
