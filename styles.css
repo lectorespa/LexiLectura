@@ -158,21 +158,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* --- OPCIÓN A: COLOREADO POR CATEGORÍA (data-category) --- */
-[data-category="author"] { background: var(--cat-author); color: var(--cat-author-text); border-bottom-color: var(--cat-author-border); }
-[data-category="period"] { background: var(--cat-period); color: var(--cat-period-text); border-bottom-color: var(--cat-period-border); }
-[data-category="vocabulary"] { background: var(--cat-vocabulary); color: var(--cat-vocabulary-text); border-bottom-color: var(--cat-vocabulary-border); }
-[data-category="culture"] { background: var(--cat-culture); color: var(--cat-culture-text); border-bottom-color: var(--cat-culture-border); }
-[data-category="syntax"] { background: var(--cat-syntax); color: var(--cat-syntax-text); border-bottom-color: var(--cat-syntax-border); }
-[data-category="analysis"] { background: var(--cat-analysis); color: var(--cat-analysis-text); border-bottom-color: var(--cat-analysis-border); }
-
-/* --- OPCIÓN B: COLOREADO POR CAPA (data-layer) --- 
-   Si deseas activar el coloreado por capa sin fondo pastel, puedes descomentar estas líneas:
-[data-layer="metrica_retorica"] { border-bottom-color: var(--layer-metrica) !important; }
-[data-layer="simbologia_contexto"] { border-bottom-color: var(--layer-simbologia) !important; }
-[data-layer="vocabulario_lexico"] { border-bottom-color: var(--layer-vocabulario) !important; }
-*/
-
 /* Estado Deshabilitado o Desactivado */
 .category-disabled, .layer-disabled {
   background: transparent !important;
@@ -209,6 +194,75 @@ body {
 [data-category]:hover::after {
   opacity: 1;
   transform: translateX(-50%) translateY(-8px);
+}
+
+/* ==========================================================================
+   SISTEMA DE COLOREADO REFORZADO (POR CATEGORÍA Y CAPA)
+   ========================================================================== */
+
+/* 1. Mapeado por Atributo data-category */
+.interactive-word[data-category="author"],
+[data-node][data-category="author"] {
+  background-color: var(--cat-author) !important;
+  color: var(--cat-author-text) !important;
+  border-bottom-color: var(--cat-author-border) !important;
+}
+
+.interactive-word[data-category="period"],
+[data-node][data-category="period"] {
+  background-color: var(--cat-period) !important;
+  color: var(--cat-period-text) !important;
+  border-bottom-color: var(--cat-period-border) !important;
+}
+
+.interactive-word[data-category="vocabulary"],
+[data-node][data-category="vocabulary"] {
+  background-color: var(--cat-vocabulary) !important;
+  color: var(--cat-vocabulary-text) !important;
+  border-bottom-color: var(--cat-vocabulary-border) !important;
+}
+
+.interactive-word[data-category="culture"],
+[data-node][data-category="culture"] {
+  background-color: var(--cat-culture) !important;
+  color: var(--cat-culture-text) !important;
+  border-bottom-color: var(--cat-culture-border) !important;
+}
+
+.interactive-word[data-category="syntax"],
+[data-node][data-category="syntax"] {
+  background-color: var(--cat-syntax) !important;
+  color: var(--cat-syntax-text) !important;
+  border-bottom-color: var(--cat-syntax-border) !important;
+}
+
+.interactive-word[data-category="analysis"],
+[data-node][data-category="analysis"] {
+  background-color: var(--cat-analysis) !important;
+  color: var(--cat-analysis-text) !important;
+  border-bottom-color: var(--cat-analysis-border) !important;
+}
+
+/* 2. Mapeado por Atributo data-layer (Mapeado directo si no hay data-category) */
+.interactive-word[data-layer="metrica_retorica"],
+[data-node][data-layer="metrica_retorica"] {
+  background-color: var(--cat-syntax) !important;
+  color: var(--cat-syntax-text) !important;
+  border-bottom-color: var(--cat-syntax-border) !important;
+}
+
+.interactive-word[data-layer="simbologia_contexto"],
+[data-node][data-layer="simbologia_contexto"] {
+  background-color: var(--cat-culture) !important;
+  color: var(--cat-culture-text) !important;
+  border-bottom-color: var(--cat-culture-border) !important;
+}
+
+.interactive-word[data-layer="vocabulario_lexico"],
+[data-node][data-layer="vocabulario_lexico"] {
+  background-color: var(--cat-vocabulary) !important;
+  color: var(--cat-vocabulary-text) !important;
+  border-bottom-color: var(--cat-vocabulary-border) !important;
 }
 
 /* Botones y Filtros */
@@ -573,66 +627,9 @@ header.doc-header h1 {
     padding: 0;
   }
   
-  [data-node] {
-    border-bottom: 1px solid #666;
+  [data-node], .interactive-word {
+    border-bottom: 1px solid #666 !important;
     background: transparent !important;
     color: inherit !important;
   }
-
-/* --- MAPEADO DIRECTO POR CAPA (Solución inmediata) --- */
-.interactive-word[data-layer="metrica_retorica"],
-[data-node][data-layer="metrica_retorica"] {
-  background-color: var(--cat-syntax) !important;
-  color: var(--cat-syntax-text) !important;
-  border-bottom-color: var(--cat-syntax-border) !important;
 }
-
-.interactive-word[data-layer="simbologia_contexto"],
-[data-node][data-layer="simbologia_contexto"] {
-  background-color: var(--cat-culture) !important;
-  color: var(--cat-culture-text) !important;
-  border-bottom-color: var(--cat-culture-border) !important;
-}
-
-.interactive-word[data-layer="vocabulario_lexico"],
-[data-node][data-layer="vocabulario_lexico"] {
-  background-color: var(--cat-vocabulary) !important;
-  color: var(--cat-vocabulary-text) !important;
-  border-bottom-color: var(--cat-vocabulary-border) !important;
-}
-
-/* --- REFUERZO PARA APLICAR POR DATO DE CATEGORÍA --- */
-.interactive-word[data-category="vocabulary"],
-[data-node][data-category="vocabulary"] {
-  background-color: var(--cat-vocabulary) !important;
-  color: var(--cat-vocabulary-text) !important;
-  border-bottom-color: var(--cat-vocabulary-border) !important;
-}
-
-.interactive-word[data-category="syntax"],
-[data-node][data-category="syntax"] {
-  background-color: var(--cat-syntax) !important;
-  color: var(--cat-syntax-text) !important;
-  border-bottom-color: var(--cat-syntax-border) !important;
-}
-
-.interactive-word[data-category="culture"],
-[data-node][data-category="culture"] {
-  background-color: var(--cat-culture) !important;
-  color: var(--cat-culture-text) !important;
-  border-bottom-color: var(--cat-culture-border) !important;
-}
-
-.interactive-word[data-category="analysis"],
-[data-node][data-category="analysis"] {
-  background-color: var(--cat-analysis) !important;
-  color: var(--cat-analysis-text) !important;
-  border-bottom-color: var(--cat-analysis-border) !important;
-}
-
-  
-}
-
-
-
-
