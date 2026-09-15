@@ -5,6 +5,7 @@
 let obraActiva = null;
 let nivelLecturaActual = 'short';
 let currentImageFetchController = null;
+const activeLayersSet = new Set(); // Estado global de capas activas
 
 const CAPAS_CATALOGO = {
   author:     { id: 'author',     label: 'Autoría',                  color: '#8E44AD' },
@@ -41,7 +42,7 @@ const STOPWORDS = new Set([
   "mi","tu","ha","han","fue","ser","era","será","the","of","in","on","at","with","and","or","an"
 ]);
 
-// Estructura integrada con los nodos interactivos adicionales de gemini.js
+// Estructura integrada con soporte para data-nodes y data-layers
 const EJEMPLO_JSON = {
   "meta": {
     "title": "Cantar de mio Cid (Fragmento)",
@@ -87,7 +88,6 @@ const EJEMPLO_JSON = {
         "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
       }
     },
-    // Nodos integrados desde gemini.js
     "node_sintaxis": {
       "type": "syntax",
       "category": "syntax",
@@ -126,17 +126,61 @@ const EJEMPLO_JSON = {
     }
   },
   "stanzas": [
-    "<p><span class=\"interactive-word\" data-node=\"node_1 node_sintaxis node_vocab\" tabindex=\"0\" role=\"button\">De los sus ojos tan fuemente llorando</span>,<br><span class=\"interactive-word\" data-node=\"node_vocab_1 node_cultura_2\" tabindex=\"0\" role=\"button\">tornaba la cabeza i estábalos mirando</span>.</p>"
+    "<p><span class=\"interactive-word\" data-nodes=\"node_1 node_sintaxis node_vocab\" data-layers=\"syntax vocabulary\" tabindex=\"0\" role=\"button\">De los sus ojos tan fuemente llorando</span>,<br><span class=\"interactive-word\" data-nodes=\"node_vocab_1 node_cultura_2\" data-layers=\"vocabulary culture\" tabindex=\"0\" role=\"button\">tornaba la cabeza i estábalos mirando</span>.</p>"
   ]
 };
+
+// =========================================================================
+//  LÓGICA DE VISIBILIDAD DE CAPAS (INTEGRACIÓN GEMINI: renderActiveLayers)
+// =========================================================================
+
+function renderActiveLayers(activeLayersSet) {
+  const words = document.querySelectorAll('.interactive-word, [data-node], [data-nodes]');
+
+  words.forEach(word => {
+    // Soporte para data-layers (plural) y fallback a data-category o data-layer
+    const rawLayers = word.dataset.layers || word.dataset.layer || word.getAttribute('data-category') || '';
+    const wordLayers = rawLayers.trim().split(/\s+/).map(l => {
+      const resolved = resolverCapa(l);
+      return resolved ? resolved.id : l;
+    });
+
+    // Comprueba si hay intersección entre las capas del span y las activas
+    const hasActiveLayer = wordLayers.some(layer => activeLayersSet.has(layer));
+
+    if (hasActiveLayer || activeLayersSet.size === 0) {
+      word.classList.remove('layer-disabled');
+      word.classList.add('is-highlighted');
+
+      // Asigna el color de la primera capa activa coincidente
+      const primaryLayer = wordLayers.find(layer => activeLayersSet.has(layer)) || wordLayers[0];
+      const capaObj = resolverCapa(primaryLayer);
+      if (capaObj) {
+        word.style.setProperty('--current-layer-color', capaObj.color);
+      }
+    } else {
+      word.classList.add('layer-disabled');
+      word.classList.remove('is-highlighted');
+    }
+  });
+}
+
+function alternarVisibilidadCapa(capaId, visible) {
+  if (visible) {
+    activeLayersSet.add(capaId);
+  } else {
+    activeLayersSet.delete(capaId);
+  }
+  renderActiveLayers(activeLayersSet);
+}
 
 function aplicarFiltroVocabularioPorNivel() {
   if (!obraActiva) return;
 
-  const nodosVocabulario = document.querySelectorAll('[data-category="vocabulary"]');
+  const nodosVocabulario = document.querySelectorAll('[data-category="vocabulary"], [data-layers*="vocabulary"]');
 
   nodosVocabulario.forEach(el => {
-    const nodeId = el.getAttribute('data-node');
+    const nodeId = (el.getAttribute('data-nodes') || el.getAttribute('data-node') || '').split(/\s+/)[0];
     const nodo = obraActiva.interactiveNodes?.[nodeId];
     const vocabLevel = el.getAttribute('data-vocab-level') || nodo?.vocabLevel || 'B1';
 
@@ -188,6 +232,7 @@ async function cargarMenuObras() {
 function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
+  activeLayersSet.clear();
 
   const docTitle = document.getElementById('doc-title');
   const docAuthor = document.getElementById('doc-author');
@@ -236,19 +281,37 @@ function renderizarTextoAnotado(datosObra) {
       contenedorEstrofas.appendChild(estrofaDiv);
     });
 
-    contenedorEstrofas.querySelectorAll('[data-node]').forEach(el => {
-      const nodeId = el.getAttribute('data-node');
-      const primerNodoId = nodeId ? nodeId.split(/\s+/)[0] : null;
-      const nodo = datosObra.interactiveNodes?.[primerNodoId];
-      if (nodo) {
-        const capaObj = resolverCapa(nodo.type || nodo.category);
-        if (capaObj) el.setAttribute('data-category', capaObj.id);
+    // Mapeo dinámico de categorías si no están definidas explícitamente en el HTML
+    contenedorEstrofas.querySelectorAll('[data-node], [data-nodes]').forEach(el => {
+      const rawNodes = el.getAttribute('data-nodes') || el.getAttribute('data-node') || '';
+      const nodeIds = rawNodes.trim().split(/\s+/);
+      
+      if (!el.hasAttribute('data-layers') && !el.hasAttribute('data-category')) {
+        const capasEncontradas = new Set();
+        nodeIds.forEach(id => {
+          const nodo = datosObra.interactiveNodes?.[id];
+          if (nodo) {
+            const capaObj = resolverCapa(nodo.type || nodo.category);
+            if (capaObj) capasEncontradas.add(capaObj.id);
+          }
+        });
+        if (capasEncontradas.size > 0) {
+          el.setAttribute('data-layers', Array.from(capasEncontradas).join(' '));
+        }
       }
     });
   } else {
     contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta estructura.</p>';
   }
 
+  // Inicializa todas las capas registradas como activas
+  if (datosObra.interactiveNodes) {
+    Object.values(datosObra.interactiveNodes).forEach(nodo => {
+      const capaObj = resolverCapa(nodo.type || nodo.category);
+      if (capaObj) activeLayersSet.add(capaObj.id);
+    });
+  }
+  renderActiveLayers(activeLayersSet);
   aplicarFiltroVocabularioPorNivel();
 }
 
@@ -283,25 +346,6 @@ function renderizarFiltrosCategorias(datosObra) {
     });
 
     bar.appendChild(btn);
-  });
-}
-
-function alternarVisibilidadCapa(capaId, visible) {
-  if (!obraActiva) return;
-
-  const elementos = document.querySelectorAll('[data-node]');
-  elementos.forEach(el => {
-    const nodeIds = (el.getAttribute('data-node') || '').trim().split(/\s+/);
-    const coincide = nodeIds.some(id => {
-      const nodo = obraActiva.interactiveNodes?.[id];
-      const rawCapa = nodo?.type || nodo?.category;
-      const capaObj = resolverCapa(rawCapa);
-      return capaObj?.id === capaId || rawCapa === capaId;
-    });
-    
-    if (coincide) {
-      el.classList.toggle('layer-disabled', !visible);
-    }
   });
 }
 
@@ -395,7 +439,7 @@ function cerrarModal() {
 }
 
 // =========================================================================
-//  GESTIÓN DE CLICS CON CAPAS SOLAPADAS O ANIDADAS
+//  GESTIÓN DE CLICS CON CAPAS SOLAPADAS O ANIDADAS (INTEGRACIÓN GEMINI)
 // =========================================================================
 
 document.addEventListener('click', (e) => {
@@ -403,30 +447,35 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  const nodosDetectados = [];
-  let el = e.target.closest('[data-node], .meta-link');
-
-  while (el && el !== document.body) {
-    if (el.hasAttribute('data-node')) {
-      const ids = el.getAttribute('data-node').trim().split(/\s+/);
-      ids.forEach(id => {
-        const nodo = obraActiva?.interactiveNodes?.[id];
-        if (nodo && !nodosDetectados.some(n => n.id === id)) {
-          nodosDetectados.push({ id, element: el, data: nodo });
-        }
-      });
-    }
-    el = el.parentElement ? el.parentElement.closest('[data-node], .meta-link') : null;
+  const target = e.target.closest('.interactive-word, [data-node], [data-nodes], .meta-link');
+  if (!target) {
+    cerrarSelectorSolapamiento();
+    return;
   }
+
+  // Lectura de IDs desde data-nodes o data-node (separados por espacios)
+  const rawNodeIds = target.dataset.nodes || target.dataset.node || target.getAttribute('data-node') || '';
+  const nodeIds = rawNodeIds.trim().split(/\s+/).filter(Boolean);
 
   cerrarSelectorSolapamiento();
 
-  if (nodosDetectados.length === 0) return;
+  if (nodeIds.length === 0) return;
 
-  if (nodosDetectados.length === 1) {
-    abrirModalAnotacion(nodosDetectados[0].data);
+  if (nodeIds.length === 1) {
+    // Comportamiento habitual: abrir modal del nodo único
+    const nodo = obraActiva?.interactiveNodes?.[nodeIds[0]];
+    if (nodo) abrirModalAnotacion(nodo);
   } else {
-    mostrarMenuSolapamiento(nodosDetectados, e.clientX, e.clientY);
+    // Solapamiento: obtener los objetos de nodo y desplegar el selector
+    const nodosDetectados = nodeIds
+      .map(id => ({ id, data: obraActiva?.interactiveNodes?.[id] }))
+      .filter(item => item.data !== undefined);
+
+    if (nodosDetectados.length === 1) {
+      abrirModalAnotacion(nodosDetectados[0].data);
+    } else if (nodosDetectados.length > 1) {
+      mostrarMenuSolapamiento(nodosDetectados, e.clientX, e.clientY);
+    }
   }
 });
 
@@ -1045,22 +1094,25 @@ function inicializarEventos() {
     const stanzas = document.getElementById('text-stanzas');
     if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra o pega un JSON arriba.</p>';
     obraActiva = null;
+    activeLayersSet.clear();
   });
 
   document.getElementById('btn-select-all-cats')?.addEventListener('click', () => {
     document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
       btn.classList.add('active');
       btn.classList.remove('inactive');
-      alternarVisibilidadCapa(btn.dataset.layerId, true);
+      activeLayersSet.add(btn.dataset.layerId);
     });
+    renderActiveLayers(activeLayersSet);
   });
 
   document.getElementById('btn-deselect-all-cats')?.addEventListener('click', () => {
     document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
       btn.classList.remove('active');
       btn.classList.add('inactive');
-      alternarVisibilidadCapa(btn.dataset.layerId, false);
     });
+    activeLayersSet.clear();
+    renderActiveLayers(activeLayersSet);
   });
 
   document.getElementById('modal-close-btn')?.addEventListener('click', cerrarModal);
