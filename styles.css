@@ -1,55 +1,693 @@
-/* ==========================================================================
-   ESTILOS PARA EL ACORDEÓN DEL PANEL JSON
-   ========================================================================== */
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
 
-.json-accordion-container {
-  background: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, #e2e8f0);
+  /* Paleta por Categorías */
+  --cat-author: #dbeafe;
+  --cat-author-text: #1e40af;
+  --cat-author-border: #3b82f6;
+
+  --cat-period: #dcfce7;
+  --cat-period-text: #166534;
+  --cat-period-border: #22c55e;
+
+  --cat-vocabulary: #fef9c3;
+  --cat-vocabulary-text: #854d0e;
+  --cat-vocabulary-border: #eab308;
+
+  --cat-culture: #f3e8ff;
+  --cat-culture-text: #6b21a8;
+  --cat-culture-border: #a855f7;
+
+  --cat-syntax: #fce7f3;
+  --cat-syntax-text: #9d174d;
+  --cat-syntax-border: #ec4899;
+
+  --cat-analysis: #e0f2fe;
+  --cat-analysis-text: #075985;
+  --cat-analysis-border: #0284c7;
+
+  /* Paleta por Capas (JSON) */
+  --layer-metrica: #4A90E2;
+  --layer-simbologia: #2ECC71;
+  --layer-vocabulario: #F39C12;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  line-height: 1.7;
+  padding: 24px 16px;
+}
+
+.main-container {
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.mb-4 { margin-bottom: 16px; }
+
+/* Selector e Inputs */
+.select-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: white;
+  margin-top: 6px;
+}
+
+/* Panel JSON */
+.json-box-container {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
+  padding: 18px 20px;
   margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.json-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.json-box-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.json-toolbar { display: flex; gap: 8px; }
+
+.json-textarea {
+  width: 100%;
+  height: 130px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.85rem;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.json-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background: #ffffff;
+}
+
+.json-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Metadatos interactivos de la cabecera */
+.meta-link {
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   transition: all 0.2s ease;
 }
 
-.json-accordion-summary {
+/* ==========================================================================
+   ESTILOS DE NODOS INTERACTIVOS (TEXTO Y PALABRAS)
+   ========================================================================== */
+
+/* Estilo base */
+[data-node], .interactive-word {
+  display: inline;
+  padding: 2px 6px;
+  margin: 0 1px;
+  border-radius: 4px;
+  border-bottom: 2.5px solid var(--primary-color);
+  background-color: #eff6ff;
+  color: var(--text-main);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  position: relative;
+}
+
+[data-node]:hover, .interactive-word:hover {
+  filter: brightness(0.92);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+/* Estado Deshabilitado o Desactivado */
+.category-disabled, .layer-disabled {
+  background: transparent !important;
+  color: inherit !important;
+  border-bottom: none !important;
+  cursor: text !important;
+  pointer-events: none !important;
+  font-weight: normal !important;
+  opacity: 0.5;
+}
+
+/* Tooltip emergente de categoría al pasar el cursor */
+[data-category]::after {
+  content: attr(data-category);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 2px 6px;
+  background-color: #2d3748;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 10;
+}
+
+[data-category]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+/* ==========================================================================
+   SISTEMA DE COLOREADO REFORZADO (POR CATEGORÍA Y CAPA)
+   ========================================================================== */
+
+/* 1. Mapeado por Atributo data-category */
+.interactive-word[data-category="author"],
+[data-node][data-category="author"] {
+  background-color: var(--cat-author) !important;
+  color: var(--cat-author-text) !important;
+  border-bottom-color: var(--cat-author-border) !important;
+}
+
+.interactive-word[data-category="period"],
+[data-node][data-category="period"] {
+  background-color: var(--cat-period) !important;
+  color: var(--cat-period-text) !important;
+  border-bottom-color: var(--cat-period-border) !important;
+}
+
+.interactive-word[data-category="vocabulary"],
+[data-node][data-category="vocabulary"] {
+  background-color: var(--cat-vocabulary) !important;
+  color: var(--cat-vocabulary-text) !important;
+  border-bottom-color: var(--cat-vocabulary-border) !important;
+}
+
+.interactive-word[data-category="culture"],
+[data-node][data-category="culture"] {
+  background-color: var(--cat-culture) !important;
+  color: var(--cat-culture-text) !important;
+  border-bottom-color: var(--cat-culture-border) !important;
+}
+
+.interactive-word[data-category="syntax"],
+[data-node][data-category="syntax"] {
+  background-color: var(--cat-syntax) !important;
+  color: var(--cat-syntax-text) !important;
+  border-bottom-color: var(--cat-syntax-border) !important;
+}
+
+.interactive-word[data-category="analysis"],
+[data-node][data-category="analysis"] {
+  background-color: var(--cat-analysis) !important;
+  color: var(--cat-analysis-text) !important;
+  border-bottom-color: var(--cat-analysis-border) !important;
+}
+
+/* 2. Mapeado por Atributo data-layer (Mapeado directo si no hay data-category) */
+.interactive-word[data-layer="metrica_retorica"],
+[data-node][data-layer="metrica_retorica"] {
+  background-color: var(--cat-syntax) !important;
+  color: var(--cat-syntax-text) !important;
+  border-bottom-color: var(--cat-syntax-border) !important;
+}
+
+.interactive-word[data-layer="simbologia_contexto"],
+[data-node][data-layer="simbologia_contexto"] {
+  background-color: var(--cat-culture) !important;
+  color: var(--cat-culture-text) !important;
+  border-bottom-color: var(--cat-culture-border) !important;
+}
+
+.interactive-word[data-layer="vocabulario_lexico"],
+[data-node][data-layer="vocabulario_lexico"] {
+  background-color: var(--cat-vocabulary) !important;
+  color: var(--cat-vocabulary-text) !important;
+  border-bottom-color: var(--cat-vocabulary-border) !important;
+}
+
+/* Botones y Filtros */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-primary { background: var(--primary-color); color: #ffffff; }
+.btn-primary:hover { background: var(--primary-hover); }
+
+.btn-secondary { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+.btn-secondary:hover { background: #e2e8f0; color: #0f172a; }
+.btn-secondary.active { background: var(--primary-color); color: #ffffff; border-color: var(--primary-hover); }
+
+.btn-danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.btn-danger:hover { background: #fee2e2; }
+
+/* Controladores y Filtros */
+.top-controls {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-title {
+  font-size: 0.85rem;
   font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-main, #0f172a);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+
+.filter-actions { display: flex; gap: 8px; }
+.category-filter-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: 1px solid transparent;
   cursor: pointer;
   user-select: none;
-  background-color: var(--card-bg, #ffffff);
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  background: #f1f5f9;
+  color: #475569;
 }
 
-.json-accordion-summary:hover {
-  background-color: #f8fafc;
+.filter-chip .chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
 }
 
-/* Reajuste del contenedor interno cuando está dentro del acordeón */
-.json-accordion-container .json-box-container {
-  border: none;
-  border-top: 1px solid var(--border-color, #e2e8f0);
-  border-radius: 0;
-  margin-bottom: 0;
-  box-shadow: none;
+.filter-chip[data-category="author"].active { background: var(--cat-author); color: var(--cat-author-text); border-color: #bfdbfe; }
+.filter-chip[data-category="period"].active { background: var(--cat-period); color: var(--cat-period-text); border-color: #bbf7d0; }
+.filter-chip[data-category="vocabulary"].active { background: var(--cat-vocabulary); color: var(--cat-vocabulary-text); border-color: #fef08a; }
+.filter-chip[data-category="culture"].active { background: var(--cat-culture); color: var(--cat-culture-text); border-color: #e9d5ff; }
+.filter-chip[data-category="syntax"].active { background: var(--cat-syntax); color: var(--cat-syntax-text); border-color: #fbcfe8; }
+.filter-chip[data-category="analysis"].active { background: var(--cat-analysis); color: var(--cat-analysis-text); border-color: #bae6fd; }
+
+.filter-chip.inactive {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: #cbd5e1;
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Cabecera del Documento */
+header.doc-header {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+header.doc-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.meta-details {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+/* Selector de Nivel de Anotación */
+.annotation-level-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.level-buttons { display: flex; gap: 8px; }
+
+.level-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.level-badge.short-mode {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+}
+
+.level-badge.deep-mode {
+  background-color: #f3e5f5;
+  color: #6a1b9a;
+  border: 1px solid #e1bee7;
+}
+
+/* Cuerpo del Texto */
+.text-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 36px 40px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+  font-size: 1.2rem;
+  line-height: 2;
+}
+
+.stanzas-wrapper p { margin-bottom: 1.8rem; }
+
+/* Modal Flotante */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.modal-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 720px;
+  max-height: 88vh;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   background: #f8fafc;
 }
 
-/* Alineación y comportamiento de los nuevos botones de acción */
-.json-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 12px;
+.modal-category-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-bottom: 6px;
 }
 
-.external-gem-btn {
-  text-decoration: none;
-  display: inline-flex;
+.modal-category-badge[data-category="author"] { background: var(--cat-author); color: var(--cat-author-text); }
+.modal-category-badge[data-category="period"] { background: var(--cat-period); color: var(--cat-period-text); }
+.modal-category-badge[data-category="vocabulary"] { background: var(--cat-vocabulary); color: var(--cat-vocabulary-text); }
+.modal-category-badge[data-category="culture"] { background: var(--cat-culture); color: var(--cat-culture-text); }
+.modal-category-badge[data-category="syntax"] { background: var(--cat-syntax); color: var(--cat-syntax-text); }
+.modal-category-badge[data-category="analysis"] { background: var(--cat-analysis); color: var(--cat-analysis-text); }
+
+.modal-title { font-size: 1.4rem; font-weight: 700; color: #0f172a; }
+
+.modal-close-btn {
+  background: #e2e8f0;
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text-muted);
+}
+
+.modal-close-btn:hover { background: #cbd5e1; color: #0f172a; }
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.modal-definition {
+  background-color: #eff6ff;
+  border-left: 4px solid var(--primary-color);
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+  color: #1e3a8a;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+
+.modal-content { color: #334155; margin-bottom: 20px; }
+
+/* Contenedor e Imagen en el Modal */
+.modal-image-wrapper {
+  margin: 16px 0;
+  text-align: center;
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.modal-image-wrapper.is-loading {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.modal-image-wrapper img {
+  max-width: 100%;
+  max-height: 320px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+.modal-image-caption {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.modal-links-container {
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.link-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 10px 14px;
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
+.link-item:hover { background: #e2e8f0; }
+
+.hidden { display: none !important; }
+
+/* Accesibilidad y foco por teclado */
+[data-node]:focus-visible, 
+.filter-chip:focus-visible, 
+.btn:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Modo Impresión */
+@media print {
+  .json-box-container,
+  .top-controls,
+  .modal-overlay,
+  .annotation-level-selector {
+    display: none !important;
+  }
+  
+  body {
+    background: #ffffff;
+    color: #000000;
+    padding: 0;
+  }
+  
+  .text-card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  [data-node], .interactive-word {
+    border-bottom: 1px solid #666 !important;
+    background: transparent !important;
+    color: inherit !important;
+  }
+
+/* ==========================================================================
+   MEJORAS Y SUGERENCIAS ADICIONALES
+   ========================================================================== */
+
+/* 1. Animación de apertura suave para el modal (Efecto Fade & Scale) */
+.modal-overlay:not(.hidden) .modal-card {
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 2. Optimización visual de las imágenes en el modal */
+.modal-image-wrapper img {
+  max-width: 100%;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* Evita recortes no deseados en mapas o grabados */
+  background: #ffffff;
+  padding: 4px;
+}
+
+/* 3. Indicador de color dinámico para los puntos de los filtros (Chips) */
+.filter-chip .chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.filter-chip[data-category="author"] .chip-dot { background-color: var(--cat-author-border); }
+.filter-chip[data-category="period"] .chip-dot { background-color: var(--cat-period-border); }
+.filter-chip[data-category="vocabulary"] .chip-dot { background-color: var(--cat-vocabulary-border); }
+.filter-chip[data-category="culture"] .chip-dot { background-color: var(--cat-culture-border); }
+.filter-chip[data-category="syntax"] .chip-dot { background-color: var(--cat-syntax-border); }
+.filter-chip[data-category="analysis"] .chip-dot { background-color: var(--cat-analysis-border); }
+
+/* 4. Estilo hover sutil para los enlaces externos dentro del modal */
+.link-item {
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.link-item:hover {
+  transform: translateX(4px);
+  background: #e2e8f0;
+}
+
+  
 }
