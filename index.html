@@ -8,36 +8,39 @@
 </head>
 <body>
 
-<div class="selector-container">
-  <label for="selector-obras">Seleccionar obra:</label>
-  <select id="selector-obras">
-    <option value="">-- Cargar obra anotada --</option>
-  </select>
-</div>
-  
   <div class="main-container">
-    <!-- Panel de carga JSON -->
+    <!-- Selector de Obra -->
+    <section class="top-controls mb-4">
+      <div class="selector-container">
+        <label for="selector-obras" class="json-box-title">Seleccionar obra del catálogo:</label>
+        <select id="selector-obras" class="select-input">
+          <option value="">-- Cargar obra anotada --</option>
+        </select>
+      </div>
+    </section>
+  
+    <!-- Panel de Carga JSON -->
     <section class="json-box-container">
       <div class="json-box-header">
-        <span class="json-box-title">Cargar Estructura JSON de Edición Crítica</span>
+        <span class="json-box-title">Cargar / Pegar Estructura JSON</span>
         <div class="json-toolbar">
-          <button id="btn-sample-json" class="btn btn-secondary">Cargar Ejemplo</button>
-          <button id="btn-clear-json" class="btn btn-danger">Limpiar</button>
+          <button id="btn-sample-json" class="btn btn-secondary" type="button">Cargar Ejemplo</button>
+          <button id="btn-clear-json" class="btn btn-danger" type="button">Limpiar</button>
         </div>
       </div>
-      <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el JSON generado por el agente..."></textarea>
+      <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el JSON generado..."></textarea>
       <div class="json-actions">
-        <button id="btn-load-json" class="btn btn-primary">Renderizar Obra</button>
+        <button id="btn-load-json" class="btn btn-primary" type="button">Renderizar Obra</button>
       </div>
     </section>
 
     <!-- Filtros de Categorías -->
     <section class="top-controls">
       <div class="filter-header">
-        <span class="filter-title">Filtro de Categorías</span>
+        <span class="filter-title">Filtro de Categorías / Capas</span>
         <div class="filter-actions">
-          <button id="btn-select-all-cats" class="btn btn-secondary">Todas</button>
-          <button id="btn-deselect-all-cats" class="btn btn-secondary">Ninguna</button>
+          <button id="btn-select-all-cats" class="btn btn-secondary" type="button">Todas</button>
+          <button id="btn-deselect-all-cats" class="btn btn-secondary" type="button">Ninguna</button>
         </div>
       </div>
       <div id="category-filter-bar" class="category-filter-bar"></div>
@@ -56,8 +59,8 @@
     <!-- Selector de Nivel de Anotación -->
     <div class="annotation-level-selector">
       <div class="level-buttons">
-        <button class="btn btn-secondary level-btn active" data-level="short" aria-checked="true">Nivel Lectura Básica</button>
-        <button class="btn btn-secondary level-btn" data-level="deep" aria-checked="false">Nivel Edición Crítica</button>
+        <button class="btn btn-secondary level-btn active" data-level="short" type="button">Lectura Básica</button>
+        <button class="btn btn-secondary level-btn" data-level="deep" type="button">Edición Crítica</button>
       </div>
       <span id="levelIndicatorBadge" class="level-badge short-mode">Modo Lectura Básica</span>
     </div>
@@ -65,7 +68,7 @@
     <!-- Cuerpo del Texto -->
     <main class="text-card">
       <article id="text-stanzas" class="stanzas-wrapper">
-        <p class="loading-state">Carga una obra pegando el JSON arriba o usando el botón de ejemplo.</p>
+        <p class="loading-state">Pega un JSON en el área superior o pulsa "Cargar Ejemplo".</p>
       </article>
     </main>
   </div>
@@ -95,23 +98,5 @@
   </div>
 
   <script src="app.js"></script>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const btnSample = document.getElementById('btn-sample-json');
-      if (btnSample) {
-        btnSample.addEventListener('click', () => {
-          alert('¡El JavaScript sí se está ejecutando correctamente!');
-        });
-      } else {
-        alert('No se encontró el botón btn-sample-json en el HTML');
-      }
-    });
-  </script>
-
-
-
-
 </body>
 </html>
