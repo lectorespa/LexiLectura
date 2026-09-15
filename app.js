@@ -829,21 +829,25 @@ function isTechnicallyValidImage(url) {
 // =========================================================================
 
 function inicializarEventos() {
-  const selectObras = document.getElementById('selector-obras');
-  if (selectObras) {
-    selectObras.addEventListener('change', async (e) => {
-      const ruta = e.target.value;
-      if (!ruta) return;
-      try {
-        const res = await fetch(ruta);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        renderizarTextoAnotado(data);
-      } catch (err) {
-        alert('No se pudo cargar el archivo local. Revisa el servidor web o usa el cajetín JSON.');
+  const levelBtns = document.querySelectorAll('.level-btn');
+  const levelBadge = document.getElementById('levelIndicatorBadge');
+
+  levelBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      levelBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      nivelLecturaActual = btn.dataset.level || 'short';
+      
+      if (levelBadge) {
+        levelBadge.textContent = nivelLecturaActual === 'deep' 
+          ? 'Modo Edición Crítica (Vocabulario C1+)' 
+          : 'Modo Lectura Básica (Vocabulario B1+)';
       }
+
+      // Reaplicar el filtro de vocabulario dinámicamente al cambiar de modo
+      aplicarFiltroVocabularioPorNivel();
     });
-  }
+  });
 
   document.getElementById('btn-load-json')?.addEventListener('click', () => {
     const jsonInput = document.getElementById('json-input');
