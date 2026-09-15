@@ -19,7 +19,6 @@ const CAPAS_CATALOGO = {
   analysis:   { id: 'analysis',   label: 'Análisis e Interpretación', color: '#C0392B' }
 };
 
-// Aliases para resolver nombres en español o identificadores legacy
 const ALIAS_CAPAS = {
   'autor': 'author', 'autoría': 'author', 'autoria': 'author',
   'periodo': 'period', 'época': 'period', 'epoca': 'period', 'contexto': 'period', 'época y contexto': 'period',
@@ -36,7 +35,7 @@ function resolverCapa(val) {
   return CAPAS_CATALOGO[key] || { id: key, label: String(val), color: '#4A90E2' };
 }
 
-// JSON de ejemplo por si catalogo.json o el servidor fallan
+// JSON de ejemplo
 const EJEMPLO_JSON = {
   "meta": {
     "title": "Cantar de mio Cid (Fragmento)",
@@ -52,6 +51,9 @@ const EJEMPLO_JSON = {
       "type": "author",
       "category": "Autor",
       "title": "Autor Anónimo",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Cantar_de_mio_Cid_f._1r.jpg/320px-Cantar_de_mio_Cid_f._1r.jpg",
+      "imageCaption": "Manuscrito del Cantar de mio Cid",
+      "wikipediaArticle": "Cantar_de_mio_Cid",
       "annotations": {
         "short": { "definition": "Autor desconocido del Mío Cid.", "content": "Obra cumbre del cantar de gesta hispánico." },
         "deep": { "definition": "Tradición juglaresca mester de juglaría.", "content": "Composición de transmisión oral preservada en manuscrito." }
@@ -61,6 +63,7 @@ const EJEMPLO_JSON = {
       "type": "syntax",
       "category": "Sintaxis",
       "title": "De los sus ojos",
+      "youtubeUrl": "dQw4w9WgXcQ",
       "annotations": {
         "short": { "definition": "Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
         "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
@@ -82,12 +85,9 @@ async function cargarMenuObras() {
 
   try {
     const response = await fetch('catalogo.json');
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: No se encontró catalogo.json en la raíz`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     let catalogo = await response.json();
-
     if (!Array.isArray(catalogo)) {
       catalogo = catalogo.obras || catalogo.catalogo || catalogo.items || [];
     }
@@ -105,10 +105,7 @@ async function cargarMenuObras() {
       const tituloDisplay = typeof item === 'string' ? item.replace(/\.json$/i, '') : (item.titulo || item.title || nombreArchivo);
 
       if (!nombreArchivo) return;
-
-      const rutaRelativa = nombreArchivo.startsWith('textos/') 
-        ? nombreArchivo 
-        : `textos/${nombreArchivo}`;
+      const rutaRelativa = nombreArchivo.startsWith('textos/') ? nombreArchivo : `textos/${nombreArchivo}`;
 
       option.value = rutaRelativa;
       option.textContent = tituloDisplay;
@@ -116,33 +113,8 @@ async function cargarMenuObras() {
     });
   } catch (error) {
     console.error('Error al cargar catalogo.json:', error);
-    select.innerHTML = `<option value="">-- Error: ${error.message} --</option>`;
+    select.innerHTML = `<option value="">-- Cargar catálogo no disponible --</option>`;
   }
-}
-
-
-// Botones de selección masiva de categorías
-const btnSelectAll = document.getElementById('btn-select-all-cats');
-const btnDeselectAll = document.getElementById('btn-deselect-all-cats');
-
-if (btnSelectAll) {
-  btnSelectAll.addEventListener('click', () => {
-    document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
-      btn.classList.add('active');
-      btn.style.opacity = '1';
-      alternarVisibilidadCapa(btn.dataset.layerId, true);
-    });
-  });
-}
-
-if (btnDeselectAll) {
-  btnDeselectAll.addEventListener('click', () => {
-    document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
-      btn.classList.remove('active');
-      btn.style.opacity = '0.4';
-      alternarVisibilidadCapa(btn.dataset.layerId, false);
-    });
-  });
 }
 
 // ==========================================
@@ -153,7 +125,7 @@ function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
 
-  // 2.1 Metadatos
+  // 2.1 Metadatos de la cabecera
   const docTitle = document.getElementById('doc-title');
   const docAuthor = document.getElementById('doc-author');
   const docPeriod = document.getElementById('doc-period');
@@ -164,16 +136,22 @@ function renderizarTextoAnotado(datosObra) {
   if (docAuthor) {
     const autorNombre = datosObra.meta?.author || '';
     const autorNodo = datosObra.meta?.authorNodeId;
+    const nodoObj = datosObra.interactiveNodes?.[autorNodo];
+    const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'author');
+
     docAuthor.innerHTML = autorNodo 
-      ? `<span class="meta-link" data-node="${autorNodo}" tabindex="0" role="button">${autorNombre}</span>` 
+      ? `<span class="meta-link" data-node="${autorNodo}" data-category="${capaObj?.id || 'author'}" tabindex="0" role="button">${autorNombre}</span>` 
       : autorNombre;
   }
 
   if (docPeriod) {
     const periodoNombre = datosObra.meta?.period || '';
     const periodoNodo = datosObra.meta?.periodNodeId;
+    const nodoObj = datosObra.interactiveNodes?.[periodoNodo];
+    const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'period');
+
     docPeriod.innerHTML = periodoNombre 
-      ? ` | <span class="meta-link" data-node="${periodoNodo}" tabindex="0" role="button">${periodoNombre}</span>` 
+      ? ` | <span class="meta-link" data-node="${periodoNodo}" data-category="${capaObj?.id || 'period'}" tabindex="0" role="button">${periodoNombre}</span>` 
       : (periodoNombre ? ` | ${periodoNombre}` : '');
   }
 
@@ -181,16 +159,16 @@ function renderizarTextoAnotado(datosObra) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
   }
 
-  // 2.2 Textarea
+  // 2.2 Sincronización del Área JSON
   const jsonInput = document.getElementById('json-input');
   if (jsonInput && document.activeElement !== jsonInput) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-  // 2.3 Generar Filtros de Categorías
+  // 2.3 Generación de Filtros
   renderizarFiltrosCategorias(datosObra);
 
-  // 2.4 Estrofas
+  // 2.4 Renderizado de Estrofas
   const contenedorEstrofas = document.getElementById('text-stanzas');
   if (!contenedorEstrofas) return;
 
@@ -202,6 +180,18 @@ function renderizarTextoAnotado(datosObra) {
       estrofaDiv.className = 'estrofa-block';
       estrofaDiv.innerHTML = estrofaHtml;
       contenedorEstrofas.appendChild(estrofaDiv);
+    });
+
+    // Inyección de atributos data-category para la aplicación correcta de estilos CSS
+    document.querySelectorAll('.stanzas-wrapper [data-node]').forEach(el => {
+      const nodeId = el.getAttribute('data-node');
+      const nodo = datosObra.interactiveNodes?.[nodeId];
+      if (nodo) {
+        const capaObj = resolverCapa(nodo.type || nodo.category);
+        if (capaObj) {
+          el.setAttribute('data-category', capaObj.id);
+        }
+      }
     });
   } else {
     contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta obra.</p>';
@@ -215,7 +205,6 @@ function renderizarFiltrosCategorias(datosObra) {
 
   const capasPresentes = new Map();
 
-  // Escanea interactiveNodes para extraer y resolver todas las categorías activas
   if (datosObra.interactiveNodes) {
     Object.values(datosObra.interactiveNodes).forEach(nodo => {
       const capaObj = resolverCapa(nodo.type || nodo.category || nodo.layerId || nodo.layer);
@@ -225,29 +214,18 @@ function renderizarFiltrosCategorias(datosObra) {
     });
   }
 
-  // Compatibilidad con la propiedad legacy "layers"
-  if (Array.isArray(datosObra.layers)) {
-    datosObra.layers.forEach(l => {
-      const capaObj = resolverCapa(l.layerId || l.id || l.label);
-      if (capaObj && !capasPresentes.has(capaObj.id)) {
-        capasPresentes.set(capaObj.id, capaObj);
-      }
-    });
-  }
-
   if (capasPresentes.size === 0) return;
 
-  // Renderizar botones en la barra de filtros
   capasPresentes.forEach((capa) => {
     const btn = document.createElement('button');
-    btn.className = 'btn btn-secondary filter-chip active';
-    btn.style.borderLeft = `4px solid ${capa.color}`;
+    btn.className = 'btn filter-chip active';
     btn.textContent = capa.label;
     btn.dataset.layerId = capa.id;
+    btn.dataset.category = capa.id;
 
     btn.addEventListener('click', () => {
       const isActive = btn.classList.toggle('active');
-      btn.style.opacity = isActive ? '1' : '0.4';
+      btn.classList.toggle('inactive', !isActive);
       alternarVisibilidadCapa(capa.id, isActive);
     });
 
@@ -263,7 +241,7 @@ function alternarVisibilidadCapa(capaId, visible) {
     const nodeId = el.getAttribute('data-node');
     const nodo = obraActiva.interactiveNodes?.[nodeId];
     
-    const rawCapa = el.getAttribute('data-layer') || nodo?.type || nodo?.category || nodo?.layerId || nodo?.layer;
+    const rawCapa = el.getAttribute('data-category') || el.getAttribute('data-layer') || nodo?.type || nodo?.category;
     const capaObj = resolverCapa(rawCapa);
     
     if (capaObj?.id === capaId || rawCapa === capaId) {
@@ -284,7 +262,10 @@ function abrirModalAnotacion(datosNodo) {
   const modalTitle = document.getElementById('modal-title');
   
   const capaObj = resolverCapa(datosNodo.type || datosNodo.category);
-  if (modalCat) modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || datosNodo.type || 'Anotación');
+  if (modalCat) {
+    modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || datosNodo.type || 'Anotación');
+    modalCat.setAttribute('data-category', capaObj?.id || '');
+  }
   if (modalTitle) modalTitle.textContent = datosNodo.title || datosNodo.label || '';
 
   const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {};
@@ -296,36 +277,38 @@ function abrirModalAnotacion(datosNodo) {
 
   // 3.1 Procesar Imagen
   const imgWrapper = document.getElementById('modal-image-wrapper');
-  const imgElem = document.getElementById('modal-image') || imgWrapper?.querySelector('img');
-  const imgCaption = document.getElementById('modal-image-caption') || imgWrapper?.querySelector('figcaption, p');
+  const imgElem = document.getElementById('modal-image');
+  const imgCaption = document.getElementById('modal-image-caption');
 
   const urlImagen = datosNodo.imageUrl || datosNodo.image || datosNodo.mediaUrl || datosNodo.img || anotacion.imageUrl || anotacion.image;
   const captionImagen = datosNodo.imageCaption || datosNodo.caption || datosNodo.alt || anotacion.imageCaption || '';
 
   if (imgWrapper && urlImagen) {
-    if (imgElem) imgElem.src = urlImagen;
+    if (imgElem) {
+      imgElem.src = urlImagen;
+      imgElem.style.display = 'block';
+    }
     if (imgCaption) imgCaption.textContent = captionImagen;
     imgWrapper.classList.remove('hidden');
   } else if (imgWrapper) {
     imgWrapper.classList.add('hidden');
+    if (imgElem) imgElem.style.display = 'none';
   }
 
-  // 3.2 Procesar Enlaces (YouTube y Wikipedia)
+  // 3.2 Procesar Vídeos (YouTube) y Enlaces
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
     let htmlEnlaces = '';
 
-    // YouTube
     const youtubeRef = datosNodo.youtubeUrl || datosNodo.youtube || datosNodo.videoUrl || datosNodo.youtubeId || anotacion.youtubeUrl || anotacion.youtube;
     if (youtubeRef) {
       let urlYt = youtubeRef;
       if (!urlYt.startsWith('http://') && !urlYt.startsWith('https://')) {
         urlYt = `https://www.youtube.com/watch?v=${youtubeRef}`;
       }
-      htmlEnlaces += `<a href="${urlYt}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary youtube-link">▶ Ver en YouTube ↗</a> `;
+      htmlEnlaces += `<a href="${urlYt}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link">▶ Ver en YouTube ↗</a> `;
     }
 
-    // Wikipedia
     const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikiUrl || datosNodo.wikipedia || anotacion.wikipediaArticle;
     if (wikiRef) {
       let urlWiki = wikiRef;
@@ -333,7 +316,7 @@ function abrirModalAnotacion(datosNodo) {
         const wikiLang = datosNodo.wikiLang || 'es';
         urlWiki = `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
       }
-      htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary wiki-link">🌐 Ver en Wikipedia ↗</a>`;
+      htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Ver en Wikipedia ↗</a>`;
     }
 
     if (htmlEnlaces.trim() !== '') {
@@ -357,11 +340,10 @@ function cerrarModal() {
 }
 
 // ==========================================
-// 4. EVENTOS DE BOTONES E INTERFAZ
+// 4. EVENTOS E INICIALIZACIÓN
 // ==========================================
 
 function inicializarEventos() {
-  // Selector desplegable
   const selectObras = document.getElementById('selector-obras');
   if (selectObras) {
     selectObras.addEventListener('change', async (e) => {
@@ -373,13 +355,12 @@ function inicializarEventos() {
         const data = await res.json();
         renderizarTextoAnotado(data);
       } catch (err) {
-        alert(`No se pudo cargar el archivo "${ruta}". Revisa que exista en la carpeta /textos/.`);
+        alert(`No se pudo cargar el archivo "${ruta}". Revisa la ruta en la carpeta /textos/.`);
         console.error(err);
       }
     });
   }
 
-  // Botón "Renderizar Obra"
   const btnLoadJson = document.getElementById('btn-load-json');
   if (btnLoadJson) {
     btnLoadJson.addEventListener('click', () => {
@@ -398,7 +379,6 @@ function inicializarEventos() {
     });
   }
 
-  // Botón "Cargar Ejemplo"
   const btnSampleJson = document.getElementById('btn-sample-json');
   if (btnSampleJson) {
     btnSampleJson.addEventListener('click', () => {
@@ -406,7 +386,6 @@ function inicializarEventos() {
     });
   }
 
-  // Botón "Limpiar"
   const btnClearJson = document.getElementById('btn-clear-json');
   if (btnClearJson) {
     btnClearJson.addEventListener('click', () => {
@@ -418,7 +397,31 @@ function inicializarEventos() {
     });
   }
 
-  // Selector de Nivel (Básica / Crítica)
+  // Selección de todas / ninguna categoría
+  const btnSelectAll = document.getElementById('btn-select-all-cats');
+  const btnDeselectAll = document.getElementById('btn-deselect-all-cats');
+
+  if (btnSelectAll) {
+    btnSelectAll.addEventListener('click', () => {
+      document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
+        btn.classList.add('active');
+        btn.classList.remove('inactive');
+        alternarVisibilidadCapa(btn.dataset.layerId, true);
+      });
+    });
+  }
+
+  if (btnDeselectAll) {
+    btnDeselectAll.addEventListener('click', () => {
+      document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.add('inactive');
+        alternarVisibilidadCapa(btn.dataset.layerId, false);
+      });
+    });
+  }
+
+  // Conmutador de nivel de lectura
   const levelBtns = document.querySelectorAll('.level-btn');
   const levelBadge = document.getElementById('levelIndicatorBadge');
 
@@ -439,7 +442,7 @@ function inicializarEventos() {
     });
   });
 
-  // Delegación de clics para nodos interactivos
+  // Delegación de eventos para apertura de nodos interactivos
   document.addEventListener('click', (e) => {
     const targetNodo = e.target.closest('[data-node]');
     if (!targetNodo) return;
@@ -451,7 +454,6 @@ function inicializarEventos() {
     if (datosNodo) abrirModalAnotacion(datosNodo);
   });
 
-  // Eventos Modal
   const modalCloseBtn = document.getElementById('modal-close-btn');
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', cerrarModal);
 
@@ -463,62 +465,6 @@ function inicializarEventos() {
   }
 }
 
-
-// Renderizar botones en la barra de filtros
-capasPresentes.forEach((capa) => {
-  const btn = document.createElement('button');
-  btn.className = 'btn filter-chip active'; // Se elimina 'btn-secondary' para no heredar azul
-  btn.textContent = capa.label;
-  btn.dataset.layerId = capa.id;
-  btn.dataset.category = capa.id; // Asigna el atributo para que aplique CSS
-
-  btn.addEventListener('click', () => {
-    const isActive = btn.classList.toggle('active');
-    btn.classList.toggle('inactive', !isActive);
-    alternarVisibilidadCapa(capa.id, isActive);
-  });
-
-  bar.appendChild(btn);
-});
-
-// Al renderizar metadatos de autor y período
-if (docAuthor) {
-  const autorNombre = datosObra.meta?.author || '';
-  const autorNodo = datosObra.meta?.authorNodeId;
-  const nodoObj = datosObra.interactiveNodes?.[autorNodo];
-  const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'author');
-
-  docAuthor.innerHTML = autorNodo 
-    ? `<span class="meta-link" data-node="${autorNodo}" data-category="${capaObj?.id || 'author'}" tabindex="0" role="button">${autorNombre}</span>` 
-    : autorNombre;
-}
-
-if (docPeriod) {
-  const periodoNombre = datosObra.meta?.period || '';
-  const periodoNodo = datosObra.meta?.periodNodeId;
-  const nodoObj = datosObra.interactiveNodes?.[periodoNodo];
-  const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'period');
-
-  docPeriod.innerHTML = periodoNombre 
-    ? ` | <span class="meta-link" data-node="${periodoNodo}" data-category="${capaObj?.id || 'period'}" tabindex="0" role="button">${periodoNombre}</span>` 
-    : (periodoNombre ? ` | ${periodoNombre}` : '');
-}
-
-// Dentro de renderizarTextoAnotado, tras inyectar las estrofas:
-document.querySelectorAll('.stanzas-wrapper [data-node]').forEach(el => {
-  const nodeId = el.getAttribute('data-node');
-  const nodo = datosObra.interactiveNodes?.[nodeId];
-  if (nodo) {
-    const capaObj = resolverCapa(nodo.type || nodo.category);
-    if (capaObj) {
-      el.setAttribute('data-category', capaObj.id);
-    }
-  }
-});
-
-
-
-// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
   inicializarEventos();
