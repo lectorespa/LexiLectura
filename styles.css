@@ -117,6 +117,8 @@ body {
 .btn-secondary { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 .btn-secondary:hover { background: #e2e8f0; color: #0f172a; }
 
+.btn-secondary.active { background: var(--primary-color); color: #ffffff; border-color: var(--primary-hover); }
+
 .btn-danger { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 .btn-danger:hover { background: #fee2e2; }
 
@@ -225,6 +227,11 @@ header.doc-header h1 {
   border-bottom: 1px solid #e0e0e0;
 }
 
+.level-buttons {
+  display: flex;
+  gap: 8px;
+}
+
 .level-badge {
   font-size: 0.75rem;
   font-weight: 600;
@@ -276,6 +283,11 @@ header.doc-header h1 {
 [data-category="culture"] { background: var(--cat-culture); color: var(--cat-culture-text); border-color: #a855f7; }
 [data-category="syntax"] { background: var(--cat-syntax); color: var(--cat-syntax-text); border-color: #ec4899; }
 [data-category="analysis"] { background: var(--cat-analysis); color: var(--cat-analysis-text); border-color: #0284c7; }
+
+/* Estilos dinámicos para marcas por capa */
+[data-layer="metrica_retorica"] { border-bottom-color: var(--layer-metrica_retorica, #4A90E2); }
+[data-layer="simbologia_contexto"] { border-bottom-color: var(--layer-simbologia_contexto, #2ECC71); }
+[data-layer="vocabulario_lexico"] { border-bottom-color: var(--layer-vocabulario_lexico, #F39C12); }
 
 [data-node]:hover, .interactive-word:hover {
   filter: brightness(0.92);
@@ -454,3 +466,39 @@ header.doc-header h1 {
 
 .link-item:hover { background: #e2e8f0; }
 .hidden { display: none !important; }
+
+/* Accesibilidad por teclado */
+[data-node]:focus-visible, 
+.filter-chip:focus-visible, 
+.btn:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Modo de impresión */
+@media print {
+  .json-box-container,
+  .top-controls,
+  .modal-overlay,
+  .annotation-level-selector {
+    display: none !important;
+  }
+  
+  body {
+    background: #ffffff;
+    color: #000000;
+    padding: 0;
+  }
+  
+  .text-card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  
+  [data-node] {
+    border-bottom: 1px solid #666;
+    background: transparent !important;
+    color: inherit !important;
+  }
+}
