@@ -6,15 +6,35 @@
 let obraActiva = null;
 let nivelLecturaActual = 'short';
 
-// Map oficial de las 6 categorías generadas por el Gem
-const CAPAS_OFICIALES = {
-  author:     { label: 'Autoría', color: '#8E44AD' },
-  period:     { label: 'Época y Contexto', color: '#2980B9' },
-  vocabulary: { label: 'Vocabulario', color: '#F39C12' },
-  culture:    { label: 'Cultura y Sociedad', color: '#27AE60' },
-  syntax:     { label: 'Métrica y Sintaxis', color: '#E67E22' },
-  analysis:   { label: 'Análisis e Interpretación', color: '#C0392B' }
+// ==========================================
+// DICCIONARIO Y NORMALIZACIÓN DE CAPAS
+// ==========================================
+
+const CAPAS_CATALOGO = {
+  author:     { id: 'author',     label: 'Autoría',                  color: '#8E44AD' },
+  period:     { id: 'period',     label: 'Época y Contexto',         color: '#2980B9' },
+  vocabulary: { id: 'vocabulary', label: 'Vocabulario',              color: '#F39C12' },
+  culture:    { id: 'culture',    label: 'Cultura y Sociedad',        color: '#27AE60' },
+  syntax:     { id: 'syntax',     label: 'Métrica y Sintaxis',        color: '#E67E22' },
+  analysis:   { id: 'analysis',   label: 'Análisis e Interpretación', color: '#C0392B' }
 };
+
+// Aliases para resolver nombres en español o identificadores legacy
+const ALIAS_CAPAS = {
+  'autor': 'author', 'autoría': 'author', 'autoria': 'author',
+  'periodo': 'period', 'época': 'period', 'epoca': 'period', 'contexto': 'period', 'época y contexto': 'period',
+  'vocabulario': 'vocabulary', 'vocabulario_lexico': 'vocabulary', 'léxico': 'vocabulary', 'lexico': 'vocabulary',
+  'cultura': 'culture', 'sociedad': 'culture', 'cultura y sociedad': 'culture',
+  'sintaxis': 'syntax', 'métrica': 'syntax', 'metrica': 'syntax', 'métrica_retorica': 'syntax', 'metrica_retorica': 'syntax', 'métrica y sintaxis': 'syntax', 'recursos': 'syntax',
+  'análisis': 'analysis', 'analisis': 'analysis', 'interpretación': 'analysis', 'interpretacion': 'analysis', 'análisis e interpretación': 'analysis'
+};
+
+function resolverCapa(val) {
+  if (!val) return null;
+  const str = String(val).trim().toLowerCase();
+  const key = ALIAS_CAPAS[str] || str;
+  return CAPAS_CATALOGO[key] || { id: key, label: String(val), color: '#4A90E2' };
+}
 
 // JSON de ejemplo por si catalogo.json o el servidor fallan
 const EJEMPLO_JSON = {
@@ -101,7 +121,7 @@ async function cargarMenuObras() {
 }
 
 // ==========================================
-// 2. RENDERIZADO DE LA OBRA Y FILTROS POR CAPAS
+// 2. RENDERIZADO DE LA OBRA Y FILTROS
 // ==========================================
 
 function renderizarTextoAnotado(datosObra) {
@@ -142,10 +162,10 @@ function renderizarTextoAnotado(datosObra) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-  // 2.3 Filtros de Categorías
+  // 2.3 Generar Filtros de Categorías
   renderizarFiltrosCategorias(datosObra);
 
-  // 2.4 Estrofas (#text-stanzas)
+  // 2.4 Estrofas
   const contenedorEstrofas = document.getElementById('text-stanzas');
   if (!contenedorEstrofas) return;
 
@@ -170,34 +190,29 @@ function renderizarFiltrosCategorias(datosObra) {
 
   const capasPresentes = new Map();
 
-  // 1. Escanea los nodos interactivos para extraer las categorías reales usadas
+  // Escanea interactiveNodes para extraer y resolver todas las categorías activas
   if (datosObra.interactiveNodes) {
     Object.values(datosObra.interactiveNodes).forEach(nodo => {
-      const catId = nodo.type || nodo.category;
-      if (catId && !capasPresentes.has(catId)) {
-        const info = CAPAS_OFICIALES[catId] || { label: catId, color: '#4A90E2' };
-        capasPresentes.set(catId, { id: catId, label: info.label, color: info.color });
+      const capaObj = resolverCapa(nodo.type || nodo.category || nodo.layerId || nodo.layer);
+      if (capaObj && !capasPresentes.has(capaObj.id)) {
+        capasPresentes.set(capaObj.id, capaObj);
       }
     });
   }
 
-  // 2. Compatibilidad con el array legacy "layers" si existiera en archivos antiguos
+  // Compatibilidad con la propiedad legacy "layers"
   if (Array.isArray(datosObra.layers)) {
     datosObra.layers.forEach(l => {
-      if (!capasPresentes.has(l.layerId)) {
-        const info = CAPAS_OFICIALES[l.layerId] || {};
-        capasPresentes.set(l.layerId, {
-          id: l.layerId,
-          label: l.label || info.label || l.layerId,
-          color: l.color || info.color || '#4A90E2'
-        });
+      const capaObj = resolverCapa(l.layerId || l.id || l.label);
+      if (capaObj && !capasPresentes.has(capaObj.id)) {
+        capasPresentes.set(capaObj.id, capaObj);
       }
     });
   }
 
   if (capasPresentes.size === 0) return;
 
-  // 3. Crear botones interactivos para activar/desactivar cada capa
+  // Renderizar botones en la barra de filtros
   capasPresentes.forEach((capa) => {
     const btn = document.createElement('button');
     btn.className = 'btn btn-secondary filter-chip active';
@@ -223,16 +238,17 @@ function alternarVisibilidadCapa(capaId, visible) {
     const nodeId = el.getAttribute('data-node');
     const nodo = obraActiva.interactiveNodes?.[nodeId];
     
-    const capaNodo = el.getAttribute('data-layer') || nodo?.type || nodo?.category;
+    const rawCapa = el.getAttribute('data-layer') || nodo?.type || nodo?.category || nodo?.layerId || nodo?.layer;
+    const capaObj = resolverCapa(rawCapa);
     
-    if (capaNodo === capaId) {
+    if (capaObj?.id === capaId || rawCapa === capaId) {
       el.classList.toggle('layer-disabled', !visible);
     }
   });
 }
 
 // ==========================================
-// 3. MODAL Y NIVELES DE LECTURA
+// 3. MODAL DE ANOTACIONES (Imagen y Vídeos)
 // ==========================================
 
 function abrirModalAnotacion(datosNodo) {
@@ -242,10 +258,8 @@ function abrirModalAnotacion(datosNodo) {
   const modalCat = document.getElementById('modal-category');
   const modalTitle = document.getElementById('modal-title');
   
-  const catId = datosNodo.type || datosNodo.category;
-  const infoCapa = CAPAS_OFICIALES[catId];
-  
-  if (modalCat) modalCat.textContent = infoCapa ? infoCapa.label : (datosNodo.category || datosNodo.type || 'Anotación');
+  const capaObj = resolverCapa(datosNodo.type || datosNodo.category);
+  if (modalCat) modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || datosNodo.type || 'Anotación');
   if (modalTitle) modalTitle.textContent = datosNodo.title || datosNodo.label || '';
 
   const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {};
@@ -255,15 +269,50 @@ function abrirModalAnotacion(datosNodo) {
   if (modalDef) modalDef.innerHTML = anotacion.definition || '';
   if (modalContent) modalContent.innerHTML = anotacion.content || '';
 
+  // 3.1 Procesar Imagen
   const imgWrapper = document.getElementById('modal-image-wrapper');
-  if (imgWrapper) imgWrapper.classList.add('hidden');
+  const imgElem = document.getElementById('modal-image') || imgWrapper?.querySelector('img');
+  const imgCaption = document.getElementById('modal-image-caption') || imgWrapper?.querySelector('figcaption, p');
 
+  const urlImagen = datosNodo.imageUrl || datosNodo.image || datosNodo.mediaUrl || datosNodo.img || anotacion.imageUrl || anotacion.image;
+  const captionImagen = datosNodo.imageCaption || datosNodo.caption || datosNodo.alt || anotacion.imageCaption || '';
+
+  if (imgWrapper && urlImagen) {
+    if (imgElem) imgElem.src = urlImagen;
+    if (imgCaption) imgCaption.textContent = captionImagen;
+    imgWrapper.classList.remove('hidden');
+  } else if (imgWrapper) {
+    imgWrapper.classList.add('hidden');
+  }
+
+  // 3.2 Procesar Enlaces (YouTube y Wikipedia)
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
-    if (datosNodo.wikipediaArticle) {
-      const wikiLang = datosNodo.wikiLang || 'es';
-      const wikiUrl = `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(datosNodo.wikipediaArticle)}`;
-      modalLinks.innerHTML = `<a href="${wikiUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">Ver en Wikipedia ↗</a>`;
+    let htmlEnlaces = '';
+
+    // YouTube
+    const youtubeRef = datosNodo.youtubeUrl || datosNodo.youtube || datosNodo.videoUrl || datosNodo.youtubeId || anotacion.youtubeUrl || anotacion.youtube;
+    if (youtubeRef) {
+      let urlYt = youtubeRef;
+      if (!urlYt.startsWith('http://') && !urlYt.startsWith('https://')) {
+        urlYt = `https://www.youtube.com/watch?v=${youtubeRef}`;
+      }
+      htmlEnlaces += `<a href="${urlYt}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary youtube-link">▶ Ver en YouTube ↗</a> `;
+    }
+
+    // Wikipedia
+    const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikiUrl || datosNodo.wikipedia || anotacion.wikipediaArticle;
+    if (wikiRef) {
+      let urlWiki = wikiRef;
+      if (!urlWiki.startsWith('http://') && !urlWiki.startsWith('https://')) {
+        const wikiLang = datosNodo.wikiLang || 'es';
+        urlWiki = `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
+      }
+      htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary wiki-link">🌐 Ver en Wikipedia ↗</a>`;
+    }
+
+    if (htmlEnlaces.trim() !== '') {
+      modalLinks.innerHTML = htmlEnlaces;
       modalLinks.classList.remove('hidden');
     } else {
       modalLinks.classList.add('hidden');
