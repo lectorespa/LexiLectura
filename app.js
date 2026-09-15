@@ -192,6 +192,10 @@ function renderizarTextoAnotado(datosObra) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
+// Aplicar filtro de nivel de vocabulario tras renderizar las estrofas
+  aplicarFiltroVocabularioPorNivel();
+
+  
   renderizarFiltrosCategorias(datosObra);
 
   const contenedorEstrofas = document.getElementById('text-stanzas');
