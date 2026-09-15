@@ -1,14 +1,9 @@
 /**
- * LexiLectura - Módulo principal de carga, renderizado e interacción
+ * Visor de Ediciones Críticas e Interactivas - Lógica Principal
  */
 
-// Estado global
 let obraActiva = null;
 let nivelLecturaActual = 'short';
-
-// ==========================================
-// DICCIONARIO Y NORMALIZACIÓN DE CAPAS
-// ==========================================
 
 const CAPAS_CATALOGO = {
   author:     { id: 'author',     label: 'Autoría',                  color: '#8E44AD' },
@@ -24,8 +19,8 @@ const ALIAS_CAPAS = {
   'periodo': 'period', 'época': 'period', 'epoca': 'period', 'contexto': 'period', 'época y contexto': 'period',
   'vocabulario': 'vocabulary', 'vocabulario_lexico': 'vocabulary', 'léxico': 'vocabulary', 'lexico': 'vocabulary',
   'cultura': 'culture', 'sociedad': 'culture', 'cultura y sociedad': 'culture',
-  'sintaxis': 'syntax', 'métrica': 'syntax', 'metrica': 'syntax', 'métrica_retorica': 'syntax', 'metrica_retorica': 'syntax', 'métrica y sintaxis': 'syntax', 'recursos': 'syntax',
-  'análisis': 'analysis', 'analisis': 'analysis', 'interpretación': 'analysis', 'interpretacion': 'analysis', 'análisis e interpretación': 'analysis'
+  'sintaxis': 'syntax', 'métrica': 'syntax', 'metrica': 'syntax', 'métrica_retorica': 'syntax', 'metrica_retorica': 'syntax',
+  'análisis': 'analysis', 'analisis': 'analysis', 'interpretación': 'analysis'
 };
 
 function resolverCapa(val) {
@@ -35,7 +30,6 @@ function resolverCapa(val) {
   return CAPAS_CATALOGO[key] || { id: key, label: String(val), color: '#4A90E2' };
 }
 
-// JSON de ejemplo por defecto
 const EJEMPLO_JSON = {
   "meta": {
     "title": "Cantar de mio Cid (Fragmento)",
@@ -74,13 +68,8 @@ const EJEMPLO_JSON = {
   ]
 };
 
-// ==========================================
-// 1. CARGA DEL CATÁLOGO DE OBRAS
-// ==========================================
-
 async function cargarMenuObras() {
-  // Ajustado al ID de index-17.html: work-select
-  const select = document.getElementById('work-select') || document.getElementById('selector-obras');
+  const select = document.getElementById('selector-obras');
   if (!select) return;
 
   try {
@@ -92,13 +81,9 @@ async function cargarMenuObras() {
       catalogo = catalogo.obras || catalogo.catalogo || catalogo.items || [];
     }
 
-    if (!Array.isArray(catalogo) || catalogo.length === 0) {
-      select.innerHTML = '<option value="">-- Catálogo vacío --</option>';
-      return;
-    }
+    if (catalogo.length === 0) return;
 
     select.innerHTML = '<option value="">-- Selecciona una obra --</option>';
-
     catalogo.forEach(item => {
       const option = document.createElement('option');
       const nombreArchivo = typeof item === 'string' ? item : (item.archivo || item.url || item.file);
@@ -112,20 +97,15 @@ async function cargarMenuObras() {
       select.appendChild(option);
     });
   } catch (error) {
-    console.warn('No se pudo cargar catalogo.json automáticamente:', error);
-    select.innerHTML = `<option value="">-- Cargar desde archivo local --</option>`;
+    console.warn('No se pudo cargar catalogo.json automáticamente.');
   }
 }
-
-// ==========================================
-// 2. RENDERIZADO DEL TEXTO Y METADATOS
-// ==========================================
 
 function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
 
-  // 2.1 Metadatos
+  // 1. Encabezados y Metadatos
   const docTitle = document.getElementById('doc-title');
   const docAuthor = document.getElementById('doc-author');
   const docPeriod = document.getElementById('doc-period');
@@ -136,22 +116,16 @@ function renderizarTextoAnotado(datosObra) {
   if (docAuthor) {
     const autorNombre = datosObra.meta?.author || '';
     const autorNodo = datosObra.meta?.authorNodeId;
-    const nodoObj = datosObra.interactiveNodes?.[autorNodo];
-    const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'author');
-
     docAuthor.innerHTML = autorNodo 
-      ? `<span class="meta-link" data-node="${autorNodo}" data-category="${capaObj?.id || 'author'}" tabindex="0" role="button">${autorNombre}</span>` 
+      ? `<span class="meta-link" data-node="${autorNodo}" data-category="author" tabindex="0" role="button">${autorNombre}</span>` 
       : autorNombre;
   }
 
   if (docPeriod) {
     const periodoNombre = datosObra.meta?.period || '';
     const periodoNodo = datosObra.meta?.periodNodeId;
-    const nodoObj = datosObra.interactiveNodes?.[periodoNodo];
-    const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'period');
-
     docPeriod.innerHTML = periodoNombre 
-      ? ` | <span class="meta-link" data-node="${periodoNodo}" data-category="${capaObj?.id || 'period'}" tabindex="0" role="button">${periodoNombre}</span>` 
+      ? ` | <span class="meta-link" data-node="${periodoNodo}" data-category="period" tabindex="0" role="button">${periodoNombre}</span>` 
       : (periodoNombre ? ` | ${periodoNombre}` : '');
   }
 
@@ -159,17 +133,17 @@ function renderizarTextoAnotado(datosObra) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
   }
 
-  // 2.2 Sincronizar el Textarea de JSON
-  const jsonInput = document.getElementById('json-input-area') || document.getElementById('json-input');
+  // 2. Sincronizar el Área de Texto
+  const jsonInput = document.getElementById('json-input');
   if (jsonInput && document.activeElement !== jsonInput) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-  // 2.3 Generar Filtros de Categoría
+  // 3. Renderizar Filtros
   renderizarFiltrosCategorias(datosObra);
 
-  // 2.4 Renderizar Estrofas en el Contenedor
-  const contenedorEstrofas = document.getElementById('text-display') || document.getElementById('text-stanzas');
+  // 4. Renderizar Estrofas
+  const contenedorEstrofas = document.getElementById('text-stanzas');
   if (!contenedorEstrofas) return;
 
   contenedorEstrofas.innerHTML = '';
@@ -182,19 +156,16 @@ function renderizarTextoAnotado(datosObra) {
       contenedorEstrofas.appendChild(estrofaDiv);
     });
 
-    // Inyectar atributo data-category a cada elemento anotado
     contenedorEstrofas.querySelectorAll('[data-node]').forEach(el => {
       const nodeId = el.getAttribute('data-node');
       const nodo = datosObra.interactiveNodes?.[nodeId];
       if (nodo) {
         const capaObj = resolverCapa(nodo.type || nodo.category);
-        if (capaObj) {
-          el.setAttribute('data-category', capaObj.id);
-        }
+        if (capaObj) el.setAttribute('data-category', capaObj.id);
       }
     });
   } else {
-    contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta obra.</p>';
+    contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta estructura.</p>';
   }
 }
 
@@ -207,14 +178,12 @@ function renderizarFiltrosCategorias(datosObra) {
 
   if (datosObra.interactiveNodes) {
     Object.values(datosObra.interactiveNodes).forEach(nodo => {
-      const capaObj = resolverCapa(nodo.type || nodo.category || nodo.layerId || nodo.layer);
+      const capaObj = resolverCapa(nodo.type || nodo.category);
       if (capaObj && !capasPresentes.has(capaObj.id)) {
         capasPresentes.set(capaObj.id, capaObj);
       }
     });
   }
-
-  if (capasPresentes.size === 0) return;
 
   capasPresentes.forEach((capa) => {
     const btn = document.createElement('button');
@@ -240,8 +209,7 @@ function alternarVisibilidadCapa(capaId, visible) {
   elementos.forEach(el => {
     const nodeId = el.getAttribute('data-node');
     const nodo = obraActiva.interactiveNodes?.[nodeId];
-    
-    const rawCapa = el.getAttribute('data-category') || el.getAttribute('data-layer') || nodo?.type || nodo?.category;
+    const rawCapa = el.getAttribute('data-category') || nodo?.type || nodo?.category;
     const capaObj = resolverCapa(rawCapa);
     
     if (capaObj?.id === capaId || rawCapa === capaId) {
@@ -249,10 +217,6 @@ function alternarVisibilidadCapa(capaId, visible) {
     }
   });
 }
-
-// ==========================================
-// 3. MODAL DE ANOTACIONES
-// ==========================================
 
 function abrirModalAnotacion(datosNodo) {
   const modal = document.getElementById('annotation-modal');
@@ -263,10 +227,10 @@ function abrirModalAnotacion(datosNodo) {
   
   const capaObj = resolverCapa(datosNodo.type || datosNodo.category);
   if (modalCat) {
-    modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || datosNodo.type || 'Anotación');
+    modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || 'Anotación');
     modalCat.setAttribute('data-category', capaObj?.id || '');
   }
-  if (modalTitle) modalTitle.textContent = datosNodo.title || datosNodo.label || '';
+  if (modalTitle) modalTitle.textContent = datosNodo.title || '';
 
   const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {};
   const modalDef = document.getElementById('modal-definition');
@@ -275,13 +239,12 @@ function abrirModalAnotacion(datosNodo) {
   if (modalDef) modalDef.innerHTML = anotacion.definition || '';
   if (modalContent) modalContent.innerHTML = anotacion.content || '';
 
-  // Imagen
   const imgWrapper = document.getElementById('modal-image-wrapper');
   const imgElem = document.getElementById('modal-image');
   const imgCaption = document.getElementById('modal-image-caption');
 
-  const urlImagen = datosNodo.imageUrl || datosNodo.image || datosNodo.mediaUrl || datosNodo.img || anotacion.imageUrl || anotacion.image;
-  const captionImagen = datosNodo.imageCaption || datosNodo.caption || datosNodo.alt || anotacion.imageCaption || '';
+  const urlImagen = datosNodo.imageUrl || datosNodo.image || anotacion.imageUrl;
+  const captionImagen = datosNodo.imageCaption || anotacion.imageCaption || '';
 
   if (imgWrapper && urlImagen) {
     if (imgElem) {
@@ -292,26 +255,18 @@ function abrirModalAnotacion(datosNodo) {
     imgWrapper.classList.remove('hidden');
   } else if (imgWrapper) {
     imgWrapper.classList.add('hidden');
-    if (imgElem) imgElem.style.display = 'none';
   }
 
-  // Vídeo y Enlaces
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
     let htmlEnlaces = '';
-    const youtubeRef = datosNodo.youtubeUrl || datosNodo.youtube || datosNodo.videoUrl || datosNodo.youtubeId;
-    if (youtubeRef) {
-      let urlYt = youtubeRef.startsWith('http') ? youtubeRef : `https://www.youtube.com/watch?v=${youtubeRef}`;
-      htmlEnlaces += `<a href="${urlYt}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link">▶ Ver en YouTube ↗</a> `;
-    }
-
-    const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikiUrl || datosNodo.wikipedia;
+    const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikipedia;
     if (wikiRef) {
       let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://es.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
       htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Ver en Wikipedia ↗</a>`;
     }
 
-    if (htmlEnlaces.trim() !== '') {
+    if (htmlEnlaces !== '') {
       modalLinks.innerHTML = htmlEnlaces;
       modalLinks.classList.remove('hidden');
     } else {
@@ -331,13 +286,8 @@ function cerrarModal() {
   }
 }
 
-// ==========================================
-// 4. INICIALIZACIÓN DE EVENTOS
-// ==========================================
-
 function inicializarEventos() {
-  // 1. Selector de obras (work-select o selector-obras)
-  const selectObras = document.getElementById('work-select') || document.getElementById('selector-obras');
+  const selectObras = document.getElementById('selector-obras');
   if (selectObras) {
     selectObras.addEventListener('change', async (e) => {
       const ruta = e.target.value;
@@ -348,92 +298,67 @@ function inicializarEventos() {
         const data = await res.json();
         renderizarTextoAnotado(data);
       } catch (err) {
-        alert(`No se pudo cargar la obra "${ruta}". Si estás probando en local sin servidor web, usa el botón "Cargar JSON".`);
-        console.error(err);
+        alert('No se pudo cargar el archivo local. Revisa el servidor web o usa el cajetín JSON.');
       }
     });
   }
 
-  // 2. Botón Cargar JSON (load-json-btn o btn-load-json)
-  const btnLoadJson = document.getElementById('load-json-btn') || document.getElementById('btn-load-json');
-  if (btnLoadJson) {
-    btnLoadJson.addEventListener('click', () => {
-      const jsonInput = document.getElementById('json-input-area') || document.getElementById('json-input');
-      if (!jsonInput || !jsonInput.value.trim()) {
-        alert('Pega un JSON válido en el área de texto antes de procesar.');
-        return;
-      }
-      try {
-        const data = JSON.parse(jsonInput.value);
-        renderizarTextoAnotado(data);
-      } catch (e) {
-        alert('El código introducido no es un JSON válido. Revisa las comillas o comas.');
-        console.error(e);
-      }
+  document.getElementById('btn-load-json')?.addEventListener('click', () => {
+    const jsonInput = document.getElementById('json-input');
+    if (!jsonInput || !jsonInput.value.trim()) {
+      alert('Pega un JSON válido antes de procesar.');
+      return;
+    }
+    try {
+      const data = JSON.parse(jsonInput.value);
+      renderizarTextoAnotado(data);
+    } catch (e) {
+      alert('Error de sintaxis en el JSON pegado. Revisa comas y comillas.');
+    }
+  });
+
+  document.getElementById('btn-sample-json')?.addEventListener('click', () => {
+    renderizarTextoAnotado(EJEMPLO_JSON);
+  });
+
+  document.getElementById('btn-clear-json')?.addEventListener('click', () => {
+    const jsonInput = document.getElementById('json-input');
+    if (jsonInput) jsonInput.value = '';
+    const stanzas = document.getElementById('text-stanzas');
+    if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra o pega un JSON arriba.</p>';
+    obraActiva = null;
+  });
+
+  document.getElementById('btn-select-all-cats')?.addEventListener('click', () => {
+    document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
+      btn.classList.add('active');
+      btn.classList.remove('inactive');
+      alternarVisibilidadCapa(btn.dataset.layerId, true);
     });
-  }
+  });
 
-  // 3. Botón Ejemplo JSON (sample-json-btn o btn-sample-json)
-  const btnSampleJson = document.getElementById('sample-json-btn') || document.getElementById('btn-sample-json');
-  if (btnSampleJson) {
-    btnSampleJson.addEventListener('click', () => {
-      renderizarTextoAnotado(EJEMPLO_JSON);
+  document.getElementById('btn-deselect-all-cats')?.addEventListener('click', () => {
+    document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
+      btn.classList.remove('active');
+      btn.classList.add('inactive');
+      alternarVisibilidadCapa(btn.dataset.layerId, false);
     });
-  }
+  });
 
-  // 4. Botón Limpiar JSON (clear-json-btn o btn-clear-json)
-  const btnClearJson = document.getElementById('clear-json-btn') || document.getElementById('btn-clear-json');
-  if (btnClearJson) {
-    btnClearJson.addEventListener('click', () => {
-      const jsonInput = document.getElementById('json-input-area') || document.getElementById('json-input');
-      if (jsonInput) jsonInput.value = '';
-      const stanzas = document.getElementById('text-display') || document.getElementById('text-stanzas');
-      if (stanzas) stanzas.innerHTML = '<p class="loading-state">Pega un JSON en la barra lateral y pulsa "Cargar JSON".</p>';
-      obraActiva = null;
-    });
-  }
-
-  // 5. Botones Seleccionar / Deseleccionar Todo
-  const btnSelectAll = document.getElementById('btn-select-all-cats') || document.getElementById('select-all-btn');
-  const btnDeselectAll = document.getElementById('btn-deselect-all-cats') || document.getElementById('deselect-all-btn');
-
-  if (btnSelectAll) {
-    btnSelectAll.addEventListener('click', () => {
-      document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
-        btn.classList.add('active');
-        btn.classList.remove('inactive');
-        alternarVisibilidadCapa(btn.dataset.layerId, true);
-      });
-    });
-  }
-
-  if (btnDeselectAll) {
-    btnDeselectAll.addEventListener('click', () => {
-      document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
-        btn.classList.remove('active');
-        btn.classList.add('inactive');
-        alternarVisibilidadCapa(btn.dataset.layerId, false);
-      });
-    });
-  }
-
-  // 6. Conmutador de nivel de lectura (básica / crítica)
-  const levelBtns = document.querySelectorAll('.level-btn, [data-level]');
-  const levelBadge = document.getElementById('levelIndicatorBadge') || document.getElementById('level-badge');
+  const levelBtns = document.querySelectorAll('.level-btn');
+  const levelBadge = document.getElementById('levelIndicatorBadge');
 
   levelBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       levelBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       nivelLecturaActual = btn.dataset.level || 'short';
-
       if (levelBadge) {
         levelBadge.textContent = nivelLecturaActual === 'deep' ? 'Modo Edición Crítica' : 'Modo Lectura Básica';
       }
     });
   });
 
-  // 7. Delegación para clics en palabras anotadas
   document.addEventListener('click', (e) => {
     const targetNodo = e.target.closest('[data-node]');
     if (!targetNodo) return;
@@ -445,16 +370,10 @@ function inicializarEventos() {
     if (datosNodo) abrirModalAnotacion(datosNodo);
   });
 
-  // 8. Cierre de modal
-  const modalCloseBtn = document.getElementById('modal-close-btn') || document.querySelector('.modal-close');
-  if (modalCloseBtn) modalCloseBtn.addEventListener('click', cerrarModal);
-
-  const modalOverlay = document.getElementById('annotation-modal');
-  if (modalOverlay) {
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) cerrarModal();
-    });
-  }
+  document.getElementById('modal-close-btn')?.addEventListener('click', cerrarModal);
+  document.getElementById('annotation-modal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'annotation-modal') cerrarModal();
+  });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
