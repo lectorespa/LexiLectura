@@ -756,5 +756,24 @@ header.doc-header h1 {
   border-bottom-style: dashed;
   background-color: rgba(243, 156, 18, 0.1);
 }
+
+  /* Estilo base para las palabras anotadas */
+.interactive-word {
+  cursor: pointer;
+  border-bottom: 2px solid #4A90E2; /* Color por defecto o según la capa */
+  background-color: rgba(74, 144, 226, 0.08);
+  padding: 0 2px;
+  border-radius: 2px;
+  transition: background-color 0.15s ease;
+}
+
+.interactive-word:hover {
+  background-color: rgba(74, 144, 226, 0.25);
+}
+
+/* Visualización visual de capas anidadas */
+.interactive-word .interactive-word {
+  border-bottom-style: dashed; /* Diferencia capas internas */
+}
   
 }
