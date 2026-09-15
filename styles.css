@@ -744,6 +744,17 @@ header.doc-header h1 {
   align-items: center;
   justify-content: center;
 }
-  
+
+  /* Estilo para spans anidados o de múltiple capa */
+.interactive-word .interactive-word {
+  border-bottom-width: 3px;
+  border-bottom-style: double;
+}
+
+/* Indicador visual cuando un span tiene más de un nodo asignado */
+.interactive-word[data-node*=" "] {
+  border-bottom-style: dashed;
+  background-color: rgba(243, 156, 18, 0.1);
+}
   
 }
