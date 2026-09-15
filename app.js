@@ -769,8 +769,16 @@ async function resolveAndDisplayImage(nodeData, signal = null) {
     }
   }
 
+  // --- RESPALDO DE SEGURIDAD PARA GITHUB PAGES ---
+  // Si las APIs externas fallan por CORS o red, se asigna una imagen temática segura
+  const fallbackUrls = {
+    artwork: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Blanco_y_Negro_-_Generacion_del_98.jpg/500px-Blanco_y_Negro_-_Generacion_del_98.jpg",
+    landscape: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Castilian_landscape_near_Sig%C3%BCenza.jpg/500px-Castilian_landscape_near_Sig%C3%BCenza.jpg"
+  };
+  
+  const fallbackSrc = fallbackUrls[conceptType] || fallbackUrls.landscape;
   if (!signal || !signal.aborted) {
-    hideImage();
+    await showImageWithPreload(fallbackSrc, captionText || "Imagen ilustrativa del período", "Archivo histórico (Respaldo)", signal);
   }
 }
 
@@ -863,7 +871,8 @@ function inicializarEventos() {
   });
 
   document.addEventListener('click', (e) => {
-    const targetNodo = e.target.closest('[data-node]');
+    // MODIFICADO: Captura tanto los nodos internos del texto [data-node] como los enlaces de la cabecera [.meta-link]
+    const targetNodo = e.target.closest('[data-node], .meta-link');
     if (!targetNodo) return;
 
     const nodeId = targetNodo.getAttribute('data-node');
