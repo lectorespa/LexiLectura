@@ -2,12 +2,52 @@
  * LexiLectura - Módulo principal de carga, renderizado e interacción
  */
 
-// Estado global de la aplicación
+// Estado global
 let obraActiva = null;
-let nivelLecturaActual = 'short'; // 'short' o 'deep'
+let nivelLecturaActual = 'short';
+
+// JSON de ejemplo por si catalogo.json o el servidor fallan
+const EJEMPLO_JSON = {
+  "meta": {
+    "title": "Cantar de mio Cid (Fragmento)",
+    "author": "Anónimo",
+    "authorNodeId": "node_author",
+    "period": "Medieval",
+    "periodNodeId": "node_period",
+    "year": "1200",
+    "lang": "es"
+  },
+  "layers": [
+    { "layerId": "metrica_retorica", "label": "Métrica y Recursos", "color": "#4A90E2" },
+    { "layerId": "vocabulario_lexico", "label": "Vocabulario", "color": "#F39C12" }
+  ],
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "Autor",
+      "title": "Autor Anónimo",
+      "annotations": {
+        "short": { "definition": "Autor desconocido del Mío Cid.", "content": "Obra cumbre del cantar de gesta hispánico." },
+        "deep": { "definition": "Tradición juglaresca mester de juglaría.", "content": "Composición de transmisión oral preservada en manuscrito." }
+      }
+    },
+    "node_1": {
+      "type": "syntax",
+      "category": "Sintaxis",
+      "title": "De los sus ojos",
+      "annotations": {
+        "short": { "definition": "Pleuronorina / Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
+        "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
+      }
+    }
+  },
+  "stanzas": [
+    "<p>De los sus ojos <span class=\"interactive-word\" data-node=\"node_1\" data-layer=\"metrica_retorica\" tabindex=\"0\" role=\"button\">tan fuertemente llorando</span>,<br>tornaba la cabeza i estábalos mirando.</p>"
+  ]
+};
 
 // ==========================================
-// 1. CARGA DEL CATÁLOGO Y DESPLEGABLE
+// 1. CARGA DEL CATÁLOGO
 // ==========================================
 
 async function cargarMenuObras() {
@@ -16,39 +56,36 @@ async function cargarMenuObras() {
 
   try {
     const response = await fetch('catalogo.json');
-    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status} - No se encontró catalogo.json`);
     
     const catalogo = await response.json();
-
     select.innerHTML = '<option value="">-- Cargar obra anotada --</option>';
 
     catalogo.forEach(item => {
       const option = document.createElement('option');
       const nombreArchivo = typeof item === 'string' ? item : item.archivo;
       const tituloDisplay = typeof item === 'string' ? item.replace(/\.json$/i, '') : item.titulo;
-
-      const rutaRelativa = nombreArchivo.startsWith('textos/') 
-        ? nombreArchivo 
-        : `textos/${nombreArchivo}`;
+      const rutaRelativa = nombreArchivo.startsWith('textos/') ? nombreArchivo : `textos/${nombreArchivo}`;
 
       option.value = rutaRelativa;
       option.textContent = tituloDisplay;
       select.appendChild(option);
     });
   } catch (error) {
-    console.error('Error al obtener catalogo.json:', error);
+    console.warn('Atención al cargar catálogo:', error.message);
+    select.innerHTML = '<option value="">-- Error o sin catalogo.json --</option>';
   }
 }
 
 // ==========================================
-// 2. RENDERIZADO PRINCIPAL DE LA OBRA
+// 2. RENDERIZADO DE LA OBRA
 // ==========================================
 
 function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
 
-  // 2.1 Actualizar Metadatos en la Cabecera
+  // 2.1 Metadatos
   const docTitle = document.getElementById('doc-title');
   const docAuthor = document.getElementById('doc-author');
   const docPeriod = document.getElementById('doc-period');
@@ -76,16 +113,16 @@ function renderizarTextoAnotado(datosObra) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
   }
 
-  // 2.2 Sincronizar el Textarea si está vacío o difiere
+  // 2.2 Textarea
   const jsonInput = document.getElementById('json-input');
-  if (jsonInput) {
+  if (jsonInput && document.activeElement !== jsonInput) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-  // 2.3 Renderizar Filtros de Categorías / Capas
+  // 2.3 Filtros
   renderizarFiltrosCategorias(datosObra);
 
-  // 2.4 Renderizar Estrofas en #text-stanzas
+  // 2.4 Estrofas (#text-stanzas)
   const contenedorEstrofas = document.getElementById('text-stanzas');
   if (!contenedorEstrofas) return;
 
@@ -118,7 +155,6 @@ function renderizarFiltrosCategorias(datosObra) {
 
       btn.addEventListener('click', () => {
         btn.classList.toggle('active');
-        // Alternar visibilidad visual de las marcas de esta capa
         const spans = document.querySelectorAll(`[data-layer="${layer.layerId}"]`);
         spans.forEach(span => span.classList.toggle('layer-disabled', !btn.classList.contains('active')));
       });
@@ -129,20 +165,18 @@ function renderizarFiltrosCategorias(datosObra) {
 }
 
 // ==========================================
-// 3. GESTIÓN DE LA VENTANA MODAL Y NIVELES
+// 3. MODAL Y NIVELES DE LECTURA
 // ==========================================
 
 function abrirModalAnotacion(datosNodo) {
   const modal = document.getElementById('annotation-modal');
   if (!modal || !datosNodo) return;
 
-  // Categoria y Título
   const modalCat = document.getElementById('modal-category');
   const modalTitle = document.getElementById('modal-title');
   if (modalCat) modalCat.textContent = datosNodo.category || datosNodo.type || 'Anotación';
   if (modalTitle) modalTitle.textContent = datosNodo.title || datosNodo.label || '';
 
-  // Definición y Contenido según el nivel seleccionado (short / deep)
   const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {};
   const modalDef = document.getElementById('modal-definition');
   const modalContent = document.getElementById('modal-content');
@@ -150,29 +184,9 @@ function abrirModalAnotacion(datosNodo) {
   if (modalDef) modalDef.innerHTML = anotacion.definition || '';
   if (modalContent) modalContent.innerHTML = anotacion.content || '';
 
-  // Imagen
   const imgWrapper = document.getElementById('modal-image-wrapper');
-  const img = document.getElementById('modal-image');
-  const imgCaption = document.getElementById('modal-image-caption');
+  if (imgWrapper) imgWrapper.classList.add('hidden');
 
-  if (datosNodo.imageSearchQuery || datosNodo.imageDescription) {
-    if (imgWrapper) imgWrapper.classList.remove('hidden');
-    if (imgCaption) imgCaption.textContent = datosNodo.imageDescription || '';
-    if (img) {
-      // Si tienes URL directa o búsqueda
-      if (datosNodo.imageUrl) {
-        img.src = datosNodo.imageUrl;
-        img.style.display = 'block';
-      } else {
-        img.style.display = 'none';
-      }
-      img.alt = datosNodo.imageDescription || 'Imagen ilustrativa';
-    }
-  } else if (imgWrapper) {
-    imgWrapper.classList.add('hidden');
-  }
-
-  // Enlaces externos (Wikipedia)
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
     if (datosNodo.wikipediaArticle) {
@@ -185,7 +199,6 @@ function abrirModalAnotacion(datosNodo) {
     }
   }
 
-  // Mostrar modal
   modal.classList.remove('hidden');
   modal.setAttribute('aria-hidden', 'false');
 }
@@ -199,11 +212,11 @@ function cerrarModal() {
 }
 
 // ==========================================
-// 4. INICIALIZACIÓN DE EVENTOS DEL DOM
+// 4. EVENTOS DE BOTONES E INTERFAZ
 // ==========================================
 
 function inicializarEventos() {
-  // Selector de Obras (Select)
+  // Selector desplegable
   const selectObras = document.getElementById('selector-obras');
   if (selectObras) {
     selectObras.addEventListener('change', async (e) => {
@@ -211,31 +224,40 @@ function inicializarEventos() {
       if (!ruta) return;
       try {
         const res = await fetch(ruta);
-        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         renderizarTextoAnotado(data);
       } catch (err) {
-        console.error('Error al cargar la obra seleccionada:', err);
+        alert(`No se pudo cargar el archivo "${ruta}". Revisa que exista en la carpeta /textos/.`);
+        console.error(err);
       }
     });
   }
 
-  // Botón "Renderizar Obra" (desde Textarea)
+  // Botón "Renderizar Obra"
   const btnLoadJson = document.getElementById('btn-load-json');
   if (btnLoadJson) {
     btnLoadJson.addEventListener('click', () => {
       const jsonInput = document.getElementById('json-input');
       if (!jsonInput || !jsonInput.value.trim()) {
-        alert('Por favor, pega una estructura JSON en el cuadro de texto.');
+        alert('Pega un JSON válido en el cuadro de texto antes de renderizar.');
         return;
       }
       try {
         const data = JSON.parse(jsonInput.value);
         renderizarTextoAnotado(data);
       } catch (e) {
-        alert('Error de sintaxis en el JSON. Revisa el formato pegado.');
+        alert('El texto pegado contiene errores de sintaxis JSON.');
         console.error(e);
       }
+    });
+  }
+
+  // Botón "Cargar Ejemplo"
+  const btnSampleJson = document.getElementById('btn-sample-json');
+  if (btnSampleJson) {
+    btnSampleJson.addEventListener('click', () => {
+      renderizarTextoAnotado(EJEMPLO_JSON);
     });
   }
 
@@ -246,12 +268,12 @@ function inicializarEventos() {
       const jsonInput = document.getElementById('json-input');
       if (jsonInput) jsonInput.value = '';
       const stanzas = document.getElementById('text-stanzas');
-      if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra pegando el JSON arriba o usando el desplegable.</p>';
+      if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra usando el desplegable o pegando un JSON.</p>';
       obraActiva = null;
     });
   }
 
-  // Cambio de Nivel de Lectura (short / deep)
+  // Selector de Nivel (Básica / Crítica)
   const levelBtns = document.querySelectorAll('.level-btn');
   const levelBadge = document.getElementById('levelIndicatorBadge');
 
@@ -263,22 +285,16 @@ function inicializarEventos() {
       });
       btn.classList.add('active');
       btn.setAttribute('aria-checked', 'true');
-
       nivelLecturaActual = btn.dataset.level || 'short';
 
       if (levelBadge) {
-        if (nivelLecturaActual === 'deep') {
-          levelBadge.textContent = 'Modo Edición Crítica';
-          levelBadge.className = 'level-badge deep-mode';
-        } else {
-          levelBadge.textContent = 'Modo Lectura Básica';
-          levelBadge.className = 'level-badge short-mode';
-        }
+        levelBadge.textContent = nivelLecturaActual === 'deep' ? 'Modo Edición Crítica' : 'Modo Lectura Básica';
+        levelBadge.className = `level-badge ${nivelLecturaActual}-mode`;
       }
     });
   });
 
-  // Delegación de eventos para Nodos Interactivos (Clics en texto y cabecera)
+  // Delegación de clics para nodos interactivos
   document.addEventListener('click', (e) => {
     const targetNodo = e.target.closest('[data-node]');
     if (!targetNodo) return;
@@ -287,12 +303,10 @@ function inicializarEventos() {
     if (!nodeId || !obraActiva || !obraActiva.interactiveNodes) return;
 
     const datosNodo = obraActiva.interactiveNodes[nodeId];
-    if (datosNodo) {
-      abrirModalAnotacion(datosNodo);
-    }
+    if (datosNodo) abrirModalAnotacion(datosNodo);
   });
 
-  // Eventos para cerrar la Modal
+  // Eventos Modal
   const modalCloseBtn = document.getElementById('modal-close-btn');
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', cerrarModal);
 
@@ -304,166 +318,8 @@ function inicializarEventos() {
   }
 }
 
-// ==========================================
-// 5. INICIO DE LA APLICACIÓN
-// ==========================================
-
+// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
   inicializarEventos();
-});  } catch (error) {
-    console.error('Error al obtener catalogo.json:', error);
-  }
-}
-
-function inicializarEventosSelector() {
-  const select = document.getElementById('selector-obras');
-  if (!select) return;
-
-  select.addEventListener('change', async (event) => {
-    const rutaArchivo = event.target.value;
-    if (!rutaArchivo) return;
-
-    try {
-      const response = await fetch(rutaArchivo);
-      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
-      
-      const datosObraAnotada = await response.json();
-      renderizarTextoAnotado(datosObraAnotada);
-
-    } catch (error) {
-      console.error(`Error al cargar la obra desde ${rutaArchivo}:`, error);
-    }
-  });
-}
-
-// ==========================================
-// 2. RENDERIZADO DEL TEXTO Y METADATOS
-// ==========================================
-
-function renderizarTextoAnotado(datosObra) {
-  const contenedor = document.getElementById('visor-texto');
-  if (!contenedor) {
-    console.error('No se encontró el elemento #visor-texto en el DOM.');
-    return;
-  }
-
-  // Guardar referencia en el estado
-  obraActiva = datosObra;
-
-  // Limpiar contenido previo
-  contenedor.innerHTML = '';
-
-  // 2.1 Cabecera y Metadatos (meta)
-  if (datosObra.meta) {
-    const header = document.createElement('header');
-    header.className = 'obra-header';
-
-    const titulo = document.createElement('h1');
-    titulo.className = 'obra-titulo';
-    titulo.textContent = datosObra.meta.title || 'Título no especificado';
-    header.appendChild(titulo);
-
-    const metaInfo = document.createElement('div');
-    metaInfo.className = 'obra-meta-info';
-    
-    const partesMeta = [];
-    if (datosObra.meta.author) {
-      partesMeta.push(`<span class="meta-link" data-node="${datosObra.meta.authorNodeId || ''}" tabindex="0" role="button">${datosObra.meta.author}</span>`);
-    }
-    if (datosObra.meta.period) {
-      partesMeta.push(`<span class="meta-link" data-node="${datosObra.meta.periodNodeId || ''}" tabindex="0" role="button">${datosObra.meta.period}</span>`);
-    }
-    if (datosObra.meta.year) {
-      partesMeta.push(`<span>${datosObra.meta.year}</span>`);
-    }
-    metaInfo.innerHTML = partesMeta.join(' | ');
-    header.appendChild(metaInfo);
-
-    if (datosObra.meta.audioUrl) {
-      const audio = document.createElement('audio');
-      audio.controls = true;
-      audio.src = datosObra.meta.audioUrl;
-      audio.className = 'obra-audio';
-      header.appendChild(audio);
-    }
-
-    contenedor.appendChild(header);
-  }
-
-  // 2.2 Cuerpo del Texto y Estrofas (stanzas)
-  const cuerpoTexto = document.createElement('article');
-  cuerpoTexto.className = 'obra-cuerpo';
-
-  if (Array.isArray(datosObra.stanzas) && datosObra.stanzas.length > 0) {
-    datosObra.stanzas.forEach(estrofaHtml => {
-      const estrofaContainer = document.createElement('div');
-      estrofaContainer.className = 'estrofa';
-      estrofaContainer.innerHTML = estrofaHtml;
-      cuerpoTexto.appendChild(estrofaContainer);
-    });
-  } else {
-    const mensajeVacio = document.createElement('p');
-    mensajeVacio.className = 'obra-vacia';
-    mensajeVacio.textContent = 'Esta obra no contiene estrofas disponibles.';
-    cuerpoTexto.appendChild(mensajeVacio);
-  }
-
-  contenedor.appendChild(cuerpoTexto);
-}
-
-// ==========================================
-// 3. GESTIÓN DE EVENTOS E INTERACCIÓN
-// ==========================================
-
-function inicializarEventosVisor() {
-  const contenedor = document.getElementById('visor-texto');
-  if (!contenedor) return;
-
-  // Manejo centralizado de clics (Delegación de eventos)
-  contenedor.addEventListener('click', (event) => {
-    procesarInteraccionNodo(event.target);
-  });
-
-  // Manejo de accesibilidad mediante teclado (Enter / Espacio)
-  contenedor.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      if (procesarInteraccionNodo(event.target)) {
-        event.preventDefault();
-      }
-    }
-  });
-}
-
-function procesarInteraccionNodo(targetElement) {
-  const elementoAnotado = targetElement.closest('[data-node]');
-  if (!elementoAnotado) return false;
-
-  const nodeId = elementoAnotado.getAttribute('data-node');
-  if (!nodeId || !obraActiva || !obraActiva.interactiveNodes) return false;
-
-  const datosNodo = obraActiva.interactiveNodes[nodeId];
-
-  if (datosNodo) {
-    mostrarDetalleAnotacion(datosNodo);
-    return true;
-  } else {
-    console.warn(`No se encontró configuración para el nodo: "${nodeId}"`);
-    return false;
-  }
-}
-
-function mostrarDetalleAnotacion(datosNodo) {
-  // Conectar con el panel lateral o modal de la interfaz
-  console.log('Nodo interactivo seleccionado:', datosNodo);
-}
-
-// ==========================================
-// 4. CICLO DE VIDA DEL DOM
-// ==========================================
-
-document.addEventListener('DOMContentLoaded', () => {
-  cargarMenuObras();
-  inicializarEventosSelector();
-  inicializarEventosVisor(); // Inicializa la escucha de eventos una sola vez
 });
