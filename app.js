@@ -1,9 +1,10 @@
 /**
- * Visor de Ediciones Críticas e Interactivas - Lógica Principal
+ * Visor de Ediciones Críticas e Interactivas - Lógica Principal con Motor de Imágenes Avanzado
  */
 
 let obraActiva = null;
 let nivelLecturaActual = 'short';
+let currentImageFetchController = null;
 
 const CAPAS_CATALOGO = {
   author:     { id: 'author',     label: 'Autoría',                  color: '#8E44AD' },
@@ -30,6 +31,16 @@ function resolverCapa(val) {
   return CAPAS_CATALOGO[key] || { id: key, label: String(val), color: '#4A90E2' };
 }
 
+const STOPWORDS = new Set([
+  "el","la","los","las","un","una","unos","unas","de","del","en","con",
+  "por","para","que","al","lo","y","o","a","e","i","su","sus","es","son",
+  "se","si","no","muy","más","menos","como","cuando","donde","cual",
+  "cuyo","cuya","cuyos","cuyas","este","esta","estos","estas","ese","esa",
+  "esos","esas","aquel","aquella","aquellos","aquellas","aquello",
+  "mío","tuyo","suyo","nuestro","vuestro","me","te","le","nos","os","les",
+  "mi","tu","ha","han","fue","ser","era","será","the","of","in","on","at","with","and","or","an"
+]);
+
 const EJEMPLO_JSON = {
   "meta": {
     "title": "Cantar de mio Cid (Fragmento)",
@@ -45,10 +56,9 @@ const EJEMPLO_JSON = {
       "type": "author",
       "category": "author",
       "title": "Autor Anónimo",
-      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Cantar_de_mio_Cid_f._1r.jpg/320px-Cantar_de_mio_Cid_f._1r.jpg",
-      "imageCaption": "Manuscrito del Cantar de mio Cid (f. 1r)",
       "wikipediaArticle": "Cantar_de_mio_Cid",
-      "youtubeUrl": "https://www.youtube.com/results?search_query=Cantar+de+mio+Cid+analisis+literario",
+      "visualConceptType": "artwork",
+      "imageSearchQuery": "Cantar de mio Cid manuscrito",
       "annotations": {
         "short": { "definition": "Autor desconocido del Mío Cid.", "content": "Obra cumbre del cantar de gesta hispánico." },
         "deep": { "definition": "Tradición juglaresca mester de juglaría.", "content": "Composición de transmisión oral preservada en manuscrito." }
@@ -58,10 +68,9 @@ const EJEMPLO_JSON = {
       "type": "period",
       "category": "period",
       "title": "Contexto Medieval (Siglo XII-XIII)",
-      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Reconquista_1200.svg/320px-Reconquista_1200.svg.png",
-      "imageCaption": "Península Ibérica hacia el año 1200",
       "wikipediaArticle": "Literatura_espa%C3%B1ola_del_Medievo",
-      "youtubeUrl": "https://www.youtube.com/results?search_query=Contexto+historico+Cantar+de+mio+Cid",
+      "visualConceptType": "landscape",
+      "imageSearchQuery": "Reconquista Espana mapa medieval",
       "annotations": {
         "short": { "definition": "Época de consolidación del castellano.", "content": "Contexto de Reconquista y difusión oral por medio de la juglaría." },
         "deep": { "definition": "Mester de juglaría y sociedad feudal.", "content": "Refleja los valores de honor, lealtad y vasallaje propios de la Edad Media hispánica." }
@@ -71,7 +80,6 @@ const EJEMPLO_JSON = {
       "type": "syntax",
       "category": "syntax",
       "title": "De los sus ojos",
-      "imageUrl": "",
       "youtubeSearchQuery": "Pleonasmo recursos literarios Mio Cid",
       "annotations": {
         "short": { "definition": "Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
@@ -121,7 +129,6 @@ function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
 
-  // 1. Encabezados y Metadatos
   const docTitle = document.getElementById('doc-title');
   const docAuthor = document.getElementById('doc-author');
   const docPeriod = document.getElementById('doc-period');
@@ -149,16 +156,13 @@ function renderizarTextoAnotado(datosObra) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
   }
 
-  // 2. Sincronizar el Área de Texto
   const jsonInput = document.getElementById('json-input');
   if (jsonInput && document.activeElement !== jsonInput) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-  // 3. Renderizar Filtros
   renderizarFiltrosCategorias(datosObra);
 
-  // 4. Renderizar Estrofas
   const contenedorEstrofas = document.getElementById('text-stanzas');
   if (!contenedorEstrofas) return;
 
@@ -235,9 +239,14 @@ function alternarVisibilidadCapa(capaId, visible) {
   });
 }
 
-function abrirModalAnotacion(datosNodo) {
+async function abrirModalAnotacion(datosNodo) {
   const modal = document.getElementById('annotation-modal');
   if (!modal || !datosNodo) return;
+
+  if (currentImageFetchController) {
+    currentImageFetchController.abort();
+  }
+  currentImageFetchController = new AbortController();
 
   const modalCat = document.getElementById('modal-category');
   const modalTitle = document.getElementById('modal-title');
@@ -245,7 +254,6 @@ function abrirModalAnotacion(datosNodo) {
   const capaObj = resolverCapa(datosNodo.type || datosNodo.category);
   const colorCategoria = capaObj ? capaObj.color : '#4A90E2';
 
-  // --- FASE 2: Aplicación de color dinámico por categoría ---
   if (modalCat) {
     modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || 'Anotación');
     modalCat.setAttribute('data-category', capaObj?.id || '');
@@ -270,42 +278,19 @@ function abrirModalAnotacion(datosNodo) {
     modalContent.style.paddingLeft = '10px';
   }
 
-  // --- FASE 3: Renderizado de imágenes con fallback ---
-  const imgWrapper = document.getElementById('modal-image-wrapper');
-  const imgElem = document.getElementById('modal-image');
-  const imgCaption = document.getElementById('modal-image-caption');
+  // Mostrar placeholder inicial de carga de imagen
+  showImagePlaceholder("Buscando y cargando imagen representativa...");
 
-  const urlImagen = datosNodo.imageUrl || datosNodo.image || anotacion.imageUrl;
-  const captionImagen = datosNodo.imageCaption || datosNodo.imageDescription || anotacion.imageCaption || '';
-
-  if (imgWrapper && urlImagen) {
-    if (imgElem) {
-      imgElem.src = urlImagen;
-      imgElem.alt = captionImagen || datosNodo.title || 'Imagen explicativa';
-      imgElem.style.display = 'block';
-      imgElem.onerror = () => {
-        imgWrapper.classList.add('hidden');
-      };
-    }
-    if (imgCaption) imgCaption.textContent = captionImagen;
-    imgWrapper.classList.remove('hidden');
-  } else if (imgWrapper) {
-    imgWrapper.classList.add('hidden');
-  }
-
-  // --- FASE 3: Renderizado de enlaces a Wikipedia y YouTube ---
+  // Renderizar enlaces externos (Wikipedia y YouTube)
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
     let htmlEnlaces = '';
-    
-    // Wikipedia
     const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikipedia;
     if (wikiRef) {
-      let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://${datosNodo.wikiLang || 'es'}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
+      let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://${datosNodo.wikiLang || obraActiva?.meta?.lang || 'es'}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
       htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Ver en Wikipedia ↗</a>`;
     }
 
-    // YouTube
     let urlYoutube = datosNodo.youtubeUrl;
     if (!urlYoutube && datosNodo.youtubeSearchQuery) {
       urlYoutube = `https://www.youtube.com/results?search_query=${encodeURIComponent(datosNodo.youtubeSearchQuery)}`;
@@ -325,15 +310,484 @@ function abrirModalAnotacion(datosNodo) {
 
   modal.classList.remove('hidden');
   modal.setAttribute('aria-hidden', 'false');
+
+  // Ejecutar motor avanzado de resolución de imagen asíncrona
+  await resolveAndDisplayImage(datosNodo, currentImageFetchController.signal);
 }
 
 function cerrarModal() {
+  if (currentImageFetchController) {
+    currentImageFetchController.abort();
+    currentImageFetchController = null;
+  }
   const modal = document.getElementById('annotation-modal');
   if (modal) {
     modal.classList.add('hidden');
     modal.setAttribute('aria-hidden', 'true');
   }
 }
+
+// =========================================================================
+//  MOTOR DE BÚSQUEDA, FILTRADO Y GESTIÓN DE IMÁGENES
+// =========================================================================
+
+function showImagePlaceholder(message = "Cargando imagen...") {
+  const modalImgWrapper = document.getElementById('modal-image-wrapper');
+  const modalImg = document.getElementById('modal-image');
+  const modalCaption = document.getElementById('modal-image-caption');
+
+  if (!modalImgWrapper) return;
+  modalImgWrapper.classList.remove('hidden');
+  modalImgWrapper.classList.add('is-loading');
+  
+  if (modalImg) {
+    modalImg.style.display = 'none';
+    modalImg.src = '';
+  }
+  if (modalCaption) {
+    modalCaption.textContent = message;
+  }
+}
+
+function preloadImage(src, signal = null) {
+  return new Promise((resolve, reject) => {
+    if (!src) return reject(new Error("URL inválida"));
+    
+    const img = new Image();
+    const onAbort = () => {
+      img.src = '';
+      reject(new Error("Carga abortada"));
+    };
+
+    if (signal) {
+      if (signal.aborted) return reject(new Error("Carga abortada"));
+      signal.addEventListener('abort', onAbort, { once: true });
+    }
+
+    img.onload = () => {
+      if (signal) signal.removeEventListener('abort', onAbort);
+      resolve(src);
+    };
+
+    img.onerror = () => {
+      if (signal) signal.removeEventListener('abort', onAbort);
+      reject(new Error("Error al descargar la imagen"));
+    };
+
+    img.src = src;
+  });
+}
+
+async function showImageWithPreload(src, caption, sourceBadge = null, signal = null) {
+  const modalImgWrapper = document.getElementById('modal-image-wrapper');
+  const modalImg = document.getElementById('modal-image');
+  const modalCaption = document.getElementById('modal-image-caption');
+
+  try {
+    await preloadImage(src, signal);
+    if (signal && signal.aborted) return;
+
+    if (modalImgWrapper && modalImg) {
+      modalImgWrapper.classList.remove('is-loading');
+      modalImg.src = src;
+      modalImg.alt = caption || 'Imagen representativa';
+      modalImg.style.display = 'block';
+
+      if (modalCaption) {
+        const badgeText = sourceBadge ? `[${sourceBadge}] ` : '';
+        modalCaption.textContent = `${badgeText}${caption || ''}`;
+      }
+    }
+  } catch (err) {
+    if (!signal || !signal.aborted) {
+      hideImage();
+    }
+  }
+}
+
+function hideImage() {
+  const modalImgWrapper = document.getElementById('modal-image-wrapper');
+  const modalImg = document.getElementById('modal-image');
+  const modalCaption = document.getElementById('modal-image-caption');
+
+  if (modalImgWrapper) {
+    modalImgWrapper.classList.add('hidden');
+    modalImgWrapper.classList.remove('is-loading');
+  }
+  if (modalImg) {
+    modalImg.src = '';
+    modalImg.style.display = 'none';
+  }
+  if (modalCaption) modalCaption.textContent = '';
+}
+
+function extractKeywords(query, maxN = 3) {
+  if (!query) return [];
+  const words = query.toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .split(/[\s,;]+/)
+    .filter(w => w.length > 2)
+    .filter(w => !STOPWORDS.has(w))
+    .filter(w => !/^\d+$/.test(w));
+  const seen = new Set();
+  return words.filter(w => {
+    if (seen.has(w)) return false;
+    seen.add(w);
+    return true;
+  }).slice(0, maxN);
+}
+
+function normalizeMediaTitle(title) {
+  if (!title) return "";
+  return title.replace(/^File:/i, "").replace(/\.[a-zA-Z0-9]{2,5}$/, "").replace(/_/g, " ");
+}
+
+function isMapOrDiagram(str) {
+  if (!str) return false;
+  const s = str.toLowerCase();
+  const mapKeywords = [
+    'map', 'mapa', 'location', 'locator', 'ubicacion', 'situacion', 
+    'posicion', 'in_spain', 'in_espana', 'in_castile', 'provincias_de', 
+    'provinces_of', 'administrative', 'locator_map', 'outline', 'vector',
+    'espana_loc', 'spain_loc', 'municipio', 'comarca', 'plan of', 'chart',
+    'harbour', 'nautical', 'survey', 'cadastral', 'atlas', 'cartography',
+    'topographical', 'portolan', 'diagram', 'route', 'plano'
+  ];
+  return mapKeywords.some(kw => s.includes(kw));
+}
+
+function isDocumentOrScan(str) {
+  if (!str) return false;
+  const s = str.toLowerCase();
+  const docKeywords = [
+    'cover', 'binding', 'encuadernacion', 'manuscrito', 'manuscript', 
+    'page', 'folio', 'scan', 'book', 'libro', 'tapa', 'lomo', 'hoja', 
+    'document', 'archival', 'paper', 'papel', 'text', 'texto', 'frontispiece',
+    'title_page', 'codex', 'incunabula'
+  ];
+  return docKeywords.some(kw => s.includes(kw));
+}
+
+function isFaunaFloraOrMacro(str) {
+  if (!str) return false;
+  const s = str.toLowerCase();
+  const biologicalKeywords = [
+    'flower', 'flor', 'flores', 'macro', 'close-up', 'closeup', 'plant', 
+    'planta', 'leaf', 'hoja', 'thistle', 'cardo', 'echinops', 'bloom', 
+    'botanical', 'pollen', 'petal', 'petalo', 'stem', 'tallo', 'specimen',
+    'fauna', 'animal', 'reptile', 'reptil', 'lizard', 'lagartija', 'lagarto',
+    'lacerta', 'psammodromus', 'gecko', 'snake', 'serpiente', 'bird', 'pajaro', 
+    'ave', 'insect', 'insecto', 'beetle', 'escarabajo', 'butterfly', 'mariposa', 
+    'wildlife', 'caterpillar', 'oruga', 'wasp', 'avispa', 'bee', 'abeja'
+  ];
+  return biologicalKeywords.some(kw => s.includes(kw));
+}
+
+function isUnrelatedGeography(str, targetLocation = null) {
+  if (!str) return false;
+  const s = str.toLowerCase();
+
+  const foreignGeographies = [
+    'portugal', 'portuguese', 'porto', 'lisboa', 'alentejo', 'algarve',
+    'italy', 'italia', 'italian', 'france', 'francia', 'french',
+    'greece', 'grecia', 'turkey', 'turquia', 'morocco', 'marruecos',
+    'mexico', 'argentina', 'chile', 'peru', 'brazil', 'brasil'
+  ];
+
+  return foreignGeographies.some(geo => s.includes(geo));
+}
+
+function isValidForConceptType(identifier, conceptType, targetLocation = null) {
+  if (!identifier) return false;
+  const lower = identifier.toLowerCase();
+
+  if (isDocumentOrScan(lower)) return false;
+
+  if (conceptType === 'landscape') {
+    if (isMapOrDiagram(lower)) return false;
+    if (isFaunaFloraOrMacro(lower)) return false;
+    if (isUnrelatedGeography(lower, targetLocation)) return false;
+
+    const portraitKeywords = ['portrait', 'retrato', 'man', 'woman', 'profile', 'face', 'bust'];
+    if (portraitKeywords.some(kw => lower.includes(kw))) return false;
+
+  } else if (conceptType === 'artwork') {
+    if (isMapOrDiagram(lower)) return false;
+
+  } else if (conceptType === 'portrait' || conceptType === 'author') {
+    if (isMapOrDiagram(lower)) return false;
+    if (isFaunaFloraOrMacro(lower)) return false;
+
+    const nonPortraitKeywords = ['landscape', 'paisaje', 'flag', 'bandera', 'coat of arms', 'escudo'];
+    if (nonPortraitKeywords.some(kw => lower.includes(kw))) return false;
+  }
+
+  return true;
+}
+
+function pickRelevant(candidates, query, conceptType = null, targetLocation = null) {
+  const queryTokens = extractKeywords(query, 20);
+  
+  if (targetLocation) {
+    const locLower = targetLocation.toLowerCase();
+    const locMatch = candidates.find(c => {
+      const normTitle = normalizeMediaTitle(c.title || "").toLowerCase();
+      const fullRef = `${normTitle} ${c.url || ''}`;
+      return normTitle.includes(locLower) && isValidForConceptType(fullRef, conceptType, targetLocation);
+    });
+    if (locMatch) return locMatch;
+  }
+
+  for (const c of candidates) {
+    const normTitle = normalizeMediaTitle(c.title || "");
+    const fullRef = `${normTitle} ${c.url || ''}`;
+
+    if (!isValidForConceptType(fullRef, conceptType, targetLocation)) continue;
+    if (queryTokens.length === 0) return c;
+
+    const titleTokens = new Set(extractKeywords(normTitle, 20));
+    if (queryTokens.some(t => titleTokens.has(t))) return c;
+  }
+
+  if (conceptType) {
+    return candidates.find(c => isValidForConceptType(`${c.title || ''} ${c.url || ''}`, conceptType, targetLocation)) || null;
+  }
+
+  return candidates[0] || null;
+}
+
+async function fetchWikipediaRestImage(title, lang, conceptType = null, targetLocation = null, signal = null) {
+  if (!title) return null;
+  const cleanTitle = title.trim().replace(/\s+/g, '_');
+  const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(cleanTitle)}`;
+  try {
+    const resp = await fetch(url, { signal });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    if (data.type === 'disambiguation') return null;
+    
+    const src = data.originalimage?.source || data.thumbnail?.source;
+    if (!src) return null;
+
+    if (!isValidForConceptType(`${src} ${data.title || ''}`, conceptType, targetLocation)) return null;
+
+    return { url: src, source: `Wikipedia (${lang.toUpperCase()})`, title: data.title };
+  } catch (e) {
+    return null;
+  }
+}
+
+async function fetchWikipediaAllImages(article, lang, conceptType = null, targetLocation = null, signal = null) {
+  if (!article) return [];
+  const cleanTitle = article.trim().replace(/\s+/g, '_');
+  const api = `https://${lang}.wikipedia.org/w/api.php`;
+  const params = new URLSearchParams({
+    action: "query", format: "json", origin: "*", prop: "images", titles: cleanTitle, imlimit: "20"
+  });
+  try {
+    const resp = await fetch(`${api}?${params}`, { signal });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    const page = Object.values(data.query?.pages || {})[0];
+    if (!page || !page.images) return [];
+
+    const forbidden = ["logo","icon","commons","wiki","button","flag","coat_of_arms","p_phoneme","red_pog","symbol"];
+    const titles = page.images.map(img => img.title)
+      .filter(t => !/\.(svg|ogg|ogv|pdf|tif|tiff)$/i.test(t))
+      .filter(t => !forbidden.some(b => t.toLowerCase().includes(b)))
+      .filter(t => isValidForConceptType(t, conceptType, targetLocation));
+
+    const results = [];
+    for (const t of titles.slice(0, 8)) {
+      if (signal && signal.aborted) break;
+      const imgUrl = await fetchCommonsFilePath(t, signal);
+      if (imgUrl && isValidForConceptType(imgUrl, conceptType, targetLocation)) {
+        results.push({ url: imgUrl, source: `Wikipedia Images (${lang.toUpperCase()})`, title: t });
+      }
+    }
+    return results;
+  } catch (e) {
+    return [];
+  }
+}
+
+async function fetchCommonsFilePath(fileTitle, signal = null) {
+  const api = "https://commons.wikimedia.org/w/api.php";
+  const params = new URLSearchParams({
+    action: "query", format: "json", origin: "*", titles: fileTitle, prop: "imageinfo", iiprop: "url", iiurlwidth: "500"
+  });
+  try {
+    const resp = await fetch(`${api}?${params}`, { signal });
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const page = Object.values(data.query?.pages || {})[0];
+    return page?.imageinfo?.[0]?.thumburl || page?.imageinfo?.[0]?.url || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function commonsFullTextSearch(query, conceptType = null, signal = null) {
+  if (!query) return [];
+  const api = "https://commons.wikimedia.org/w/api.php";
+  
+  let queryExtension = "-filetype:pdf -incategory:\"Books\"";
+  if (conceptType === 'landscape') {
+    queryExtension += " -incategory:\"Maps\" -incategory:\"Charts\" -incategory:\"Flora\" -incategory:\"Flowers\" -incategory:\"Plants\" -incategory:\"Fauna\" -incategory:\"Animals\" -incategory:\"Reptiles\" -incategory:\"Insects\" -incategory:\"Macro photography\"";
+  } else if (conceptType === 'artwork') {
+    queryExtension += " -incategory:\"Maps\" -incategory:\"Charts\" -incategory:\"Plans\"";
+  } else if (conceptType === 'portrait' || conceptType === 'author') {
+    queryExtension += " -incategory:\"Maps\" -incategory:\"Flora\" -incategory:\"Fauna\"";
+  }
+
+  const params = new URLSearchParams({
+    action: "query", format: "json", origin: "*", generator: "search", 
+    gsrsearch: `${query} ${queryExtension}`,
+    gsrnamespace: "6", gsrlimit: "10", prop: "imageinfo", iiprop: "url|mime|size", iiurlwidth: "500"
+  });
+  try {
+    const resp = await fetch(`${api}?${params}`, { signal });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    const pages = Object.values(data.query?.pages || {});
+    return pages
+      .filter(p => p.imageinfo && p.imageinfo[0])
+      .filter(p => {
+        const ii = p.imageinfo[0];
+        if (!(ii.mime || "").startsWith("image/")) return false;
+        const title = (p.title || "").toLowerCase();
+        const bad = ["logo","icon","button","arrow","commons-logo","wiki","flag","coat_of_arms"];
+        return !bad.some(b => title.includes(b));
+      })
+      .map(p => ({
+        url: p.imageinfo[0].thumburl || p.imageinfo[0].url,
+        source: "Wikimedia Commons",
+        title: p.title
+      }));
+  } catch (e) {
+    return [];
+  }
+}
+
+async function openverseSearch(query, signal = null) {
+  if (!query) return [];
+  try {
+    const resp = await fetch(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=10`, { signal });
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return (data.results || []).map(r => ({
+      url: r.url,
+      source: "Openverse",
+      title: r.title || ""
+    }));
+  } catch (e) {
+    return [];
+  }
+}
+
+async function resolveAndDisplayImage(nodeData, signal = null) {
+  const captionText = nodeData.imageCaption || nodeData.imageDescription || nodeData.caption || nodeData.label || nodeData.title || '';
+  const categoryKey = nodeData.category || nodeData.type;
+  const conceptType = nodeData.visualConceptType || (categoryKey === 'author' ? 'portrait' : null);
+  const locationAnchor = nodeData.locationAnchor || null;
+
+  const directUrl = nodeData.imageUrl || nodeData.image || (nodeData.media && nodeData.media.type === 'image' ? nodeData.media.url : null);
+  if (directUrl && typeof directUrl === 'string' && directUrl.trim() !== '') {
+    await showImageWithPreload(directUrl, captionText, "Enlace directo", signal);
+    return;
+  }
+
+  const primaryLang = nodeData.wikiLang || obraActiva?.meta?.lang || 'es';
+  const wikiArticle = nodeData.wikipediaArticle || nodeData.wikiArticle || nodeData.wiki;
+
+  if (wikiArticle) {
+    let res = await fetchWikipediaRestImage(wikiArticle, primaryLang, conceptType, locationAnchor, signal);
+    if (signal && signal.aborted) return;
+    if (res && isTechnicallyValidImage(res.url)) {
+      await showImageWithPreload(res.url, captionText || res.title, res.source, signal);
+      return;
+    }
+
+    if (primaryLang !== 'en') {
+      res = await fetchWikipediaRestImage(wikiArticle, 'en', conceptType, locationAnchor, signal);
+      if (signal && signal.aborted) return;
+      if (res && isTechnicallyValidImage(res.url)) {
+        await showImageWithPreload(res.url, captionText || res.title, res.source, signal);
+        return;
+      }
+    }
+
+    const internalImgs = await fetchWikipediaAllImages(wikiArticle, primaryLang, conceptType, locationAnchor, signal);
+    if (signal && signal.aborted) return;
+    if (internalImgs.length > 0) {
+      await showImageWithPreload(internalImgs[0].url, captionText || internalImgs[0].title, internalImgs[0].source, signal);
+      return;
+    }
+  }
+
+  const searchQuery = nodeData.imageSearchQuery || '';
+  const keywords = Array.isArray(nodeData.imageVisualKeywords) ? nodeData.imageVisualKeywords : [];
+
+  let queries = [];
+  if (conceptType === 'portrait' || conceptType === 'author') {
+    const personName = nodeData.title || nodeData.label || searchQuery;
+    queries = [
+      `${personName} portrait`,
+      `${personName} painting`,
+      `${personName} engraving`,
+      searchQuery
+    ];
+  } else {
+    const locationPrefix = locationAnchor ? `${locationAnchor} ` : '';
+    queries = [
+      searchQuery,
+      `${locationPrefix}${extractKeywords(searchQuery, 3).join(" ")}`,
+      keywords[0] ? `${locationPrefix}${keywords[0]}` : null,
+      keywords[1] ? `${locationPrefix}${keywords[1]}` : null
+    ];
+  }
+
+  queries = queries.filter(q => q && typeof q === 'string' && q.trim().length > 0);
+
+  for (const q of queries) {
+    if (signal && signal.aborted) return;
+    const candidates = await commonsFullTextSearch(q, conceptType, signal);
+    const match = pickRelevant(candidates, searchQuery || q, conceptType, locationAnchor);
+    if (match && isTechnicallyValidImage(match.url)) {
+      await showImageWithPreload(match.url, captionText || match.title, match.source, signal);
+      return;
+    }
+  }
+
+  for (const q of queries) {
+    if (signal && signal.aborted) return;
+    const candidates = await openverseSearch(q, signal);
+    const match = pickRelevant(candidates, searchQuery || q, conceptType, locationAnchor);
+    if (match && isTechnicallyValidImage(match.url)) {
+      await showImageWithPreload(match.url, captionText || match.title, match.source, signal);
+      return;
+    }
+  }
+
+  if (!signal || !signal.aborted) {
+    hideImage();
+  }
+}
+
+function isTechnicallyValidImage(url) {
+  if (!url || typeof url !== 'string') return false;
+  const lowerUrl = url.toLowerCase();
+  const forbiddenExtensions = ['.svg', '.pdf', '.tiff', '.djvu'];
+  const forbiddenTerms = ['commons-logo', 'wikinews-logo', 'symbol_question', 'edit-clear', 'icon', 'logo_of', 'p_phoneme'];
+
+  if (forbiddenExtensions.some(ext => lowerUrl.endsWith(ext))) return false;
+  if (forbiddenTerms.some(term => lowerUrl.includes(term))) return false;
+  return true;
+}
+
+// =========================================================================
+//  INICIALIZACIÓN DE EVENTOS
+// =========================================================================
 
 function inicializarEventos() {
   const selectObras = document.getElementById('selector-obras');
