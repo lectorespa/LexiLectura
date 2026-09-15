@@ -7,7 +7,7 @@
   --text-muted: #64748b;
   --border-color: #e2e8f0;
 
-  /* Paleta por Categorías */
+  /* Paleta por Categoría */
   --cat-author: #dbeafe;
   --cat-author-text: #1e40af;
   --cat-author-border: #3b82f6;
@@ -158,17 +158,27 @@ body {
   transform: translateY(-1px);
 }
 
-/* Estado Deshabilitado o Desactivado (Texto Plano) */
-.category-disabled, .layer-disabled {
+/* Estado Deshabilitado o Desactivado (Forzar estilo plano global) */
+.text-card [data-node].category-disabled, 
+.text-card .interactive-word.category-disabled,
+.text-card [data-node].layer-disabled, 
+.text-card .interactive-word.layer-disabled,
+.text-card [data-node][class*="-disabled"],
+.text-card .interactive-word[class*="-disabled"],
+.category-disabled, 
+.layer-disabled {
   background: transparent !important;
-  color: var(--text-main) !important;
-  border-bottom: none !important;
+  color: var(--text-muted) !important;
+  border-bottom-color: transparent !important;
+  border-bottom-width: 0 !important;
+  border-bottom-style: none !important;
   cursor: text !important;
   pointer-events: none !important;
   font-weight: normal !important;
-  opacity: 1 !important;
+  opacity: 0.5 !important;
   box-shadow: none !important;
   filter: none !important;
+  transform: none !important;
 }
 
 /* Tooltip emergente de categoría al pasar el cursor */
@@ -746,7 +756,7 @@ header.doc-header h1 {
   justify-content: center;
 }
 
-/* Estilos de solapamiento y capas anidadas */
+/* Estilo para spans anidados o de múltiple capa */
 .interactive-word .interactive-word {
   border-bottom-width: 3px;
   border-bottom-style: double;
@@ -755,9 +765,4 @@ header.doc-header h1 {
 .interactive-word[data-node*=" "] {
   border-bottom-style: dashed;
   background-color: rgba(243, 156, 18, 0.1);
-}
-
-.interactive-word[data-layers*=" "] {
-  border-bottom: 2px dashed var(--current-layer-color);
-  background: linear-gradient(180deg, transparent 70%, rgba(74, 144, 226, 0.15) 100%);
 }
