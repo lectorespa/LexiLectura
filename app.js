@@ -92,11 +92,6 @@ const EJEMPLO_JSON = {
   ]
 };
 
-/**
- * Filtra los nodos de vocabulario en el texto según el nivel de lectura activo.
- * - Modo 'short' (Básica): Muestra todo el vocabulario (B1, B2, C1, C2).
- * - Modo 'deep' (Avanzada): Muestra únicamente vocabulario C1 y C2.
- */
 function aplicarFiltroVocabularioPorNivel() {
   if (!obraActiva) return;
 
@@ -108,20 +103,16 @@ function aplicarFiltroVocabularioPorNivel() {
     const vocabLevel = el.getAttribute('data-vocab-level') || nodo?.vocabLevel || 'B1';
 
     if (nivelLecturaActual === 'deep') {
-      // En modo avanzado se ocultan/desactivan las anotaciones de nivel básico (B1/B2)
       if (vocabLevel === 'B1' || vocabLevel === 'B2') {
         el.classList.add('vocab-hidden-in-deep');
       } else {
         el.classList.remove('vocab-hidden-in-deep');
       }
     } else {
-      // En modo básico se muestran todas
       el.classList.remove('vocab-hidden-in-deep');
     }
   });
 }
-
-
 
 async function cargarMenuObras() {
   const select = document.getElementById('selector-obras');
@@ -192,10 +183,6 @@ function renderizarTextoAnotado(datosObra) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-// Aplicar filtro de nivel de vocabulario tras renderizar las estrofas
-  aplicarFiltroVocabularioPorNivel();
-
-  
   renderizarFiltrosCategorias(datosObra);
 
   const contenedorEstrofas = document.getElementById('text-stanzas');
@@ -222,6 +209,9 @@ function renderizarTextoAnotado(datosObra) {
   } else {
     contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta estructura.</p>';
   }
+
+  // Aplicar filtro tras insertar las estrofas en el DOM
+  aplicarFiltroVocabularioPorNivel();
 }
 
 function renderizarFiltrosCategorias(datosObra) {
@@ -313,10 +303,8 @@ async function abrirModalAnotacion(datosNodo) {
     modalContent.style.paddingLeft = '10px';
   }
 
-  // Mostrar placeholder inicial de carga de imagen
   showImagePlaceholder("Buscando y cargando imagen representativa...");
 
-  // Renderizar enlaces externos (Wikipedia y YouTube)
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
     let htmlEnlaces = '';
@@ -346,7 +334,6 @@ async function abrirModalAnotacion(datosNodo) {
   modal.classList.remove('hidden');
   modal.setAttribute('aria-hidden', 'false');
 
-  // Ejecutar motor avanzado de resolución de imagen asíncrona
   await resolveAndDisplayImage(datosNodo, currentImageFetchController.signal);
 }
 
@@ -804,8 +791,6 @@ async function resolveAndDisplayImage(nodeData, signal = null) {
     }
   }
 
-  // --- RESPALDO DE SEGURIDAD PARA GITHUB PAGES ---
-  // Si las APIs externas fallan por CORS o red, se asigna una imagen temática segura
   const fallbackUrls = {
     artwork: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Blanco_y_Negro_-_Generacion_del_98.jpg/500px-Blanco_y_Negro_-_Generacion_del_98.jpg",
     landscape: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Castilian_landscape_near_Sig%C3%BCenza.jpg/500px-Castilian_landscape_near_Sig%C3%BCenza.jpg"
@@ -848,7 +833,6 @@ function inicializarEventos() {
           : 'Modo Lectura Básica (Vocabulario B1+)';
       }
 
-      // Reaplicar el filtro de vocabulario dinámicamente al cambiar de modo
       aplicarFiltroVocabularioPorNivel();
     });
   });
@@ -895,20 +879,6 @@ function inicializarEventos() {
     });
   });
 
-  const levelBtns = document.querySelectorAll('.level-btn');
-  const levelBadge = document.getElementById('levelIndicatorBadge');
-
-  levelBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      levelBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      nivelLecturaActual = btn.dataset.level || 'short';
-      if (levelBadge) {
-        levelBadge.textContent = nivelLecturaActual === 'deep' ? 'Modo Edición Crítica' : 'Modo Lectura Básica';
-      }
-    });
-  });
-
   document.addEventListener('click', (e) => {
     const targetNodo = e.target.closest('[data-node], .meta-link');
     if (!targetNodo) return;
@@ -930,7 +900,6 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
   inicializarEventos();
 
-  // --- Conectar el botón visible con el input de archivo oculto ---
   const btnUploadLocal = document.getElementById('btn-upload-local');
   const inputFileLocal = document.getElementById('local-json-file');
 
@@ -948,12 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lector.onload = (eventoFichero) => {
         try {
           const datos = JSON.parse(eventoFichero.target.result);
-          
-          if (typeof renderizarTextoAnotado === 'function') {
-            renderizarTextoAnotado(datos);
-          } else if (typeof cargarEstructuraJSON === 'function') {
-            cargarEstructuraJSON(datos);
-          }
+          renderizarTextoAnotado(datos);
 
           const acordeon = document.querySelector('.json-accordion-container');
           if (acordeon) acordeon.removeAttribute('open');
@@ -962,7 +926,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
       lector.readAsText(archivo);
-      
       inputFileLocal.value = '';
     });
   }
