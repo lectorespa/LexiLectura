@@ -463,6 +463,24 @@ function inicializarEventos() {
   }
 }
 
+
+// Renderizar botones en la barra de filtros
+capasPresentes.forEach((capa) => {
+  const btn = document.createElement('button');
+  btn.className = 'btn filter-chip active'; // Se elimina 'btn-secondary' para no heredar azul
+  btn.textContent = capa.label;
+  btn.dataset.layerId = capa.id;
+  btn.dataset.category = capa.id; // Asigna el atributo para que aplique CSS
+
+  btn.addEventListener('click', () => {
+    const isActive = btn.classList.toggle('active');
+    btn.classList.toggle('inactive', !isActive);
+    alternarVisibilidadCapa(capa.id, isActive);
+  });
+
+  bar.appendChild(btn);
+});
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
