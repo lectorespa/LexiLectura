@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visor de Lectura Interactiva — Ediciones Críticas</title>
-  <link rel="stylesheet" href="./styles.css?v=5">
+  <link rel="stylesheet" href="./styles.css?v=4">
 </head>
 <body>
 
   <main class="main-container">
     
     <!-- Selector de Obras / Ficheros -->
-    <section class="selector-container" aria-label="Selección de obras y archivos">
+    <section class="selector-container">
       <div id="server-selector-group">
         <label for="json-select">Seleccionar obra:</label>
         <select id="json-select">
@@ -32,43 +32,43 @@
       </summary>
       <div class="json-accordion-content">
         <div class="json-toolbar">
-          <button id="btn-sample-json" class="btn btn-secondary" type="button">📋 Cargar Ejemplo</button>
-          <button id="btn-clear-json" class="btn btn-danger" type="button" title="Limpiar cajetín">🗑️ Limpiar</button>
+          <button id="btn-sample-json" class="btn btn-secondary">📋 Cargar Ejemplo</button>
+          <button id="btn-clear-json" class="btn btn-danger" title="Limpiar cajetín">🗑️ Limpiar</button>
         </div>
         
         <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el código JSON de la edición crítica..."></textarea>
         
         <div class="json-actions">
-          <button id="btn-load-json" class="btn btn-primary" type="button">🚀 Renderizar texto</button>
-          <button id="btn-open-file" class="btn btn-secondary" type="button">📂 Cargar archivo JSON</button>
-          <button id="btn-paste-json" class="btn btn-secondary" type="button">📋 Pegar portapapeles</button>
+          <button id="btn-load-json" class="btn btn-primary">🚀 Renderizar texto</button>
+          <button id="btn-open-file" class="btn btn-secondary">📂 Cargar archivo JSON</button>
+          <button id="btn-paste-json" class="btn btn-secondary">📋 Pegar portapapeles</button>
           
           <input type="file" id="input-json-upload" accept=".json" class="hidden">
         </div>
       </div>
     </details>
 
-    <!-- Control de Filtros por Categoría (Multicapa) -->
-    <section class="top-controls" aria-label="Filtros de capas de anotación">
+    <!-- Control de Filtros por Categoría -->
+    <section class="top-controls">
       <div class="filter-header">
         <span class="filter-title">Filtro de Categorías de Anotación</span>
         <div class="filter-actions">
-          <button id="btn-select-all-cats" class="btn btn-secondary" type="button">Mostrar todas</button>
-          <button id="btn-deselect-all-cats" class="btn btn-secondary" type="button">Ocultar todas</button>
+          <button id="btn-select-all-cats" class="btn btn-secondary">Mostrar todas</button>
+          <button id="btn-deselect-all-cats" class="btn btn-secondary">Ocultar todas</button>
         </div>
       </div>
-      <div id="category-filter-bar" class="category-filter-bar" role="group" aria-label="Categorías activas"></div>
+      <div id="category-filter-bar" class="category-filter-bar"></div>
     </section>
 
     <!-- Control de Nivel de Anotación -->
-    <section class="top-controls" aria-label="Selección de nivel académico">
+    <section class="top-controls">
       <div class="filter-header">
         <span class="filter-title">Selección de nivel académico de las anotaciones</span>
         <div class="filter-actions">
           <div class="annotation-level-selector">
-            <div class="toggle-buttons" role="group" aria-label="Nivel académico de anotación">
-              <button type="button" class="level-btn active" data-level="short" aria-pressed="true">Básico</button>
-              <button type="button" class="level-btn" data-level="deep" aria-pressed="false">Avanzado</button>
+            <div class="toggle-buttons">
+              <button type="button" class="level-btn active" data-level="short">Básico</button>
+              <button type="button" class="level-btn" data-level="deep">Avanzado</button>
             </div>
             
             <span id="levelIndicatorBadge" class="level-badge short-mode">
@@ -99,14 +99,14 @@
   </main>
 
   <!-- Modal Flotante de Anotación -->
-  <div id="annotation-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+  <div id="annotation-modal" class="modal-overlay hidden" aria-hidden="true" role="dialog">
     <div class="modal-card">
       <div class="modal-header">
         <div>
           <span id="modal-category" class="modal-category-badge">Categoría</span>
           <h2 id="modal-title" class="modal-title">Anotación</h2>
         </div>
-        <button id="modal-close-btn" class="modal-close-btn" aria-label="Cerrar" type="button">✕</button>
+        <button id="modal-close-btn" class="modal-close-btn" aria-label="Cerrar">✕</button>
       </div>
 
       <div class="modal-body">
@@ -129,6 +129,7 @@
       const jsonSelect = document.getElementById('json-select');
       const jsonTextarea = document.getElementById('json-input');
       const btnLoad = document.getElementById('btn-load-json');
+      const fileInputGroup = document.getElementById('file-input-group');
       const isLocal = window.location.protocol === 'file:';
 
       const btnOpenFile = document.getElementById('btn-open-file');
@@ -325,6 +326,6 @@
     });
   </script>
 
-  <script src="./app.js?v=5"></script>
+  <script src="./app.js?v=4"></script>
 </body>
 </html>
