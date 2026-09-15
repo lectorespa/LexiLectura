@@ -120,6 +120,31 @@ async function cargarMenuObras() {
   }
 }
 
+
+// Botones de selección masiva de categorías
+const btnSelectAll = document.getElementById('btn-select-all-cats');
+const btnDeselectAll = document.getElementById('btn-deselect-all-cats');
+
+if (btnSelectAll) {
+  btnSelectAll.addEventListener('click', () => {
+    document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
+      btn.classList.add('active');
+      btn.style.opacity = '1';
+      alternarVisibilidadCapa(btn.dataset.layerId, true);
+    });
+  });
+}
+
+if (btnDeselectAll) {
+  btnDeselectAll.addEventListener('click', () => {
+    document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
+      btn.classList.remove('active');
+      btn.style.opacity = '0.4';
+      alternarVisibilidadCapa(btn.dataset.layerId, false);
+    });
+  });
+}
+
 // ==========================================
 // 2. RENDERIZADO DE LA OBRA Y FILTROS
 // ==========================================
