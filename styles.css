@@ -22,6 +22,16 @@
   --cat-analysis-text: #075985;
 }
 
+/* Estado para las anotaciones filtradas/desactivadas */
+.interactive-word.layer-disabled,
+.meta-link.layer-disabled {
+  opacity: 0.25;
+  border-bottom: none !important;
+  background-color: transparent !important;
+  pointer-events: none; /* Desactiva clics mientras el filtro esté apagado */
+  cursor: default;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
