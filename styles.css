@@ -632,4 +632,62 @@ header.doc-header h1 {
     background: transparent !important;
     color: inherit !important;
   }
+
+/* ==========================================================================
+   MEJORAS Y SUGERENCIAS ADICIONALES
+   ========================================================================== */
+
+/* 1. Animación de apertura suave para el modal (Efecto Fade & Scale) */
+.modal-overlay:not(.hidden) .modal-card {
+  animation: modalScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalScaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 2. Optimización visual de las imágenes en el modal */
+.modal-image-wrapper img {
+  max-width: 100%;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain; /* Evita recortes no deseados en mapas o grabados */
+  background: #ffffff;
+  padding: 4px;
+}
+
+/* 3. Indicador de color dinámico para los puntos de los filtros (Chips) */
+.filter-chip .chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.filter-chip[data-category="author"] .chip-dot { background-color: var(--cat-author-border); }
+.filter-chip[data-category="period"] .chip-dot { background-color: var(--cat-period-border); }
+.filter-chip[data-category="vocabulary"] .chip-dot { background-color: var(--cat-vocabulary-border); }
+.filter-chip[data-category="culture"] .chip-dot { background-color: var(--cat-culture-border); }
+.filter-chip[data-category="syntax"] .chip-dot { background-color: var(--cat-syntax-border); }
+.filter-chip[data-category="analysis"] .chip-dot { background-color: var(--cat-analysis-border); }
+
+/* 4. Estilo hover sutil para los enlaces externos dentro del modal */
+.link-item {
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.link-item:hover {
+  transform: translateX(4px);
+  background: #e2e8f0;
+}
+
+  
 }
