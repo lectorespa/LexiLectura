@@ -178,7 +178,6 @@ function renderizarTextoAnotado(datosObra) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
   }
 
-  // Actualización directa del cajetín sin bloqueos de foco
   const jsonInput = document.getElementById('json-input');
   if (jsonInput) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
@@ -347,6 +346,136 @@ function cerrarModal() {
     modal.classList.add('hidden');
     modal.setAttribute('aria-hidden', 'true');
   }
+}
+
+// =========================================================================
+//  GESTIÓN DE CLICS CON CAPAS SOLAPADAS O ANIDADAS
+// =========================================================================
+
+document.addEventListener('click', (e) => {
+  // Ignorar clics dentro del modal o del menú desplegable de capas
+  if (e.target.closest('#annotation-modal') || e.target.closest('.overlap-selector-popup')) {
+    return;
+  }
+
+  // Recopilar TODOS los nodos anotados desde el elemento pulsado hacia arriba en el DOM
+  const nodosDetectados = [];
+  let el = e.target.closest('[data-node], .meta-link');
+
+  while (el && el !== document.body) {
+    if (el.hasAttribute('data-node')) {
+      const ids = el.getAttribute('data-node').trim().split(/\s+/);
+      ids.forEach(id => {
+        const nodo = obraActiva?.interactiveNodes?.[id];
+        if (nodo && !nodosDetectados.some(n => n.id === id)) {
+          nodosDetectados.push({ id, element: el, data: nodo });
+        }
+      });
+    }
+    el = el.parentElement ? el.parentElement.closest('[data-node], .meta-link') : null;
+  }
+
+  // Cerrar selector previo si existe
+  cerrarSelectorSolapamiento();
+
+  if (nodosDetectados.length === 0) return;
+
+  // Si solo hay una anotación, abrir modal directamente
+  if (nodosDetectados.length === 1) {
+    abrirModalAnotacion(nodosDetectados[0].data);
+  } else {
+    // Si hay varias capas/anotaciones solapadas, mostrar menú de selección
+    mostrarMenuSolapamiento(nodosDetectados, e.clientX, e.clientY);
+  }
+});
+
+// Cierre mediante la tecla Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    cerrarSelectorSolapamiento();
+  }
+});
+
+function mostrarMenuSolapamiento(nodos, x, y) {
+  cerrarSelectorSolapamiento();
+
+  const popup = document.createElement('div');
+  popup.className = 'overlap-selector-popup';
+  popup.style.position = 'fixed';
+  popup.style.zIndex = '9999';
+  popup.style.background = '#FFFFFF';
+  popup.style.border = '1px solid #CCC';
+  popup.style.borderRadius = '8px';
+  popup.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  popup.style.padding = '8px 0';
+  popup.style.minWidth = '220px';
+  popup.style.maxWidth = '320px';
+
+  const title = document.createElement('div');
+  title.style.padding = '4px 12px 8px 12px';
+  title.style.fontSize = '11px';
+  title.style.fontWeight = 'bold';
+  title.style.color = '#666';
+  title.style.textTransform = 'uppercase';
+  title.style.borderBottom = '1px solid #EEE';
+  title.style.marginBottom = '4px';
+  title.textContent = 'Selecciona la capa a consultar:';
+  popup.appendChild(title);
+
+  nodos.forEach(item => {
+    const capaObj = typeof resolverCapa === 'function' ? resolverCapa(item.data.type || item.data.category) : null;
+    const btn = document.createElement('button');
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.width = '100%';
+    btn.style.textAlign = 'left';
+    btn.style.padding = '8px 12px';
+    btn.style.border = 'none';
+    btn.style.background = 'transparent';
+    btn.style.cursor = 'pointer';
+    btn.style.fontSize = '13px';
+    btn.style.lineHeight = '1.3';
+    
+    const badgeColor = capaObj?.color || '#4A90E2';
+    btn.innerHTML = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${badgeColor}; margin-right:8px; flex-shrink:0;"></span>
+                     <div>
+                       <span style="font-size:11px; color:#777; display:block;">${capaObj?.label || 'Anotación'}</span>
+                       <strong>${item.data.title || item.id}</strong>
+                     </div>`;
+
+    btn.addEventListener('mouseenter', () => btn.style.background = '#F0F4F8');
+    btn.addEventListener('mouseleave', () => btn.style.background = 'transparent');
+    
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      cerrarSelectorSolapamiento();
+      abrirModalAnotacion(item.data);
+    });
+
+    popup.appendChild(btn);
+  });
+
+  document.body.appendChild(popup);
+
+  // Control de colisión con los bordes del viewport
+  const rect = popup.getBoundingClientRect();
+  let posX = x + 10;
+  let posY = y + 10;
+
+  if (posX + rect.width > window.innerWidth) {
+    posX = Math.max(10, x - rect.width - 5);
+  }
+  if (posY + rect.height > window.innerHeight) {
+    posY = Math.max(10, y - rect.height - 5);
+  }
+
+  popup.style.left = `${posX}px`;
+  popup.style.top = `${posY}px`;
+}
+
+function cerrarSelectorSolapamiento() {
+  const prev = document.querySelector('.overlap-selector-popup');
+  if (prev) prev.remove();
 }
 
 // =========================================================================
@@ -837,7 +966,6 @@ function inicializarEventos() {
     });
   });
 
-  // Evento para el selector de obras del catálogo
   const selectObras = document.getElementById('selector-obras');
   selectObras?.addEventListener('change', async (e) => {
     const ruta = e.target.value;
@@ -894,17 +1022,6 @@ function inicializarEventos() {
       btn.classList.add('inactive');
       alternarVisibilidadCapa(btn.dataset.layerId, false);
     });
-  });
-
-  document.addEventListener('click', (e) => {
-    const targetNodo = e.target.closest('[data-node], .meta-link');
-    if (!targetNodo) return;
-
-    const nodeId = targetNodo.getAttribute('data-node');
-    if (!nodeId || !obraActiva || !obraActiva.interactiveNodes) return;
-
-    const datosNodo = obraActiva.interactiveNodes[nodeId];
-    if (datosNodo) abrirModalAnotacion(datosNodo);
   });
 
   document.getElementById('modal-close-btn')?.addEventListener('click', cerrarModal);
