@@ -158,16 +158,23 @@ body {
   transform: translateY(-1px);
 }
 
-/* Estado Deshabilitado o Desactivado (Forzar estilo plano global) */
+/* Estado Deshabilitado o Desactivado (Forzar estilo plano global y robusto) */
 .text-card [data-node].category-disabled, 
 .text-card .interactive-word.category-disabled,
 .text-card [data-node].layer-disabled, 
 .text-card .interactive-word.layer-disabled,
 .text-card [data-node][class*="-disabled"],
 .text-card .interactive-word[class*="-disabled"],
-.category-disabled, 
-.layer-disabled {
+.text-card [data-node].inactive,
+.text-card .interactive-word.inactive,
+[data-node].category-disabled, 
+.interactive-word.category-disabled,
+[data-node].layer-disabled, 
+.interactive-word.layer-disabled,
+[data-node].inactive, 
+.interactive-word.inactive {
   background: transparent !important;
+  background-color: transparent !important;
   color: var(--text-muted) !important;
   border-bottom-color: transparent !important;
   border-bottom-width: 0 !important;
