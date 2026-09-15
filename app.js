@@ -871,7 +871,6 @@ function inicializarEventos() {
   });
 
   document.addEventListener('click', (e) => {
-    // MODIFICADO: Captura tanto los nodos internos del texto [data-node] como los enlaces de la cabecera [.meta-link]
     const targetNodo = e.target.closest('[data-node], .meta-link');
     if (!targetNodo) return;
 
@@ -891,15 +890,14 @@ function inicializarEventos() {
 document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
   inicializarEventos();
-});
 
-// Conectar el botón visible con el input de archivo oculto
+  // --- Conectar el botón visible con el input de archivo oculto ---
   const btnUploadLocal = document.getElementById('btn-upload-local');
   const inputFileLocal = document.getElementById('local-json-file');
 
   if (btnUploadLocal && inputFileLocal) {
     btnUploadLocal.addEventListener('click', (e) => {
-      e.preventDefault(); // Previene comportamientos inesperados dentro del formulario o acordeón
+      e.preventDefault(); 
       inputFileLocal.click();
     });
 
@@ -912,14 +910,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const datos = JSON.parse(eventoFichero.target.result);
           
-          // Llama a tu función existente de renderizado (ajusta el nombre si en tu app se llama diferente)
           if (typeof renderizarTextoAnotado === 'function') {
             renderizarTextoAnotado(datos);
           } else if (typeof cargarEstructuraJSON === 'function') {
             cargarEstructuraJSON(datos);
           }
 
-          // Cierra el acordeón automáticamente tras una carga exitosa
           const acordeon = document.querySelector('.json-accordion-container');
           if (acordeon) acordeon.removeAttribute('open');
         } catch (err) {
@@ -928,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       lector.readAsText(archivo);
       
-      // Resetea el valor para permitir seleccionar el mismo archivo de nuevo si es necesario
       inputFileLocal.value = '';
     });
   }
+});
