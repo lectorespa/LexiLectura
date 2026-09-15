@@ -288,7 +288,7 @@ async function abrirModalAnotacion(datosNodo) {
     const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikipedia;
     if (wikiRef) {
       let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://${datosNodo.wikiLang || obraActiva?.meta?.lang || 'es'}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
-      htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Ver en Wikipedia ↗</a>`;
+      htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Más información en Wikipedia ↗</a>`;
     }
 
     let urlYoutube = datosNodo.youtubeUrl;
@@ -297,7 +297,7 @@ async function abrirModalAnotacion(datosNodo) {
     }
 
     if (urlYoutube) {
-      htmlEnlaces += `<a href="${urlYoutube}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link" style="color: #FF0000; font-weight: bold; margin-left: 10px;">📺 Ver en YouTube ↗</a>`;
+      htmlEnlaces += `<a href="${urlYoutube}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link" style="color: #FF0000; font-weight: bold; margin-left: 10px;">📺 Más información en YouTube ↗</a>`;
     }
 
     if (htmlEnlaces !== '') {
