@@ -20,20 +20,31 @@
       </div>
     </section>
   
-    <!-- Panel de Carga JSON -->
-    <section class="json-box-container">
-      <div class="json-box-header">
-        <span class="json-box-title">Cargar / Pegar Estructura JSON</span>
-        <div class="json-toolbar">
-          <button id="btn-sample-json" class="btn btn-secondary" type="button">Cargar Ejemplo</button>
-          <button id="btn-clear-json" class="btn btn-danger" type="button">Limpiar</button>
+   <!-- Panel de Carga JSON (Acordeón Cerrado por Defecto) -->
+    <details class="json-accordion-container">
+      <summary class="json-accordion-summary">Genera y visualiza tus propios textos anotados (JSON)</summary>
+      <div class="json-box-container">
+        <div class="json-box-header">
+          <div class="json-toolbar">
+            <button id="btn-sample-json" class="btn btn-secondary" type="button">Cargar Ejemplo</button>
+            <button id="btn-clear-json" class="btn btn-danger" type="button">Limpiar</button>
+          </div>
+        </div>
+        <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el JSON generado..."></textarea>
+        
+        <div class="json-actions">
+          <!-- Enlace externo a la herramienta de Gemini -->
+          <a href="https://gemini.google.com/gem/1DOSkyIsaEnRUID9CmsrPpVPVb4tjZsV7?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn btn-secondary external-gem-btn">Crea aquí tu propio texto anotado</a>
+          
+          <!-- Input de archivo oculto y botón de subida local -->
+          <input type="file" id="local-json-file" accept=".json" style="display: none;" />
+          <button id="btn-upload-local" class="btn btn-secondary" type="button">Sube tu propio texto anotado (.json)</button>
+          
+          <!-- Botón de renderizado -->
+          <button id="btn-load-json" class="btn btn-primary" type="button">Ver texto anotado</button>
         </div>
       </div>
-      <textarea id="json-input" class="json-textarea" placeholder="Pega aquí el JSON generado..."></textarea>
-      <div class="json-actions">
-        <button id="btn-load-json" class="btn btn-primary" type="button">Renderizar Obra</button>
-      </div>
-    </section>
+    </details>
 
     <!-- Filtros de Categorías -->
     <section class="top-controls">
