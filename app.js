@@ -481,6 +481,43 @@ capasPresentes.forEach((capa) => {
   bar.appendChild(btn);
 });
 
+// Al renderizar metadatos de autor y período
+if (docAuthor) {
+  const autorNombre = datosObra.meta?.author || '';
+  const autorNodo = datosObra.meta?.authorNodeId;
+  const nodoObj = datosObra.interactiveNodes?.[autorNodo];
+  const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'author');
+
+  docAuthor.innerHTML = autorNodo 
+    ? `<span class="meta-link" data-node="${autorNodo}" data-category="${capaObj?.id || 'author'}" tabindex="0" role="button">${autorNombre}</span>` 
+    : autorNombre;
+}
+
+if (docPeriod) {
+  const periodoNombre = datosObra.meta?.period || '';
+  const periodoNodo = datosObra.meta?.periodNodeId;
+  const nodoObj = datosObra.interactiveNodes?.[periodoNodo];
+  const capaObj = resolverCapa(nodoObj?.type || nodoObj?.category || 'period');
+
+  docPeriod.innerHTML = periodoNombre 
+    ? ` | <span class="meta-link" data-node="${periodoNodo}" data-category="${capaObj?.id || 'period'}" tabindex="0" role="button">${periodoNombre}</span>` 
+    : (periodoNombre ? ` | ${periodoNombre}` : '');
+}
+
+// Dentro de renderizarTextoAnotado, tras inyectar las estrofas:
+document.querySelectorAll('.stanzas-wrapper [data-node]').forEach(el => {
+  const nodeId = el.getAttribute('data-node');
+  const nodo = datosObra.interactiveNodes?.[nodeId];
+  if (nodo) {
+    const capaObj = resolverCapa(nodo.type || nodo.category);
+    if (capaObj) {
+      el.setAttribute('data-category', capaObj.id);
+    }
+  }
+});
+
+
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
