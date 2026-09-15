@@ -775,18 +775,5 @@ header.doc-header h1 {
 .interactive-word .interactive-word {
   border-bottom-style: dashed; /* Diferencia capas internas */
 }
-
-  .interactive-word {
-  text-decoration: underline;
-  text-decoration-color: var(--current-layer-color, #ccc);
-  transition: all 0.2s ease;
-}
-
-/* Indicador visual cuando pertenece a más de una capa activa */
-.interactive-word[data-layers*=" "] {
-  /* Subrayado doble o fondo con degradado tenue */
-  border-bottom: 2px dashed var(--current-layer-color);
-  background: linear-gradient(180deg, transparent 70%, rgba(74, 144, 226, 0.15) 100%);
-}
   
 }
