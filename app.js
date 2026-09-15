@@ -178,8 +178,9 @@ function renderizarTextoAnotado(datosObra) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
   }
 
+  // Actualización directa del cajetín sin bloqueos de foco
   const jsonInput = document.getElementById('json-input');
-  if (jsonInput && document.activeElement !== jsonInput) {
+  if (jsonInput) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
@@ -210,7 +211,6 @@ function renderizarTextoAnotado(datosObra) {
     contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta estructura.</p>';
   }
 
-  // Aplicar filtro tras insertar las estrofas en el DOM
   aplicarFiltroVocabularioPorNivel();
 }
 
@@ -837,6 +837,21 @@ function inicializarEventos() {
     });
   });
 
+  // Evento para el selector de obras del catálogo
+  const selectObras = document.getElementById('selector-obras');
+  selectObras?.addEventListener('change', async (e) => {
+    const ruta = e.target.value;
+    if (!ruta) return;
+    try {
+      const resp = await fetch(ruta);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const datos = await resp.json();
+      renderizarTextoAnotado(datos);
+    } catch (err) {
+      alert(`Error al cargar la obra seleccionada (${ruta}): ${err.message}`);
+    }
+  });
+
   document.getElementById('btn-load-json')?.addEventListener('click', () => {
     const jsonInput = document.getElementById('json-input');
     if (!jsonInput || !jsonInput.value.trim()) {
@@ -853,6 +868,8 @@ function inicializarEventos() {
 
   document.getElementById('btn-sample-json')?.addEventListener('click', () => {
     renderizarTextoAnotado(EJEMPLO_JSON);
+    const acordeon = document.querySelector('.json-accordion-container');
+    if (acordeon) acordeon.setAttribute('open', 'true');
   });
 
   document.getElementById('btn-clear-json')?.addEventListener('click', () => {
