@@ -6,6 +6,16 @@
 let obraActiva = null;
 let nivelLecturaActual = 'short';
 
+// Map oficial de las 6 categorías generadas por el Gem
+const CAPAS_OFICIALES = {
+  author:     { label: 'Autoría', color: '#8E44AD' },
+  period:     { label: 'Época y Contexto', color: '#2980B9' },
+  vocabulary: { label: 'Vocabulario', color: '#F39C12' },
+  culture:    { label: 'Cultura y Sociedad', color: '#27AE60' },
+  syntax:     { label: 'Métrica y Sintaxis', color: '#E67E22' },
+  analysis:   { label: 'Análisis e Interpretación', color: '#C0392B' }
+};
+
 // JSON de ejemplo por si catalogo.json o el servidor fallan
 const EJEMPLO_JSON = {
   "meta": {
@@ -17,10 +27,6 @@ const EJEMPLO_JSON = {
     "year": "1200",
     "lang": "es"
   },
-  "layers": [
-    { "layerId": "metrica_retorica", "label": "Métrica y Recursos", "color": "#4A90E2" },
-    { "layerId": "vocabulario_lexico", "label": "Vocabulario", "color": "#F39C12" }
-  ],
   "interactiveNodes": {
     "node_author": {
       "type": "author",
@@ -36,18 +42,18 @@ const EJEMPLO_JSON = {
       "category": "Sintaxis",
       "title": "De los sus ojos",
       "annotations": {
-        "short": { "definition": "Pleuronorina / Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
+        "short": { "definition": "Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
         "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
       }
     }
   },
   "stanzas": [
-    "<p>De los sus ojos <span class=\"interactive-word\" data-node=\"node_1\" data-layer=\"metrica_retorica\" tabindex=\"0\" role=\"button\">tan fuertemente llorando</span>,<br>tornaba la cabeza i estábalos mirando.</p>"
+    "<p>De los sus ojos <span class=\"interactive-word\" data-node=\"node_1\" tabindex=\"0\" role=\"button\">tan fuemente llorando</span>,<br>tornaba la cabeza i estábalos mirando.</p>"
   ]
 };
 
 // ==========================================
-// 1. CARGA DEL CATÁLOGO (Integrada y mejorada)
+// 1. CARGA DEL CATÁLOGO
 // ==========================================
 
 async function cargarMenuObras() {
@@ -62,7 +68,6 @@ async function cargarMenuObras() {
     
     let catalogo = await response.json();
 
-    // Permite arrays directos o colecciones envueltas ({ "obras": [...] })
     if (!Array.isArray(catalogo)) {
       catalogo = catalogo.obras || catalogo.catalogo || catalogo.items || [];
     }
@@ -96,7 +101,7 @@ async function cargarMenuObras() {
 }
 
 // ==========================================
-// 2. RENDERIZADO DE LA OBRA
+// 2. RENDERIZADO DE LA OBRA Y FILTROS POR CAPAS
 // ==========================================
 
 function renderizarTextoAnotado(datosObra) {
@@ -137,7 +142,7 @@ function renderizarTextoAnotado(datosObra) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-  // 2.3 Filtros
+  // 2.3 Filtros de Categorías
   renderizarFiltrosCategorias(datosObra);
 
   // 2.4 Estrofas (#text-stanzas)
@@ -163,23 +168,67 @@ function renderizarFiltrosCategorias(datosObra) {
   if (!bar) return;
   bar.innerHTML = '';
 
-  if (Array.isArray(datosObra.layers)) {
-    datosObra.layers.forEach(layer => {
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-secondary filter-chip active';
-      btn.style.borderColor = layer.color || '#ccc';
-      btn.textContent = layer.label || layer.layerId;
-      btn.dataset.layerId = layer.layerId;
+  const capasPresentes = new Map();
 
-      btn.addEventListener('click', () => {
-        btn.classList.toggle('active');
-        const spans = document.querySelectorAll(`[data-layer="${layer.layerId}"]`);
-        spans.forEach(span => span.classList.toggle('layer-disabled', !btn.classList.contains('active')));
-      });
-
-      bar.appendChild(btn);
+  // 1. Escanea los nodos interactivos para extraer las categorías reales usadas
+  if (datosObra.interactiveNodes) {
+    Object.values(datosObra.interactiveNodes).forEach(nodo => {
+      const catId = nodo.type || nodo.category;
+      if (catId && !capasPresentes.has(catId)) {
+        const info = CAPAS_OFICIALES[catId] || { label: catId, color: '#4A90E2' };
+        capasPresentes.set(catId, { id: catId, label: info.label, color: info.color });
+      }
     });
   }
+
+  // 2. Compatibilidad con el array legacy "layers" si existiera en archivos antiguos
+  if (Array.isArray(datosObra.layers)) {
+    datosObra.layers.forEach(l => {
+      if (!capasPresentes.has(l.layerId)) {
+        const info = CAPAS_OFICIALES[l.layerId] || {};
+        capasPresentes.set(l.layerId, {
+          id: l.layerId,
+          label: l.label || info.label || l.layerId,
+          color: l.color || info.color || '#4A90E2'
+        });
+      }
+    });
+  }
+
+  if (capasPresentes.size === 0) return;
+
+  // 3. Crear botones interactivos para activar/desactivar cada capa
+  capasPresentes.forEach((capa) => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-secondary filter-chip active';
+    btn.style.borderLeft = `4px solid ${capa.color}`;
+    btn.textContent = capa.label;
+    btn.dataset.layerId = capa.id;
+
+    btn.addEventListener('click', () => {
+      const isActive = btn.classList.toggle('active');
+      btn.style.opacity = isActive ? '1' : '0.4';
+      alternarVisibilidadCapa(capa.id, isActive);
+    });
+
+    bar.appendChild(btn);
+  });
+}
+
+function alternarVisibilidadCapa(capaId, visible) {
+  if (!obraActiva) return;
+
+  const elementos = document.querySelectorAll('[data-node]');
+  elementos.forEach(el => {
+    const nodeId = el.getAttribute('data-node');
+    const nodo = obraActiva.interactiveNodes?.[nodeId];
+    
+    const capaNodo = el.getAttribute('data-layer') || nodo?.type || nodo?.category;
+    
+    if (capaNodo === capaId) {
+      el.classList.toggle('layer-disabled', !visible);
+    }
+  });
 }
 
 // ==========================================
@@ -192,7 +241,11 @@ function abrirModalAnotacion(datosNodo) {
 
   const modalCat = document.getElementById('modal-category');
   const modalTitle = document.getElementById('modal-title');
-  if (modalCat) modalCat.textContent = datosNodo.category || datosNodo.type || 'Anotación';
+  
+  const catId = datosNodo.type || datosNodo.category;
+  const infoCapa = CAPAS_OFICIALES[catId];
+  
+  if (modalCat) modalCat.textContent = infoCapa ? infoCapa.label : (datosNodo.category || datosNodo.type || 'Anotación');
   if (modalTitle) modalTitle.textContent = datosNodo.title || datosNodo.label || '';
 
   const anotacion = datosNodo.annotations?.[nivelLecturaActual] || datosNodo.annotations?.short || {};
