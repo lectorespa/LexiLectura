@@ -47,7 +47,7 @@ const EJEMPLO_JSON = {
 };
 
 // ==========================================
-// 1. CARGA DEL CATÁLOGO
+// 1. CARGA DEL CATÁLOGO (Integrada y mejorada)
 // ==========================================
 
 async function cargarMenuObras() {
@@ -56,24 +56,42 @@ async function cargarMenuObras() {
 
   try {
     const response = await fetch('catalogo.json');
-    if (!response.ok) throw new Error(`HTTP ${response.status} - No se encontró catalogo.json`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: No se encontró catalogo.json en la raíz`);
+    }
     
-    const catalogo = await response.json();
-    select.innerHTML = '<option value="">-- Cargar obra anotada --</option>';
+    let catalogo = await response.json();
+
+    // Permite arrays directos o colecciones envueltas ({ "obras": [...] })
+    if (!Array.isArray(catalogo)) {
+      catalogo = catalogo.obras || catalogo.catalogo || catalogo.items || [];
+    }
+
+    if (!Array.isArray(catalogo) || catalogo.length === 0) {
+      select.innerHTML = '<option value="">-- Catálogo vacío o formato no válido --</option>';
+      return;
+    }
+
+    select.innerHTML = '<option value="">-- Selecciona una obra --</option>';
 
     catalogo.forEach(item => {
       const option = document.createElement('option');
-      const nombreArchivo = typeof item === 'string' ? item : item.archivo;
-      const tituloDisplay = typeof item === 'string' ? item.replace(/\.json$/i, '') : item.titulo;
-      const rutaRelativa = nombreArchivo.startsWith('textos/') ? nombreArchivo : `textos/${nombreArchivo}`;
+      const nombreArchivo = typeof item === 'string' ? item : (item.archivo || item.url || item.file);
+      const tituloDisplay = typeof item === 'string' ? item.replace(/\.json$/i, '') : (item.titulo || item.title || nombreArchivo);
+
+      if (!nombreArchivo) return;
+
+      const rutaRelativa = nombreArchivo.startsWith('textos/') 
+        ? nombreArchivo 
+        : `textos/${nombreArchivo}`;
 
       option.value = rutaRelativa;
       option.textContent = tituloDisplay;
       select.appendChild(option);
     });
   } catch (error) {
-    console.warn('Atención al cargar catálogo:', error.message);
-    select.innerHTML = '<option value="">-- Error o sin catalogo.json --</option>';
+    console.error('Error al cargar catalogo.json:', error);
+    select.innerHTML = `<option value="">-- Error: ${error.message} --</option>`;
   }
 }
 
