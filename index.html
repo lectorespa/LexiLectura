@@ -95,5 +95,23 @@
   </div>
 
   <script src="app.js"></script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const btnSample = document.getElementById('btn-sample-json');
+      if (btnSample) {
+        btnSample.addEventListener('click', () => {
+          alert('¡El JavaScript sí se está ejecutando correctamente!');
+        });
+      } else {
+        alert('No se encontró el botón btn-sample-json en el HTML');
+      }
+    });
+  </script>
+
+
+
+
 </body>
 </html>
