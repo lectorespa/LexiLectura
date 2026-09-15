@@ -892,3 +892,43 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
   inicializarEventos();
 });
+
+// Conectar el botón visible con el input de archivo oculto
+  const btnUploadLocal = document.getElementById('btn-upload-local');
+  const inputFileLocal = document.getElementById('local-json-file');
+
+  if (btnUploadLocal && inputFileLocal) {
+    btnUploadLocal.addEventListener('click', (e) => {
+      e.preventDefault(); // Previene comportamientos inesperados dentro del formulario o acordeón
+      inputFileLocal.click();
+    });
+
+    inputFileLocal.addEventListener('change', (e) => {
+      const archivo = e.target.files[0];
+      if (!archivo) return;
+
+      const lector = new FileReader();
+      lector.onload = (eventoFichero) => {
+        try {
+          const datos = JSON.parse(eventoFichero.target.result);
+          
+          // Llama a tu función existente de renderizado (ajusta el nombre si en tu app se llama diferente)
+          if (typeof renderizarTextoAnotado === 'function') {
+            renderizarTextoAnotado(datos);
+          } else if (typeof cargarEstructuraJSON === 'function') {
+            cargarEstructuraJSON(datos);
+          }
+
+          // Cierra el acordeón automáticamente tras una carga exitosa
+          const acordeon = document.querySelector('.json-accordion-container');
+          if (acordeon) acordeon.removeAttribute('open');
+        } catch (err) {
+          alert('El archivo seleccionado no contiene un JSON válido.');
+        }
+      };
+      lector.readAsText(archivo);
+      
+      // Resetea el valor para permitir seleccionar el mismo archivo de nuevo si es necesario
+      inputFileLocal.value = '';
+    });
+  }
