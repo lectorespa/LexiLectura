@@ -92,6 +92,37 @@ const EJEMPLO_JSON = {
   ]
 };
 
+/**
+ * Filtra los nodos de vocabulario en el texto según el nivel de lectura activo.
+ * - Modo 'short' (Básica): Muestra todo el vocabulario (B1, B2, C1, C2).
+ * - Modo 'deep' (Avanzada): Muestra únicamente vocabulario C1 y C2.
+ */
+function aplicarFiltroVocabularioPorNivel() {
+  if (!obraActiva) return;
+
+  const nodosVocabulario = document.querySelectorAll('[data-category="vocabulary"]');
+
+  nodosVocabulario.forEach(el => {
+    const nodeId = el.getAttribute('data-node');
+    const nodo = obraActiva.interactiveNodes?.[nodeId];
+    const vocabLevel = el.getAttribute('data-vocab-level') || nodo?.vocabLevel || 'B1';
+
+    if (nivelLecturaActual === 'deep') {
+      // En modo avanzado se ocultan/desactivan las anotaciones de nivel básico (B1/B2)
+      if (vocabLevel === 'B1' || vocabLevel === 'B2') {
+        el.classList.add('vocab-hidden-in-deep');
+      } else {
+        el.classList.remove('vocab-hidden-in-deep');
+      }
+    } else {
+      // En modo básico se muestran todas
+      el.classList.remove('vocab-hidden-in-deep');
+    }
+  });
+}
+
+
+
 async function cargarMenuObras() {
   const select = document.getElementById('selector-obras');
   if (!select) return;
