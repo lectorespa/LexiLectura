@@ -578,4 +578,61 @@ header.doc-header h1 {
     background: transparent !important;
     color: inherit !important;
   }
+
+/* --- MAPEADO DIRECTO POR CAPA (Solución inmediata) --- */
+.interactive-word[data-layer="metrica_retorica"],
+[data-node][data-layer="metrica_retorica"] {
+  background-color: var(--cat-syntax) !important;
+  color: var(--cat-syntax-text) !important;
+  border-bottom-color: var(--cat-syntax-border) !important;
 }
+
+.interactive-word[data-layer="simbologia_contexto"],
+[data-node][data-layer="simbologia_contexto"] {
+  background-color: var(--cat-culture) !important;
+  color: var(--cat-culture-text) !important;
+  border-bottom-color: var(--cat-culture-border) !important;
+}
+
+.interactive-word[data-layer="vocabulario_lexico"],
+[data-node][data-layer="vocabulario_lexico"] {
+  background-color: var(--cat-vocabulary) !important;
+  color: var(--cat-vocabulary-text) !important;
+  border-bottom-color: var(--cat-vocabulary-border) !important;
+}
+
+/* --- REFUERZO PARA APLICAR POR DATO DE CATEGORÍA --- */
+.interactive-word[data-category="vocabulary"],
+[data-node][data-category="vocabulary"] {
+  background-color: var(--cat-vocabulary) !important;
+  color: var(--cat-vocabulary-text) !important;
+  border-bottom-color: var(--cat-vocabulary-border) !important;
+}
+
+.interactive-word[data-category="syntax"],
+[data-node][data-category="syntax"] {
+  background-color: var(--cat-syntax) !important;
+  color: var(--cat-syntax-text) !important;
+  border-bottom-color: var(--cat-syntax-border) !important;
+}
+
+.interactive-word[data-category="culture"],
+[data-node][data-category="culture"] {
+  background-color: var(--cat-culture) !important;
+  color: var(--cat-culture-text) !important;
+  border-bottom-color: var(--cat-culture-border) !important;
+}
+
+.interactive-word[data-category="analysis"],
+[data-node][data-category="analysis"] {
+  background-color: var(--cat-analysis) !important;
+  color: var(--cat-analysis-text) !important;
+  border-bottom-color: var(--cat-analysis-border) !important;
+}
+
+  
+}
+
+
+
+
