@@ -35,7 +35,7 @@ function resolverCapa(val) {
   return CAPAS_CATALOGO[key] || { id: key, label: String(val), color: '#4A90E2' };
 }
 
-// JSON de ejemplo
+// JSON de ejemplo por defecto
 const EJEMPLO_JSON = {
   "meta": {
     "title": "Cantar de mio Cid (Fragmento)",
@@ -63,7 +63,6 @@ const EJEMPLO_JSON = {
       "type": "syntax",
       "category": "Sintaxis",
       "title": "De los sus ojos",
-      "youtubeUrl": "dQw4w9WgXcQ",
       "annotations": {
         "short": { "definition": "Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
         "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
@@ -76,11 +75,12 @@ const EJEMPLO_JSON = {
 };
 
 // ==========================================
-// 1. CARGA DEL CATÁLOGO
+// 1. CARGA DEL CATÁLOGO DE OBRAS
 // ==========================================
 
 async function cargarMenuObras() {
-  const select = document.getElementById('selector-obras');
+  // Ajustado al ID de index-17.html: work-select
+  const select = document.getElementById('work-select') || document.getElementById('selector-obras');
   if (!select) return;
 
   try {
@@ -93,7 +93,7 @@ async function cargarMenuObras() {
     }
 
     if (!Array.isArray(catalogo) || catalogo.length === 0) {
-      select.innerHTML = '<option value="">-- Catálogo vacío o formato no válido --</option>';
+      select.innerHTML = '<option value="">-- Catálogo vacío --</option>';
       return;
     }
 
@@ -112,20 +112,20 @@ async function cargarMenuObras() {
       select.appendChild(option);
     });
   } catch (error) {
-    console.error('Error al cargar catalogo.json:', error);
-    select.innerHTML = `<option value="">-- Cargar catálogo no disponible --</option>`;
+    console.warn('No se pudo cargar catalogo.json automáticamente:', error);
+    select.innerHTML = `<option value="">-- Cargar desde archivo local --</option>`;
   }
 }
 
 // ==========================================
-// 2. RENDERIZADO DE LA OBRA Y FILTROS
+// 2. RENDERIZADO DEL TEXTO Y METADATOS
 // ==========================================
 
 function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
 
-  // 2.1 Metadatos de la cabecera
+  // 2.1 Metadatos
   const docTitle = document.getElementById('doc-title');
   const docAuthor = document.getElementById('doc-author');
   const docPeriod = document.getElementById('doc-period');
@@ -159,17 +159,17 @@ function renderizarTextoAnotado(datosObra) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
   }
 
-  // 2.2 Sincronización del Área JSON
-  const jsonInput = document.getElementById('json-input');
+  // 2.2 Sincronizar el Textarea de JSON
+  const jsonInput = document.getElementById('json-input-area') || document.getElementById('json-input');
   if (jsonInput && document.activeElement !== jsonInput) {
     jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
-  // 2.3 Generación de Filtros
+  // 2.3 Generar Filtros de Categoría
   renderizarFiltrosCategorias(datosObra);
 
-  // 2.4 Renderizado de Estrofas
-  const contenedorEstrofas = document.getElementById('text-stanzas');
+  // 2.4 Renderizar Estrofas en el Contenedor
+  const contenedorEstrofas = document.getElementById('text-display') || document.getElementById('text-stanzas');
   if (!contenedorEstrofas) return;
 
   contenedorEstrofas.innerHTML = '';
@@ -182,8 +182,8 @@ function renderizarTextoAnotado(datosObra) {
       contenedorEstrofas.appendChild(estrofaDiv);
     });
 
-    // Inyección de atributos data-category para la aplicación correcta de estilos CSS
-    document.querySelectorAll('.stanzas-wrapper [data-node]').forEach(el => {
+    // Inyectar atributo data-category a cada elemento anotado
+    contenedorEstrofas.querySelectorAll('[data-node]').forEach(el => {
       const nodeId = el.getAttribute('data-node');
       const nodo = datosObra.interactiveNodes?.[nodeId];
       if (nodo) {
@@ -251,7 +251,7 @@ function alternarVisibilidadCapa(capaId, visible) {
 }
 
 // ==========================================
-// 3. MODAL DE ANOTACIONES (Imagen y Vídeos)
+// 3. MODAL DE ANOTACIONES
 // ==========================================
 
 function abrirModalAnotacion(datosNodo) {
@@ -275,7 +275,7 @@ function abrirModalAnotacion(datosNodo) {
   if (modalDef) modalDef.innerHTML = anotacion.definition || '';
   if (modalContent) modalContent.innerHTML = anotacion.content || '';
 
-  // 3.1 Procesar Imagen
+  // Imagen
   const imgWrapper = document.getElementById('modal-image-wrapper');
   const imgElem = document.getElementById('modal-image');
   const imgCaption = document.getElementById('modal-image-caption');
@@ -295,27 +295,19 @@ function abrirModalAnotacion(datosNodo) {
     if (imgElem) imgElem.style.display = 'none';
   }
 
-  // 3.2 Procesar Vídeos (YouTube) y Enlaces
+  // Vídeo y Enlaces
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
     let htmlEnlaces = '';
-
-    const youtubeRef = datosNodo.youtubeUrl || datosNodo.youtube || datosNodo.videoUrl || datosNodo.youtubeId || anotacion.youtubeUrl || anotacion.youtube;
+    const youtubeRef = datosNodo.youtubeUrl || datosNodo.youtube || datosNodo.videoUrl || datosNodo.youtubeId;
     if (youtubeRef) {
-      let urlYt = youtubeRef;
-      if (!urlYt.startsWith('http://') && !urlYt.startsWith('https://')) {
-        urlYt = `https://www.youtube.com/watch?v=${youtubeRef}`;
-      }
+      let urlYt = youtubeRef.startsWith('http') ? youtubeRef : `https://www.youtube.com/watch?v=${youtubeRef}`;
       htmlEnlaces += `<a href="${urlYt}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link">▶ Ver en YouTube ↗</a> `;
     }
 
-    const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikiUrl || datosNodo.wikipedia || anotacion.wikipediaArticle;
+    const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikiUrl || datosNodo.wikipedia;
     if (wikiRef) {
-      let urlWiki = wikiRef;
-      if (!urlWiki.startsWith('http://') && !urlWiki.startsWith('https://')) {
-        const wikiLang = datosNodo.wikiLang || 'es';
-        urlWiki = `https://${wikiLang}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
-      }
+      let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://es.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
       htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Ver en Wikipedia ↗</a>`;
     }
 
@@ -340,11 +332,12 @@ function cerrarModal() {
 }
 
 // ==========================================
-// 4. EVENTOS E INICIALIZACIÓN
+// 4. INICIALIZACIÓN DE EVENTOS
 // ==========================================
 
 function inicializarEventos() {
-  const selectObras = document.getElementById('selector-obras');
+  // 1. Selector de obras (work-select o selector-obras)
+  const selectObras = document.getElementById('work-select') || document.getElementById('selector-obras');
   if (selectObras) {
     selectObras.addEventListener('change', async (e) => {
       const ruta = e.target.value;
@@ -355,51 +348,54 @@ function inicializarEventos() {
         const data = await res.json();
         renderizarTextoAnotado(data);
       } catch (err) {
-        alert(`No se pudo cargar el archivo "${ruta}". Revisa la ruta en la carpeta /textos/.`);
+        alert(`No se pudo cargar la obra "${ruta}". Si estás probando en local sin servidor web, usa el botón "Cargar JSON".`);
         console.error(err);
       }
     });
   }
 
-  const btnLoadJson = document.getElementById('btn-load-json');
+  // 2. Botón Cargar JSON (load-json-btn o btn-load-json)
+  const btnLoadJson = document.getElementById('load-json-btn') || document.getElementById('btn-load-json');
   if (btnLoadJson) {
     btnLoadJson.addEventListener('click', () => {
-      const jsonInput = document.getElementById('json-input');
+      const jsonInput = document.getElementById('json-input-area') || document.getElementById('json-input');
       if (!jsonInput || !jsonInput.value.trim()) {
-        alert('Pega un JSON válido en el cuadro de texto antes de renderizar.');
+        alert('Pega un JSON válido en el área de texto antes de procesar.');
         return;
       }
       try {
         const data = JSON.parse(jsonInput.value);
         renderizarTextoAnotado(data);
       } catch (e) {
-        alert('El texto pegado contiene errores de sintaxis JSON.');
+        alert('El código introducido no es un JSON válido. Revisa las comillas o comas.');
         console.error(e);
       }
     });
   }
 
-  const btnSampleJson = document.getElementById('btn-sample-json');
+  // 3. Botón Ejemplo JSON (sample-json-btn o btn-sample-json)
+  const btnSampleJson = document.getElementById('sample-json-btn') || document.getElementById('btn-sample-json');
   if (btnSampleJson) {
     btnSampleJson.addEventListener('click', () => {
       renderizarTextoAnotado(EJEMPLO_JSON);
     });
   }
 
-  const btnClearJson = document.getElementById('btn-clear-json');
+  // 4. Botón Limpiar JSON (clear-json-btn o btn-clear-json)
+  const btnClearJson = document.getElementById('clear-json-btn') || document.getElementById('btn-clear-json');
   if (btnClearJson) {
     btnClearJson.addEventListener('click', () => {
-      const jsonInput = document.getElementById('json-input');
+      const jsonInput = document.getElementById('json-input-area') || document.getElementById('json-input');
       if (jsonInput) jsonInput.value = '';
-      const stanzas = document.getElementById('text-stanzas');
-      if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra usando el desplegable o pegando un JSON.</p>';
+      const stanzas = document.getElementById('text-display') || document.getElementById('text-stanzas');
+      if (stanzas) stanzas.innerHTML = '<p class="loading-state">Pega un JSON en la barra lateral y pulsa "Cargar JSON".</p>';
       obraActiva = null;
     });
   }
 
-  // Selección de todas / ninguna categoría
-  const btnSelectAll = document.getElementById('btn-select-all-cats');
-  const btnDeselectAll = document.getElementById('btn-deselect-all-cats');
+  // 5. Botones Seleccionar / Deseleccionar Todo
+  const btnSelectAll = document.getElementById('btn-select-all-cats') || document.getElementById('select-all-btn');
+  const btnDeselectAll = document.getElementById('btn-deselect-all-cats') || document.getElementById('deselect-all-btn');
 
   if (btnSelectAll) {
     btnSelectAll.addEventListener('click', () => {
@@ -421,28 +417,23 @@ function inicializarEventos() {
     });
   }
 
-  // Conmutador de nivel de lectura
-  const levelBtns = document.querySelectorAll('.level-btn');
-  const levelBadge = document.getElementById('levelIndicatorBadge');
+  // 6. Conmutador de nivel de lectura (básica / crítica)
+  const levelBtns = document.querySelectorAll('.level-btn, [data-level]');
+  const levelBadge = document.getElementById('levelIndicatorBadge') || document.getElementById('level-badge');
 
   levelBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      levelBtns.forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-checked', 'false');
-      });
+      levelBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      btn.setAttribute('aria-checked', 'true');
       nivelLecturaActual = btn.dataset.level || 'short';
 
       if (levelBadge) {
         levelBadge.textContent = nivelLecturaActual === 'deep' ? 'Modo Edición Crítica' : 'Modo Lectura Básica';
-        levelBadge.className = `level-badge ${nivelLecturaActual}-mode`;
       }
     });
   });
 
-  // Delegación de eventos para apertura de nodos interactivos
+  // 7. Delegación para clics en palabras anotadas
   document.addEventListener('click', (e) => {
     const targetNodo = e.target.closest('[data-node]');
     if (!targetNodo) return;
@@ -454,7 +445,8 @@ function inicializarEventos() {
     if (datosNodo) abrirModalAnotacion(datosNodo);
   });
 
-  const modalCloseBtn = document.getElementById('modal-close-btn');
+  // 8. Cierre de modal
+  const modalCloseBtn = document.getElementById('modal-close-btn') || document.querySelector('.modal-close');
   if (modalCloseBtn) modalCloseBtn.addEventListener('click', cerrarModal);
 
   const modalOverlay = document.getElementById('annotation-modal');
