@@ -185,9 +185,23 @@ function aplicarFiltroVocabularioPorNivel() {
   const nodosVocabulario = document.querySelectorAll('[data-category="vocabulary"], [data-layers*="vocabulary"]');
 
   nodosVocabulario.forEach(el => {
-    const nodeId = (el.getAttribute('data-nodes') || el.getAttribute('data-node') || '').split(/\s+/)[0];
-    const nodo = obraActiva.interactiveNodes?.[nodeId];
-    const vocabLevel = el.getAttribute('data-vocab-level') || nodo?.vocabLevel || 'B1';
+    // En un span solapado (vocabulario + otra categoría), el nodo de vocabulario
+    // no siempre es el primero en data-nodes. Antes solo se miraba el primer ID,
+    // así que un vocabLevel real (p.ej. "C1") se perdía y el término se trataba
+    // como "B1" por defecto si el nodo de vocabulario no encabezaba la lista.
+    // Ahora se busca el vocabLevel en CUALQUIERA de los nodos del span.
+    const nodeIds = (el.getAttribute('data-nodes') || el.getAttribute('data-node') || '').trim().split(/\s+/);
+    let vocabLevel = el.getAttribute('data-vocab-level');
+    if (!vocabLevel) {
+      for (const id of nodeIds) {
+        const nodoCandidato = obraActiva.interactiveNodes?.[id];
+        if (nodoCandidato?.vocabLevel) {
+          vocabLevel = nodoCandidato.vocabLevel;
+          break;
+        }
+      }
+    }
+    vocabLevel = vocabLevel || 'B1';
 
     if (nivelLecturaActual === 'deep') {
       if (vocabLevel === 'B1' || vocabLevel === 'B2') {
