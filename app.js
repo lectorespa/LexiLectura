@@ -21,6 +21,7 @@ const ALIAS_CAPAS = {
   'periodo': 'period', 'época': 'period', 'epoca': 'period', 'contexto': 'period', 'época y contexto': 'period',
   'vocabulario': 'vocabulary', 'vocabulario_lexico': 'vocabulary', 'léxico': 'vocabulary', 'lexico': 'vocabulary',
   'cultura': 'culture', 'sociedad': 'culture', 'cultura y sociedad': 'culture',
+  'cultura_sociedad': 'culture', 'simbologia_contexto': 'culture', 'simbología_contexto': 'culture',
   'sintaxis': 'syntax', 'métrica': 'syntax', 'metrica': 'syntax', 'métrica_retorica': 'syntax', 'metrica_retorica': 'syntax',
   'análisis': 'analysis', 'analisis': 'analysis', 'interpretación': 'analysis'
 };
@@ -145,10 +146,14 @@ function renderActiveLayers(activeLayersSet) {
       return resolved ? resolved.id : l;
     });
 
-    // Comprueba si hay intersección entre las capas del span y las activas
+    // Comprueba si hay intersección entre las capas del span y las activas.
+    // OJO: un conjunto de capas activas vacío significa "el usuario ha desactivado
+    // todo" (botón "Ninguna"), NO "no hay filtro aplicado". Por eso NO se usa aquí
+    // ningún fallback de "mostrar todo si no hay nada seleccionado": eso era lo que
+    // hacía que "Ninguna" no ocultara ninguna palabra.
     const hasActiveLayer = wordLayers.some(layer => activeLayersSet.has(layer));
 
-    if (hasActiveLayer || activeLayersSet.size === 0) {
+    if (hasActiveLayer) {
       word.classList.remove('layer-disabled');
       word.classList.add('is-highlighted');
 
@@ -281,24 +286,30 @@ function renderizarTextoAnotado(datosObra) {
       contenedorEstrofas.appendChild(estrofaDiv);
     });
 
-    // Mapeo dinámico de categorías si no están definidas explícitamente en el HTML
+    // Sincroniza SIEMPRE data-layers con el registro canónico de interactiveNodes.
+    // Antes esto solo se hacía si el span no traía ya data-layers/data-category, así
+    // que un valor heredado o de un esquema antiguo (p. ej. "simbologia_contexto")
+    // se quedaba tal cual y nunca coincidía con los IDs de capa reales ("culture"),
+    // dejando esas palabras marcadas como desactivadas aunque su categoría estuviera
+    // activa. Recalcular siempre a partir de los nodos evita ese desajuste.
     contenedorEstrofas.querySelectorAll('[data-node], [data-nodes]').forEach(el => {
       const rawNodes = el.getAttribute('data-nodes') || el.getAttribute('data-node') || '';
       const nodeIds = rawNodes.trim().split(/\s+/);
-      
-      if (!el.hasAttribute('data-layers') && !el.hasAttribute('data-category')) {
-        const capasEncontradas = new Set();
-        nodeIds.forEach(id => {
-          const nodo = datosObra.interactiveNodes?.[id];
-          if (nodo) {
-            const capaObj = resolverCapa(nodo.type || nodo.category);
-            if (capaObj) capasEncontradas.add(capaObj.id);
-          }
-        });
-        if (capasEncontradas.size > 0) {
-          el.setAttribute('data-layers', Array.from(capasEncontradas).join(' '));
+
+      const capasEncontradas = new Set();
+      nodeIds.forEach(id => {
+        const nodo = datosObra.interactiveNodes?.[id];
+        if (nodo) {
+          const capaObj = resolverCapa(nodo.type || nodo.category);
+          if (capaObj) capasEncontradas.add(capaObj.id);
         }
+      });
+
+      if (capasEncontradas.size > 0) {
+        el.setAttribute('data-layers', Array.from(capasEncontradas).join(' '));
       }
+      // Si no se encontró ningún nodo asociado, se conserva cualquier data-layers
+      // o data-category que ya trajera el span como último recurso.
     });
   } else {
     contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta estructura.</p>';
