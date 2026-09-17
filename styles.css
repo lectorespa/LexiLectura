@@ -264,8 +264,10 @@ body {
    ========================================================================== */
 .interactive-word.layer-disabled,
 .interactive-word.category-disabled,
+.interactive-word.vocab-hidden-in-deep,
 [data-node].layer-disabled,
-[data-node].category-disabled {
+[data-node].category-disabled,
+[data-node].vocab-hidden-in-deep {
   background: transparent !important;
   color: inherit !important;
   border-bottom: none !important;
