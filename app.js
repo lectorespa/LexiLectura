@@ -663,26 +663,31 @@ async function showImageWithPreload(src, caption, sourceBadge = null, signal = n
       }
     }
   } catch (err) {
+    // La URL concreta que se intentó mostrar no cargó (enlace roto, bloqueo, etc.).
+    // En vez de ocultar todo el bloque (lo que parece un fallo visual), se deja un
+    // estado neutro y explícito de "sin imagen", igual que cuando no se encuentra
+    // ninguna candidata relevante.
     if (!signal || !signal.aborted) {
-      hideImage();
+      showNoImageAvailable();
     }
   }
 }
 
-function hideImage() {
+function showNoImageAvailable() {
   const modalImgWrapper = document.getElementById('modal-image-wrapper');
   const modalImg = document.getElementById('modal-image');
   const modalCaption = document.getElementById('modal-image-caption');
 
   if (modalImgWrapper) {
-    modalImgWrapper.classList.add('hidden');
-    modalImgWrapper.classList.remove('is-loading');
+    modalImgWrapper.classList.remove('is-loading', 'hidden');
   }
   if (modalImg) {
     modalImg.src = '';
     modalImg.style.display = 'none';
   }
-  if (modalCaption) modalCaption.textContent = '';
+  if (modalCaption) {
+    modalCaption.textContent = 'No se ha encontrado ninguna imagen suficientemente relacionada con esta anotación.';
+  }
 }
 
 function extractKeywords(query, maxN = 3) {
@@ -994,7 +999,14 @@ async function resolveAndDisplayImage(nodeData, signal = null) {
 
   let queries = [];
   if (conceptType === 'portrait' || conceptType === 'author') {
-    const personName = nodeData.title || nodeData.label || searchQuery;
+    // Antes se usaba nodeData.title como "nombre de la persona", pero el título
+    // de un nodo de autor suele ser descriptivo ("Perfil biográfico y poético de
+    // Antonio Machado"), no el nombre limpio, lo que empeoraba la búsqueda de
+    // retrato. Si es el nodo del autor de la obra, se usa el nombre real de
+    // meta.author, que sí es limpio.
+    const personName = (categoryKey === 'author' && obraActiva?.meta?.author)
+      ? obraActiva.meta.author
+      : (nodeData.title || nodeData.label || searchQuery);
     queries = [
       `${personName} portrait`,
       `${personName} painting`,
@@ -1033,14 +1045,17 @@ async function resolveAndDisplayImage(nodeData, signal = null) {
     }
   }
 
-  const fallbackUrls = {
-    artwork: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Blanco_y_Negro_-_Generacion_del_98.jpg/500px-Blanco_y_Negro_-_Generacion_del_98.jpg",
-    landscape: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Castilian_landscape_near_Sig%C3%BCenza.jpg/500px-Castilian_landscape_near_Sig%C3%BCenza.jpg"
-  };
-  
-  const fallbackSrc = fallbackUrls[conceptType] || fallbackUrls.landscape;
+  // Antes, si ninguna búsqueda real encontraba nada, se mostraba SIEMPRE una de
+  // dos imágenes genéricas fijas (un retrato de la Generación del 98 o un paisaje
+  // castellano), sin relación real con el concepto. Esto contradice la idea de
+  // "mejor ninguna imagen que una irrelevante" y además dependía de dos URLs de
+  // Wikimedia codificadas a mano que pueden quedar rotas en cualquier momento
+  // (archivo movido, miniatura no regenerada, etc.) — si fallaban, el bloque de
+  // imagen se ocultaba por completo y parecía que la anotación no tenía imagen.
+  // Ahora, si no se encuentra ninguna imagen realmente relacionada, se muestra un
+  // estado neutro y explícito en vez de una imagen genérica o de un hueco vacío.
   if (!signal || !signal.aborted) {
-    await showImageWithPreload(fallbackSrc, captionText || "Imagen ilustrativa del período", "Archivo histórico (Respaldo)", signal);
+    showNoImageAvailable();
   }
 }
 
