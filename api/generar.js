@@ -243,7 +243,7 @@ ESTRUCTURA DE SALIDA JSON (ESQUEMA DE REFERENCIA)
 
     // Generación con streaming mediante Gemini
     const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-3.1-pro-preview',
+      model: 'gemini-3.6-flash',
       contents: userContent,
       config: {
         systemInstruction: systemInstruction,
