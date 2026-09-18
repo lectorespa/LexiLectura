@@ -2,6 +2,9 @@
  * Visor de Ediciones Críticas e Interactivas - Lógica Principal con Motor de Imágenes Avanzado
  */
 
+// URL de tu función desplegada en Vercel
+const BACKEND_URL = 'https://tu-proyecto-lexia.vercel.app/api/generar';
+
 let obraActiva = null;
 let nivelLecturaActual = 'short';
 let currentImageFetchController = null;
@@ -132,32 +135,25 @@ const EJEMPLO_JSON = {
 };
 
 // =========================================================================
-//  LÓGICA DE VISIBILIDAD DE CAPAS (INTEGRACIÓN GEMINI: renderActiveLayers)
+//  LÓGICA DE VISIBILIDAD DE CAPAS
 // =========================================================================
 
 function renderActiveLayers(activeLayersSet) {
   const words = document.querySelectorAll('.interactive-word, [data-node], [data-nodes]');
 
   words.forEach(word => {
-    // Soporte para data-layers (plural) y fallback a data-category o data-layer
     const rawLayers = word.dataset.layers || word.dataset.layer || word.getAttribute('data-category') || '';
     const wordLayers = rawLayers.trim().split(/\s+/).map(l => {
       const resolved = resolverCapa(l);
       return resolved ? resolved.id : l;
     });
 
-    // Comprueba si hay intersección entre las capas del span y las activas.
-    // OJO: un conjunto de capas activas vacío significa "el usuario ha desactivado
-    // todo" (botón "Ninguna"), NO "no hay filtro aplicado". Por eso NO se usa aquí
-    // ningún fallback de "mostrar todo si no hay nada seleccionado": eso era lo que
-    // hacía que "Ninguna" no ocultara ninguna palabra.
     const hasActiveLayer = wordLayers.some(layer => activeLayersSet.has(layer));
 
     if (hasActiveLayer) {
       word.classList.remove('layer-disabled');
       word.classList.add('is-highlighted');
 
-      // Asigna el color de la primera capa activa coincidente
       const primaryLayer = wordLayers.find(layer => activeLayersSet.has(layer)) || wordLayers[0];
       const capaObj = resolverCapa(primaryLayer);
       if (capaObj) {
@@ -185,11 +181,6 @@ function aplicarFiltroVocabularioPorNivel() {
   const nodosVocabulario = document.querySelectorAll('[data-category="vocabulary"], [data-layers*="vocabulary"]');
 
   nodosVocabulario.forEach(el => {
-    // En un span solapado (vocabulario + otra categoría), el nodo de vocabulario
-    // no siempre es el primero en data-nodes. Antes solo se miraba el primer ID,
-    // así que un vocabLevel real (p.ej. "C1") se perdía y el término se trataba
-    // como "B1" por defecto si el nodo de vocabulario no encabezaba la lista.
-    // Ahora se busca el vocabLevel en CUALQUIERA de los nodos del span.
     const nodeIds = (el.getAttribute('data-nodes') || el.getAttribute('data-node') || '').trim().split(/\s+/);
     let vocabLevel = el.getAttribute('data-vocab-level');
     if (!vocabLevel) {
@@ -300,12 +291,6 @@ function renderizarTextoAnotado(datosObra) {
       contenedorEstrofas.appendChild(estrofaDiv);
     });
 
-    // Sincroniza SIEMPRE data-layers con el registro canónico de interactiveNodes.
-    // Antes esto solo se hacía si el span no traía ya data-layers/data-category, así
-    // que un valor heredado o de un esquema antiguo (p. ej. "simbologia_contexto")
-    // se quedaba tal cual y nunca coincidía con los IDs de capa reales ("culture"),
-    // dejando esas palabras marcadas como desactivadas aunque su categoría estuviera
-    // activa. Recalcular siempre a partir de los nodos evita ese desajuste.
     contenedorEstrofas.querySelectorAll('[data-node], [data-nodes]').forEach(el => {
       const rawNodes = el.getAttribute('data-nodes') || el.getAttribute('data-node') || '';
       const nodeIds = rawNodes.trim().split(/\s+/);
@@ -322,8 +307,6 @@ function renderizarTextoAnotado(datosObra) {
       if (capasEncontradas.size > 0) {
         el.setAttribute('data-layers', Array.from(capasEncontradas).join(' '));
       }
-      // Si no se encontró ningún nodo asociado, se conserva cualquier data-layers
-      // o data-category que ya trajera el span como último recurso.
     });
   } else {
     contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta estructura.</p>';
@@ -464,7 +447,7 @@ function cerrarModal() {
 }
 
 // =========================================================================
-//  GESTIÓN DE CLICS CON CAPAS SOLAPADAS O ANIDADAS (INTEGRACIÓN GEMINI)
+//  GESTIÓN DE CLICS CON CAPAS SOLAPADAS O ANIDADAS
 // =========================================================================
 
 document.addEventListener('click', (e) => {
@@ -478,7 +461,6 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // Lectura de IDs desde data-nodes o data-node (separados por espacios)
   const rawNodeIds = target.dataset.nodes || target.dataset.node || target.getAttribute('data-node') || '';
   const nodeIds = rawNodeIds.trim().split(/\s+/).filter(Boolean);
 
@@ -487,11 +469,9 @@ document.addEventListener('click', (e) => {
   if (nodeIds.length === 0) return;
 
   if (nodeIds.length === 1) {
-    // Comportamiento habitual: abrir modal del nodo único
     const nodo = obraActiva?.interactiveNodes?.[nodeIds[0]];
     if (nodo) abrirModalAnotacion(nodo);
   } else {
-    // Solapamiento: obtener los objetos de nodo y desplegar el selector
     const nodosDetectados = nodeIds
       .map(id => ({ id, data: obraActiva?.interactiveNodes?.[id] }))
       .filter(item => item.data !== undefined);
@@ -663,10 +643,6 @@ async function showImageWithPreload(src, caption, sourceBadge = null, signal = n
       }
     }
   } catch (err) {
-    // La URL concreta que se intentó mostrar no cargó (enlace roto, bloqueo, etc.).
-    // En vez de ocultar todo el bloque (lo que parece un fallo visual), se deja un
-    // estado neutro y explícito de "sin imagen", igual que cuando no se encuentra
-    // ninguna candidata relevante.
     if (!signal || !signal.aborted) {
       showNoImageAvailable();
     }
@@ -999,11 +975,6 @@ async function resolveAndDisplayImage(nodeData, signal = null) {
 
   let queries = [];
   if (conceptType === 'portrait' || conceptType === 'author') {
-    // Antes se usaba nodeData.title como "nombre de la persona", pero el título
-    // de un nodo de autor suele ser descriptivo ("Perfil biográfico y poético de
-    // Antonio Machado"), no el nombre limpio, lo que empeoraba la búsqueda de
-    // retrato. Si es el nodo del autor de la obra, se usa el nombre real de
-    // meta.author, que sí es limpio.
     const personName = (categoryKey === 'author' && obraActiva?.meta?.author)
       ? obraActiva.meta.author
       : (nodeData.title || nodeData.label || searchQuery);
@@ -1045,15 +1016,6 @@ async function resolveAndDisplayImage(nodeData, signal = null) {
     }
   }
 
-  // Antes, si ninguna búsqueda real encontraba nada, se mostraba SIEMPRE una de
-  // dos imágenes genéricas fijas (un retrato de la Generación del 98 o un paisaje
-  // castellano), sin relación real con el concepto. Esto contradice la idea de
-  // "mejor ninguna imagen que una irrelevante" y además dependía de dos URLs de
-  // Wikimedia codificadas a mano que pueden quedar rotas en cualquier momento
-  // (archivo movido, miniatura no regenerada, etc.) — si fallaban, el bloque de
-  // imagen se ocultaba por completo y parecía que la anotación no tenía imagen.
-  // Ahora, si no se encuentra ninguna imagen realmente relacionada, se muestra un
-  // estado neutro y explícito en vez de una imagen genérica o de un hueco vacío.
   if (!signal || !signal.aborted) {
     showNoImageAvailable();
   }
@@ -1135,6 +1097,55 @@ function inicializarEventos() {
     if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra o pega un JSON arriba.</p>';
     obraActiva = null;
     activeLayersSet.clear();
+  });
+
+  // =========================================================================
+  // INTEGRACIÓN GEMINI AI: Generación automática de anotaciones desde texto plano
+  // =========================================================================
+  document.getElementById('btn-generate-gemini')?.addEventListener('click', async () => {
+    const plainText = document.getElementById('plain-text-input')?.value.trim();
+    const btn = document.getElementById('btn-generate-gemini');
+
+    if (!plainText) {
+      alert('Por favor, pega un texto plano antes de generar la anotación.');
+      return;
+    }
+
+    try {
+      // Cambiar estado visual del botón
+      btn.disabled = true;
+      btn.textContent = '⏳ Analizando texto con IA...';
+
+      // Petición POST a tu backend serverless
+      const response = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ textoPlano: plainText })
+      });
+
+      if (!response.ok) {
+        const errorPayload = await response.json();
+        throw new Error(errorPayload.error || `Error servidor: ${response.status}`);
+      }
+
+      const jsonAnotado = await response.json();
+
+      // Renderizado automático en la aplicación
+      renderizarTextoAnotado(jsonAnotado);
+
+      // Opcional: Cerrar acordeón para mostrar el texto procesado
+      const acordeon = document.querySelector('.json-accordion-container');
+      if (acordeon) acordeon.removeAttribute('open');
+
+      alert('¡Texto anotado correctamente!');
+
+    } catch (error) {
+      console.error('Error al generar anotaciones:', error);
+      alert(`No se pudo procesar el texto: ${error.message}`);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✨ Anotar texto automáticamente';
+    }
   });
 
   document.getElementById('btn-select-all-cats')?.addEventListener('click', () => {
