@@ -1124,9 +1124,10 @@ function inicializarEventos() {
       });
 
       if (!response.ok) {
-        const errorPayload = await response.json();
-        throw new Error(errorPayload.error || `Error servidor: ${response.status}`);
-      }
+  const errorPayload = await response.json();
+  const detalle = errorPayload.detalles ? ` (${errorPayload.detalles})` : '';
+  throw new Error(`${errorPayload.error}${detalle}`);
+}
 
       const jsonAnotado = await response.json();
 
