@@ -1,33 +1,53 @@
 import { GoogleGenAI } from '@google/genai';
 
-// Pasar la clave explícitamente desde las variables de entorno de Vercel
+// Configuración para ejecutar la función en el motor Edge de Vercel (evita el límite de 10s)
+export const config = {
+  runtime: 'edge',
+};
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export default async function handler(req, res) {
-  // 1. Configuración de cabeceras CORS
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
-  );
+export default async function handler(req) {
+  // Configuración de cabeceras CORS para Edge API Routes
+  const corsHeaders = {
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
+    'Access-Control-Allow-Headers':
+      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
+  };
 
+  // Manejo de la solicitud Preflight OPTIONS
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return new Response(null, { status: 200, headers: corsHeaders });
   }
 
+  // Permitir únicamente peticiones POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método no permitido. Utiliza POST.' });
+    return new Response(
+      JSON.stringify({ error: 'Método no permitido. Utiliza POST.' }),
+      {
+        status: 405,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 
   try {
-    const { textoPlano } = req.body;
+    const body = await req.json();
+    const { textoPlano } = body || {};
 
     if (!textoPlano || typeof textoPlano !== 'string' || !textoPlano.trim()) {
-      return res.status(400).json({ error: 'El parámetro "textoPlano" es obligatorio.' });
+      return new Response(
+        JSON.stringify({ error: 'El parámetro "textoPlano" es obligatorio.' }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
     }
 
+    // Prompt del sistema con la estructura JSON completa
     const prompt = `
 Asegúrate de actuar como un editor crítico e hispanista experto. Analiza el siguiente texto literario y genera una edición interactiva anotada.
 
@@ -96,8 +116,8 @@ REGLAS DE ANOTACIÓN LITERARIA:
 4. Genera entre 3 y 8 nodos interactivos distribuidos entre las categorías léxicas, sintácticas o culturales.
 `;
 
-    // 2. Generación con modelo estándar
-    const response = await ai.models.generateContent({
+    // Generación con streaming mediante Gemini
+    const responseStream = await ai.models.generateContentStream({
       model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
@@ -105,18 +125,36 @@ REGLAS DE ANOTACIÓN LITERARIA:
       },
     });
 
-    // 3. Limpieza de bloques de código Markdown antes de parsear
-    const rawText = response.text || '';
-    const cleanedText = rawText.replace(/```json\s*|```/g, '').trim();
-    const jsonFinal = JSON.parse(cleanedText);
+    // Conversión de la respuesta generativa en un ReadableStream Web
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of responseStream) {
+          if (chunk.text) {
+            controller.enqueue(encoder.encode(chunk.text));
+          }
+        }
+        controller.close();
+      },
+    });
 
-    return res.status(200).json(jsonFinal);
-
+    return new Response(stream, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+    });
   } catch (error) {
     console.error('Error en /api/generar:', error);
-    return res.status(500).json({
-      error: 'Error procesando el texto con Gemini.',
-      detalles: error.message || String(error)
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Error procesando el texto con Gemini.',
+        detalles: error.message || String(error),
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
   }
 }
