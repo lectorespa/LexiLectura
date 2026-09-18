@@ -118,7 +118,7 @@ REGLAS DE ANOTACIÓN LITERARIA:
 
     // Generación con streaming mediante Gemini
     const responseStream = await ai.models.generateContentStream({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
