@@ -3,7 +3,7 @@
  */
 
 // URL de tu función desplegada en Vercel
-const BACKEND_URL = 'https://tu-proyecto-lexia.vercel.app/api/generar';
+const BACKEND_URL = 'https://lexi-lectura.vercel.app/api/generar';
 
 let obraActiva = null;
 let nivelLecturaActual = 'short';
