@@ -2,7 +2,7 @@
  * Visor de Ediciones Críticas e Interactivas - Lógica Principal con Motor de Imágenes Avanzado
  */
 
-// URL de tu función desplegada en Vercel
+// URL de la función desplegada en Vercel / backend
 const BACKEND_URL = 'https://lexi-lectura.vercel.app/api/generar';
 
 let obraActiva = null;
@@ -312,7 +312,6 @@ function renderizarTextoAnotado(datosObra) {
     contenedorEstrofas.innerHTML = '<p class="empty-state">No hay estrofas disponibles en esta estructura.</p>';
   }
 
-  // Inicializa todas las capas registradas como activas
   if (datosObra.interactiveNodes) {
     Object.values(datosObra.interactiveNodes).forEach(nodo => {
       const capaObj = resolverCapa(nodo.type || nodo.category);
@@ -1099,9 +1098,7 @@ function inicializarEventos() {
     activeLayersSet.clear();
   });
 
-  // =========================================================================
-  // INTEGRACIÓN GEMINI AI: Generación automática de anotaciones desde texto plano
-  // =========================================================================
+  // Integración Gemini AI
   document.getElementById('btn-generate-gemini')?.addEventListener('click', async () => {
     const plainText = document.getElementById('plain-text-input')?.value.trim();
     const btn = document.getElementById('btn-generate-gemini');
@@ -1112,11 +1109,9 @@ function inicializarEventos() {
     }
 
     try {
-      // Cambiar estado visual del botón
       btn.disabled = true;
       btn.textContent = '⏳ Analizando texto con IA...';
 
-      // Petición POST a tu backend serverless
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1124,17 +1119,14 @@ function inicializarEventos() {
       });
 
       if (!response.ok) {
-  const errorPayload = await response.json();
-  const detalle = errorPayload.detalles ? ` (${errorPayload.detalles})` : '';
-  throw new Error(`${errorPayload.error}${detalle}`);
-}
+        const errorPayload = await response.json();
+        const detalle = errorPayload.detalles ? ` (${errorPayload.detalles})` : '';
+        throw new Error(`${errorPayload.error}${detalle}`);
+      }
 
       const jsonAnotado = await response.json();
-
-      // Renderizado automático en la aplicación
       renderizarTextoAnotado(jsonAnotado);
 
-      // Opcional: Cerrar acordeón para mostrar el texto procesado
       const acordeon = document.querySelector('.json-accordion-container');
       if (acordeon) acordeon.removeAttribute('open');
 
