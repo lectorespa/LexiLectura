@@ -1,10 +1,24 @@
 import { GoogleGenAI } from '@google/genai';
 
-// Inicializa el cliente de Gemini (detecta automáticamente GEMINI_API_KEY desde Vercel)
+// Inicializa el cliente de Gemini (detecta automáticamente GEMINI_API_KEY desde las variables de entorno de Vercel)
 const ai = new GoogleGenAI();
 
 export default async function handler(req, res) {
-  // 1. Permitir únicamente peticiones POST
+  // 1. Configuración de cabeceras CORS
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  // 2. Responder inmediatamente a la verificación Preflight de CORS
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // 3. Permitir únicamente peticiones POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido. Utiliza POST.' });
   }
@@ -12,12 +26,13 @@ export default async function handler(req, res) {
   try {
     const { textoPlano } = req.body;
 
-    if (!textoPlano  typeof textoPlano !== 'string'  !textoPlano.trim()) {
+    // Validación de entrada con sintaxis corregida (operadores ||)
+    if (!textoPlano || typeof textoPlano !== 'string' || !textoPlano.trim()) {
       return res.status(400).json({ error: 'El parámetro "textoPlano" es obligatorio.' });
     }
 
-    // 2. Prompt del sistema para estructurar la edición crítica en JSON
-    const prompt = 
+    // 4. Prompt estructurado para la edición crítica e hispanista
+    const prompt = `
 Asegúrate de actuar como un editor crítico e hispanista experto. Analiza el siguiente texto literario y genera una edición interactiva anotada.
 
 TEXTO A ANALIZAR:
@@ -83,9 +98,9 @@ REGLAS DE ANOTACIÓN LITERARIA:
 2. Envuelve los fragmentos anotados en 'stanzas' con etiquetas: <span class="interactive-word" data-nodes="ID_NODO" data-layers="CATEGORIA" tabindex="0" role="button">palabra</span>.
 3. Si un fragmento tiene múltiples capas solapadas, separa las IDs y categorías por espacios dentro del HTML (ejemplo: data-nodes="node_1 node_2" data-layers="vocabulary syntax").
 4. Genera entre 3 y 8 nodos interactivos distribuidos entre las categorías léxicas, sintácticas o culturales.
-;
+`;
 
-    // 3. Llamada al modelo Gemini imponiendo salida JSON estructurada
+    // 5. Generación de contenido estructurado mediante la API de Gemini
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
@@ -95,14 +110,12 @@ REGLAS DE ANOTACIÓN LITERARIA:
     });
 
     const jsonFinal = JSON.parse(response.text);
-
-
-return res.status(200).json(jsonFinal);
+    return res.status(200).json(jsonFinal);
 
   } catch (error) {
     console.error('Error en /api/generar:', error);
     return res.status(500).json({
-      error: 'Error interno al procesar el texto con Gemini.',
+      error: 'Error procesando el texto con Gemini.',
       detalles: error.message
     });
   }
