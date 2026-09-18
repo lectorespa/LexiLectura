@@ -109,7 +109,9 @@ REGLAS DE ANOTACIÓN LITERARIA:
       },
     });
 
-    const jsonFinal = JSON.parse(response.text);
+    const rawText = response.text || '';
+    const cleanedText = rawText.replace(/```json\s*|```/g, '').trim();
+    const jsonFinal = JSON.parse(cleanedText);
     return res.status(200).json(jsonFinal);
 
   } catch (error) {
