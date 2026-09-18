@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 
-// Inicializa el cliente de Gemini (detecta automáticamente GEMINI_API_KEY desde las variables de entorno de Vercel)
-const ai = new GoogleGenAI();
+// Pasar la clave explícitamente desde las variables de entorno de Vercel
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default async function handler(req, res) {
   // 1. Configuración de cabeceras CORS
@@ -13,12 +13,10 @@ export default async function handler(req, res) {
     'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
   );
 
-  // 2. Responder inmediatamente a la verificación Preflight de CORS
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // 3. Permitir únicamente peticiones POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido. Utiliza POST.' });
   }
@@ -26,12 +24,10 @@ export default async function handler(req, res) {
   try {
     const { textoPlano } = req.body;
 
-    // Validación de entrada con sintaxis corregida (operadores ||)
     if (!textoPlano || typeof textoPlano !== 'string' || !textoPlano.trim()) {
       return res.status(400).json({ error: 'El parámetro "textoPlano" es obligatorio.' });
     }
 
-    // 4. Prompt estructurado para la edición crítica e hispanista
     const prompt = `
 Asegúrate de actuar como un editor crítico e hispanista experto. Analiza el siguiente texto literario y genera una edición interactiva anotada.
 
@@ -100,25 +96,27 @@ REGLAS DE ANOTACIÓN LITERARIA:
 4. Genera entre 3 y 8 nodos interactivos distribuidos entre las categorías léxicas, sintácticas o culturales.
 `;
 
-    // 5. Generación de contenido estructurado mediante la API de Gemini
+    // 2. Generación con modelo estándar
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
       },
     });
 
+    // 3. Limpieza de bloques de código Markdown antes de parsear
     const rawText = response.text || '';
     const cleanedText = rawText.replace(/```json\s*|```/g, '').trim();
     const jsonFinal = JSON.parse(cleanedText);
+
     return res.status(200).json(jsonFinal);
 
   } catch (error) {
     console.error('Error en /api/generar:', error);
     return res.status(500).json({
       error: 'Error procesando el texto con Gemini.',
-      detalles: error.message
+      detalles: error.message || String(error)
     });
   }
 }
