@@ -1181,7 +1181,9 @@ async function anotarFragmento(texto, estado, profundidad) {
         continue;
       }
       const dividible = ['TRUNCADO', 'SALIDA_INVALIDA', 'CORTE', 'TIEMPO'].includes(err.codigo);
-      const partes = dividible && profundidad < IA_CONFIG.MAX_SPLIT_DEPTH ? subdividir(texto) : null;
+      // Un JSON inválido rara vez se arregla dividiendo: solo un nivel, para no gastar cuota.
+      const maxProf = err.codigo === 'SALIDA_INVALIDA' ? 1 : IA_CONFIG.MAX_SPLIT_DEPTH;
+      const partes = dividible && profundidad < maxProf ? subdividir(texto) : null;
       if (!partes) throw err;
       console.warn(`[LexiLectura] "${err.codigo}" con ${texto.length} caracteres: se divide en ${partes.length} partes.`);
       estado.total += partes.length - 1;
