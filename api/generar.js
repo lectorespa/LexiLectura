@@ -17,11 +17,17 @@ import { SYSTEM_PROMPT } from '../lib/prompt.js';
 
 export const config = { runtime: 'edge' };
 
-// Los IDs ":free" de OpenRouter cambian con frecuencia. Sobrescríbelos sin tocar código
-// con la variable de entorno OPENROUTER_MODELS (lista separada por comas, en orden de preferencia).
+const VERSION = '2026-09-19-b'; // súbela al cambiar el archivo: aparece en GET /api/generar
+
+// Los IDs ":free" de OpenRouter cambian con frecuencia (p. ej. meta-llama/llama-3.3-70b-instruct:free
+// ya no existe). Lista vigente: https://openrouter.ai/collections/free-models
+// Sobrescríbelos sin tocar código con la variable de entorno OPENROUTER_MODELS
+// (IDs separados por comas, en orden de preferencia).
+// Ojo: cada intento cuenta para el límite diario de peticiones gratuitas, así que no conviene una lista larga.
 const MODELOS_POR_DEFECTO = [
-  'meta-llama/llama-3.3-70b-instruct:free',
-  'openrouter/free', // router de OpenRouter: elige un modelo gratuito disponible
+  'deepseek/deepseek-v4-flash-0731:free',
+  'nvidia/nemotron-3-ultra-550b-a55b:free',
+  'thinkingmachines/inkling:free',
 ];
 
 function leerAjustes() {
@@ -35,7 +41,7 @@ function leerAjustes() {
     maxCaracteres: Number(env.MAX_INPUT_CHARS) || 6000,
     // '*' = cualquier origen (comportamiento actual). Cuando todo funcione, restringe:
     // ALLOWED_ORIGINS=https://lectorespa.github.io
-    origenes: (env.ALLOWED_ORIGINS || 'https://lectorespa.github.io').split(',').map((s) => s.trim()).filter(Boolean),
+    origenes: (env.ALLOWED_ORIGINS || '*').split(',').map((s) => s.trim()).filter(Boolean),
     presupuestoMs: 270_000, // Edge permite 300 s de streaming: dejamos margen
     inactividadMs: 75_000, // sin recibir ni un token durante este tiempo → probar otro modelo
     latidoMs: 8_000,
@@ -108,16 +114,44 @@ function extraerJson(texto) {
   }
 }
 
-function validarAnotacion(d) {
+// Convierte una "estrofa" en HTML aunque el modelo la haya devuelto como objeto o array anidado.
+function aTextoHtml(item) {
+  if (typeof item === 'string') return item;
+  if (Array.isArray(item)) return item.map(aTextoHtml).filter(Boolean).join('');
+  if (item && typeof item === 'object') {
+    for (const k of ['html', 'text', 'texto', 'content', 'contenido', 'p']) {
+      if (typeof item[k] === 'string') return item[k];
+    }
+  }
+  return '';
+}
+
+// Valida y corrige desviaciones frecuentes de los modelos (stanzas como cadena, como objetos,
+// interactiveNodes como array…). Si no es recuperable, el error dice QUÉ recibió.
+function normalizarAnotacion(d) {
   const mal = (m) => { throw errorConCodigo('JSON_INVALIDO', m); };
-  if (!d || typeof d !== 'object' || Array.isArray(d)) mal('La respuesta no es un objeto.');
-  if (!d.meta || typeof d.meta !== 'object') mal('Falta "meta".');
-  if (!d.interactiveNodes || typeof d.interactiveNodes !== 'object' || !Object.keys(d.interactiveNodes).length) {
-    mal('Falta "interactiveNodes" o está vacío.');
+  if (Array.isArray(d) && d.length === 1) d = d[0];
+  if (!d || typeof d !== 'object' || Array.isArray(d)) mal('La respuesta no es un objeto JSON.');
+  const claves = Object.keys(d).join(', ') || '(ninguna)';
+
+  if (!d.meta || typeof d.meta !== 'object') mal(`Falta "meta". Claves recibidas: ${claves}.`);
+
+  let nodos = d.interactiveNodes;
+  if (Array.isArray(nodos)) {
+    nodos = Object.fromEntries(nodos.filter((n) => n && n.id).map((n) => [n.id, n]));
   }
-  if (!Array.isArray(d.stanzas) || !d.stanzas.length || d.stanzas.some((s) => typeof s !== 'string')) {
-    mal('Falta "stanzas" o no es un array de cadenas.');
+  if (!nodos || typeof nodos !== 'object' || !Object.keys(nodos).length) {
+    mal(`Falta "interactiveNodes" o está vacío. Claves recibidas: ${claves}.`);
   }
+
+  let bruto = d.stanzas ?? d.stanza ?? d.estrofas;
+  if (typeof bruto === 'string') bruto = [bruto];
+  const estrofas = Array.isArray(bruto) ? bruto.map(aTextoHtml).map((x) => x.trim()).filter(Boolean) : [];
+  if (!estrofas.length) {
+    mal(`Falta "stanzas" utilizable (tipo recibido: ${Array.isArray(bruto) ? 'array' : typeof bruto}). Claves recibidas: ${claves}.`);
+  }
+
+  return { ...d, interactiveNodes: nodos, stanzas: estrofas };
 }
 
 // ---------------------------------------------------------------------------
@@ -157,8 +191,10 @@ async function pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCli
 
     let texto = '';
     let fin = null;
+    let modeloReal = modelo;
     for await (const trozo of flujo) {
       rearmar();
+      if (trozo.model) modeloReal = trozo.model;
       if (trozo.error) throw errorConCodigo('PROVEEDOR', trozo.error.message || 'Error del proveedor durante la generación.');
       const eleccion = trozo.choices?.[0];
       if (eleccion?.delta?.content) texto += eleccion.delta.content;
@@ -168,7 +204,7 @@ async function pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCli
     if (fin === 'length') throw errorConCodigo('TRUNCADO', 'La respuesta superó el máximo de tokens y quedó cortada.');
     if (fin === 'error') throw errorConCodigo('PROVEEDOR', 'El proveedor terminó la generación con error.');
     if (!texto.trim()) throw errorConCodigo('VACIO', 'El modelo devolvió una respuesta vacía.');
-    return texto;
+    return { texto, modeloReal };
   } catch (err) {
     if (ctrl.signal.aborted) {
       if (motivo === 'inactividad') {
@@ -202,16 +238,21 @@ async function generarConRespaldo(mensajes, ajustes, senalCliente, referer) {
   for (const modelo of ajustes.modelos) {
     if (limite - Date.now() < 20_000) break; // ya no da tiempo a otro intento
 
+    let modeloReal = modelo;
+    let muestra = '';
     try {
-      const texto = await pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCliente);
-      const datos = extraerJson(texto);
-      validarAnotacion(datos);
-      console.log(`[generar] OK con ${modelo}`);
+      const salida = await pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCliente);
+      modeloReal = salida.modeloReal;
+      muestra = salida.texto.slice(0, 300);
+      const datos = normalizarAnotacion(extraerJson(salida.texto));
+      console.log(`[generar] OK con ${modeloReal}`);
       return datos;
     } catch (err) {
       const codigo = err.codigo || (err.status ? `HTTP_${err.status}` : 'DESCONOCIDO');
       console.warn(`[generar] ${modelo} falló (${codigo}): ${err.message}`);
-      fallos.push(`${modelo} → ${codigo}: ${err.message}`);
+      if (muestra) console.warn(`[generar] inicio de la salida recibida: ${muestra}`);
+      const etiqueta = modeloReal !== modelo ? `${modelo} [${modeloReal}]` : modelo;
+      fallos.push(`${etiqueta} → ${codigo}: ${err.message}`);
 
       if (codigo === 'CANCELADO') throw err;
       if (codigo === 'TRUNCADO') throw err; // otro modelo tampoco cabrá: que el cliente divida el texto
@@ -253,8 +294,9 @@ export default async function handler(req) {
       return respuestaJson(200, {
         ok: true,
         servicio: 'lexi-lectura/generar',
+        version: VERSION,
         apiKeyConfigurada: Boolean(ajustes.apiKey),
-        modelosConfigurados: ajustes.modelos.length,
+        modelos: ajustes.modelos,
       }, cors);
     }
 
