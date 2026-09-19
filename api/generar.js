@@ -9,8 +9,8 @@ const client = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: 'https://openrouter.ai/api/v1',
   defaultHeaders: {
-    'HTTP-Referer': 'https://lectorespa.github.io/LexiLectura/', // Opcional: Tu web o repo para aparecer en el ranking de OpenRouter
-    'X-Title': 'Edicion Interactiva Anotada', // Opcional: Nombre de tu aplicación
+    'HTTP-Referer': 'https://lectorespa.github.io/LexiLectura/', // Tu web o repo
+    'X-Title': 'Edicion Interactiva Anotada',
   },
 });
 
@@ -46,7 +46,6 @@ export default async function handler(req) {
     }
 
     const systemInstruction = `
-
 Asegúrate de actuar como un editor crítico e hispanista experto. Analiza el texto literario proporcionado y genera una edición interactiva anotada.
 
 Eres un asistente experto en Humanidades Digitales y edición crítica de textos. Tu función es analizar textos literarios y generar un objeto JSON perfectamente estructurado, descargable y multicapa para un visor de lectura interactiva con niveles duales de anotación (corta y profunda).
@@ -58,9 +57,9 @@ REGLA DE ORO: CONTENIDO ACADÉMICO REAL Y VERIFICACIÓN DE TÍTULOS
 4. Traducir al español los textos en otros idiomas.
 5. Todas las anotaciones deben redactarse en el mismo idioma en que se presenta el texto final.
 
-FORMATO DE SALIDA ESTRICTO (DESCARGABLE DIRECTO)
-La respuesta debe consistir ÚNICAMENTE en el objeto JSON encerrado en un único bloque de código markdown (\`\`\`json ... \`\`\`\).
-Queda ESTRICTAMENTE PROHIBIDO incluir cualquier texto introductorio, saludos, explicaciones previas o notas posteriores al bloque de código. La respuesta debe comenzar directamente en la primera línea con \`\`\`json y terminar con \`\`\`\.
+FORMATO DE SALIDA ESTRICTO (JSON PURO DIRECTO)
+La respuesta debe consistir ÚNICAMENTE en el objeto JSON plano sin envolver en bloques de código markdown (SIN \`\`\`json ... \`\`\`).
+Queda ESTRICTAMENTE PROHIBIDO incluir cualquier texto introductorio, saludos, explicaciones previas o notas posteriores. La respuesta debe comenzar directamente en la primera línea con la llave { y terminar con }.
 
 DENSIDAD Y DISTRIBUCIÓN POR TEXTO (POESÍA Y PROSA)
 - Densidad general (categorías author, period, culture, syntax, analysis):
@@ -97,9 +96,7 @@ Es habitual, y deseable, que una misma palabra o sintagma sea a la vez un térmi
 Recomendación de orden: cuando solapes un nodo "vocabulary" con otro nodo, coloca el ID del nodo de vocabulario en PRIMER lugar dentro de "data-nodes" (buena práctica, aunque el visor ya localiza el vocabLevel en cualquier posición).
 
 Ejemplo de solapamiento vocabulario + cultura:
-\`\`\`html
 <span class="interactive-word" data-nodes="node_vocab_estigia node_cult_estigia" data-layers="vocabulary culture" tabindex="0" role="button" aria-haspopup="dialog">la laguna Estigia</span>
-\`\`\`
 con dos nodos independientes en interactiveNodes: \`node_vocab_estigia\` (type/category: "vocabulary", con vocabLevel y una glosa léxica del término) y \`node_cult_estigia\` (type/category: "culture", con la referencia mitológica/cultural, sin repetir la glosa léxica).
 
 Para un anidamiento simple de una sola categoría dentro de un sintagma mayor, usa \`<span>\` anidados de forma limpia y sin cruce de rangos.
@@ -130,7 +127,6 @@ REGLAS ESTRICTAS DE SINTAXIS JSON, ANIDAMIENTO Y ETIQUETADO EN ESTROFAS (stanzas
    - UNA sola categoría: usa \`data-node="node_x"\` junto con \`data-category="<valor_canónico>"\` (el mismo valor que el campo type/category del nodo). NO añadas además un atributo \`data-layer\` heredado: solo \`data-category\`.
    - VARIAS categorías simultáneas (solapamiento, incluido vocabulario + otra categoría): usa \`data-nodes="node_a node_b"\` junto con \`data-layers="valorA valorB"\` (valores canónicos separados por espacio, en el mismo orden que data-nodes). NO uses \`data-category\` en un span multicategoría.
 5. Anidamiento y Solapamiento de Nodos (Overlaps) — caso general (no vocabulario): cuando un fragmento poético o palabra pertenezca a varios nodos o capas simultáneamente por razones distintas al vocabulario (p. ej. una figura retórica que además es un símbolo interpretativo), únelo igualmente en un único elemento HTML combinando sus identificadores y capas mediante espacios:
-\`\`\`html
 <span class="interactive-word" 
       data-nodes="node_soplos node_infierno_simbolico" 
       data-layers="syntax analysis" 
@@ -139,7 +135,6 @@ REGLAS ESTRICTAS DE SINTAXIS JSON, ANIDAMIENTO Y ETIQUETADO EN ESTROFAS (stanzas
       aria-haspopup="dialog">
   crudos soplos de infierno
 </span>
-\`\`\`
 
 BÚSQUEDA Y SELECCIÓN DE IMÁGENES Y MULTIMEDIA
 - Prohibida la invención de URLs: Asigna siempre "audioUrl": null en meta.
@@ -157,7 +152,6 @@ No dejes estos dos campos vacíos por defecto en las categorías que no sean aut
 
 ESTRUCTURA DE SALIDA JSON (ESQUEMA DE REFERENCIA)
 
-\`\`\`json
 {
   "meta": {
     "title": "«Título exacto del poema o capítulo» / Libro u obra principal",
@@ -233,23 +227,20 @@ ESTRUCTURA DE SALIDA JSON (ESQUEMA DE REFERENCIA)
     "<p>Texto del poema con <span class=\"interactive-word\" data-node=\"node_1\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">un sintagma anotado</span> que requiere explicación.<br>Y aquí cruzaba <span class=\"interactive-word\" data-nodes=\"node_vocab_estigia node_cult_estigia\" data-layers=\"vocabulary culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">la laguna Estigia</span>, umbral de sombras.</p>"
   ]
 }
-\`\`\`
 `;
-
 
     const userContent = `TEXTO A ANALIZAR:\n"""\n${textoPlano}\n"""`;
 
-    // Lista de modelos gratuitos en OpenRouter (ordenados por preferencia)
+    // Lista de modelos gratuitos estables y optimizados para JSON en OpenRouter
     const freeModels = [
-      'deepseek/deepseek-chat:free',          // DeepSeek V3 Gratis
-      'meta-llama/llama-3.3-70b-instruct:free', // Llama 3.3 70B Gratis
-      'deepseek/deepseek-r1:free',            // DeepSeek R1 Gratis
+      'deepseek/deepseek-chat:free',            // DeepSeek V3 Gratis
+      'meta-llama/llama-3.3-70b-instruct:free',   // Llama 3.3 70B Gratis
+      'qwen/qwen-2.5-coder-32b-instruct:free',    // Qwen 2.5 Coder Gratis (Excelente en JSON)
     ];
 
     let responseStream;
     let lastError;
 
-    // Bucle para intentar con los modelos de la lista si uno falla por saturación (429/503)
     for (const model of freeModels) {
       try {
         responseStream = await client.chat.completions.create({
@@ -265,7 +256,7 @@ ESTRUCTURA DE SALIDA JSON (ESQUEMA DE REFERENCIA)
         });
 
         console.log(`Petición iniciada con éxito usando el modelo: ${model}`);
-        break; // Si tiene éxito, sale del bucle
+        break;
       } catch (err) {
         console.warn(`Falló el modelo ${model}. Probando siguiente modelo de respaldo...`, err.message);
         lastError = err;
@@ -276,17 +267,21 @@ ESTRUCTURA DE SALIDA JSON (ESQUEMA DE REFERENCIA)
       throw lastError || new Error('Ningún modelo gratuito de OpenRouter está disponible en este momento.');
     }
 
-    // Conversión del Stream de OpenAI/OpenRouter a ReadableStream Web
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
-        for await (const chunk of responseStream) {
-          const text = chunk.choices[0]?.delta?.content || '';
-          if (text) {
-            controller.enqueue(encoder.encode(text));
+        try {
+          for await (const chunk of responseStream) {
+            const text = chunk.choices[0]?.delta?.content || '';
+            if (text) {
+              controller.enqueue(encoder.encode(text));
+            }
           }
+          controller.close();
+        } catch (streamErr) {
+          console.error('Error durante la transmisión del stream:', streamErr);
+          controller.error(streamErr);
         }
-        controller.close();
       },
     });
 
@@ -307,4 +302,3 @@ ESTRUCTURA DE SALIDA JSON (ESQUEMA DE REFERENCIA)
     );
   }
 }
-    
