@@ -1032,6 +1032,256 @@ function isTechnicallyValidImage(url) {
 }
 
 // =========================================================================
+//  ANOTACIÓN CON IA — robusta: fragmentos + reintentos + división adaptativa
+// =========================================================================
+
+const IA_CONFIG = {
+  CHUNK_CHARS: 800,      // tamaño objetivo de cada fragmento enviado al modelo
+  MIN_CHUNK_CHARS: 200,  // por debajo de esto ya no se subdivide
+  MAX_SPLIT_DEPTH: 2,    // cuántas veces se puede subdividir un fragmento que falla
+  TIMEOUT_MS: 295000,    // corte del lado cliente por petición
+  RED_REINTENTOS: 1,     // reintentos ante fallo de red / conexión cortada
+};
+
+class ErrorAnotacion extends Error {
+  constructor(codigo, mensaje, detalle = '') {
+    super(mensaje);
+    this.name = 'ErrorAnotacion';
+    this.codigo = codigo;
+    this.detalle = detalle;
+  }
+}
+
+const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// --- División del texto (respeta estrofas y párrafos; sin lookbehind, por Safari antiguo) ---
+
+function partirUnidad(unidad, max) {
+  if (unidad.length <= max) return [unidad];
+  const lineas = unidad.split('\n').map((l) => l.trim()).filter(Boolean);
+  const usaLineas = lineas.length > 1;
+  const piezas = usaLineas
+    ? lineas
+    : (unidad.match(/[^.!?…]+[.!?…]+["'»”)\]]*\s*|[^.!?…]+$/g) || [unidad]).map((s) => s.trim()).filter(Boolean);
+  const sep = usaLineas ? '\n' : ' ';
+  const salida = [];
+  let actual = '';
+  const volcar = () => { if (actual) { salida.push(actual); actual = ''; } };
+
+  for (let pieza of piezas) {
+    while (pieza.length > max) { // pieza aislada demasiado larga: corte duro en un espacio
+      volcar();
+      let corte = pieza.lastIndexOf(' ', max);
+      if (corte < max / 2) corte = max;
+      salida.push(pieza.slice(0, corte).trim());
+      pieza = pieza.slice(corte).trim();
+    }
+    if (!pieza) continue;
+    if (actual && actual.length + sep.length + pieza.length > max) volcar();
+    actual = actual ? actual + sep + pieza : pieza;
+  }
+  volcar();
+  return salida;
+}
+
+function dividirEnFragmentos(texto, max = IA_CONFIG.CHUNK_CHARS) {
+  const unidades = String(texto)
+    .replace(/\r\n?/g, '\n')
+    .split(/\n\s*\n/)
+    .map((u) => u.trim())
+    .filter(Boolean)
+    .flatMap((u) => partirUnidad(u, max));
+
+  const fragmentos = [];
+  let actual = '';
+  for (const u of unidades) {
+    if (actual && actual.length + 2 + u.length > max) { fragmentos.push(actual); actual = ''; }
+    actual = actual ? actual + '\n\n' + u : u;
+  }
+  if (actual) fragmentos.push(actual);
+  return fragmentos;
+}
+
+// Divide un fragmento que ha fallado en ~2 mitades. Devuelve null si ya no se puede.
+function subdividir(texto) {
+  if (texto.length <= IA_CONFIG.MIN_CHUNK_CHARS) return null;
+  const objetivo = Math.max(IA_CONFIG.MIN_CHUNK_CHARS, Math.ceil(texto.length / 2) + 50);
+  const partes = dividirEnFragmentos(texto, objetivo);
+  return partes.length > 1 ? partes : null;
+}
+
+// --- Llamada al backend ---
+
+async function pedirAnotacion(payload) {
+  const ctrl = new AbortController();
+  const temporizador = setTimeout(() => ctrl.abort(), IA_CONFIG.TIMEOUT_MS);
+  try {
+    let resp;
+    try {
+      resp = await fetch(BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+        cache: 'no-store',
+      });
+    } catch (e) {
+      if (ctrl.signal.aborted) throw new ErrorAnotacion('TIEMPO', 'El servidor tardó demasiado en responder.');
+      // Safari: "Load failed" · Chrome: "Failed to fetch" · Firefox: "NetworkError…"
+      throw new ErrorAnotacion('RED', 'No se pudo conectar con el servidor de anotación.', `${e.name}: ${e.message}`);
+    }
+
+    let bruto;
+    try {
+      bruto = await resp.text();
+    } catch (e) {
+      if (ctrl.signal.aborted) throw new ErrorAnotacion('TIEMPO', 'El servidor tardó demasiado en responder.');
+      throw new ErrorAnotacion('CORTE', 'Se interrumpió la conexión mientras el servidor generaba la respuesta.', `${e.name}: ${e.message}`);
+    }
+
+    let datos = null;
+    try { datos = JSON.parse(bruto); } catch (_) { /* no es JSON */ }
+
+    if (!datos) {
+      throw new ErrorAnotacion(
+        resp.ok ? 'RESPUESTA_INVALIDA' : 'HTTP',
+        resp.ok ? 'El servidor devolvió una respuesta que no es JSON.' : `El servidor respondió HTTP ${resp.status}.`,
+        bruto.slice(0, 200),
+      );
+    }
+    if (datos.error) throw new ErrorAnotacion(datos.codigo || 'SERVIDOR', datos.error, datos.detalles || '');
+    if (!resp.ok) throw new ErrorAnotacion('HTTP', `El servidor respondió HTTP ${resp.status}.`);
+    return datos;
+  } finally {
+    clearTimeout(temporizador);
+  }
+}
+
+// Anota un fragmento; ante fallos reintenta o lo divide en dos y lo procesa por partes.
+async function anotarFragmento(texto, estado, profundidad) {
+  let reintentosRed = 0;
+  for (;;) {
+    const parte = estado.resultados.length + 1;
+    estado.alProgreso(parte, estado.total);
+    try {
+      const resultado = await pedirAnotacion({
+        textoPlano: texto,
+        parte,
+        totalPartes: estado.total,
+        contexto: estado.resultados[0]?.meta || null,
+      });
+      estado.resultados.push(resultado);
+      estado.alResultado();
+      return;
+    } catch (err) {
+      const esRed = ['RED', 'CORTE', 'TIEMPO'].includes(err.codigo);
+      if (esRed && reintentosRed < IA_CONFIG.RED_REINTENTOS) {
+        reintentosRed++;
+        await esperar(2500);
+        continue;
+      }
+      const dividible = ['TRUNCADO', 'SALIDA_INVALIDA', 'CORTE', 'TIEMPO'].includes(err.codigo);
+      const partes = dividible && profundidad < IA_CONFIG.MAX_SPLIT_DEPTH ? subdividir(texto) : null;
+      if (!partes) throw err;
+      console.warn(`[LexiLectura] "${err.codigo}" con ${texto.length} caracteres: se divide en ${partes.length} partes.`);
+      estado.total += partes.length - 1;
+      for (const p of partes) await anotarFragmento(p, estado, profundidad + 1);
+      return;
+    }
+  }
+}
+
+// --- Unión de resultados: renumera nodos para que no choquen entre partes ---
+
+function unirResultados(resultados) {
+  const base = resultados[0];
+  const nodos = {};
+  const estrofas = [];
+  const idsFijos = new Set(['node_author', 'node_period', base.meta?.authorNodeId, base.meta?.periodNodeId].filter(Boolean));
+
+  resultados.forEach((res, i) => {
+    const mapa = {};
+    Object.entries(res.interactiveNodes || {}).forEach(([id, nodo]) => {
+      if (idsFijos.has(id)) {
+        if (i === 0) nodos[id] = nodo; // autor y época solo de la parte 1
+        return;
+      }
+      const nuevo = `p${i + 1}_${id}`;
+      mapa[id] = nuevo;
+      nodos[nuevo] = nodo;
+    });
+
+    const reescribir = (html) => html.replace(
+      /data-(nodes?)=(["'])([^"']*)\2/g,
+      (_m, attr, q, ids) => `data-${attr}=${q}${ids.trim().split(/\s+/).map((id) => mapa[id] || id).join(' ')}${q}`,
+    );
+    (res.stanzas || []).forEach((h) => estrofas.push(reescribir(h)));
+  });
+
+  return { ...base, interactiveNodes: nodos, stanzas: estrofas };
+}
+
+// --- Mensajes de error comprensibles ---
+
+function mensajeAmigable(err) {
+  if (!(err instanceof ErrorAnotacion)) return err?.message || String(err);
+  const url = BACKEND_URL;
+  switch (err.codigo) {
+    case 'RED':
+      return `No se pudo conectar con el servidor de anotación.\n\nAbre ${url} en el navegador: debería mostrar {"ok":true,...}. ` +
+        `Si no es así, el problema está en el despliegue de Vercel (ruta, variables de entorno o build), no en tu texto.\n\n(${err.detalle})`;
+    case 'CONFIG':
+      return `${err.message}\n${err.detalle}`;
+    case 'LIMITE':
+      return 'Se ha alcanzado el límite de los modelos gratuitos de OpenRouter (20 peticiones/minuto y 50/día sin créditos). ' +
+        'Espera al reinicio diario (00:00 UTC), espera un minuto o añade créditos a tu cuenta.';
+    case 'MODELOS_NO_DISPONIBLES':
+      return `${err.message}\n${err.detalle}`;
+    default:
+      return err.detalle ? `${err.message} (${err.detalle})` : err.message;
+  }
+}
+
+// --- Orquestador: lo que ejecuta el botón "Anotar texto automáticamente" ---
+
+async function generarAnotacionConIA() {
+  const plainText = document.getElementById('plain-text-input')?.value.trim();
+  const btn = document.getElementById('btn-generate-gemini');
+
+  if (!plainText) {
+    alert('Por favor, pega un texto plano antes de generar la anotación.');
+    return;
+  }
+
+  const fragmentos = dividirEnFragmentos(plainText);
+  const estado = {
+    resultados: [],
+    total: fragmentos.length,
+    alProgreso: (parte, total) => { btn.textContent = `⏳ Anotando parte ${parte} de ${total}…`; },
+    alResultado: () => renderizarTextoAnotado(unirResultados(estado.resultados)), // se ve el avance
+  };
+
+  try {
+    btn.disabled = true;
+    for (const f of fragmentos) await anotarFragmento(f, estado, 0);
+
+    const acordeon = document.querySelector('.json-accordion-container');
+    if (acordeon) acordeon.removeAttribute('open');
+    alert('¡Texto anotado correctamente!');
+  } catch (error) {
+    console.error('Error al generar anotaciones:', error);
+    const hechas = estado.resultados.length;
+    alert(
+      `No se pudo procesar el texto: ${mensajeAmigable(error)}` +
+      (hechas ? `\n\nSe anotaron ${hechas} parte(s) antes del fallo; el resultado parcial está en pantalla.` : ''),
+    );
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Anotar texto automáticamente';
+  }
+}
+
+// =========================================================================
 //  INICIALIZACIÓN DE EVENTOS
 // =========================================================================
 
@@ -1098,48 +1348,8 @@ function inicializarEventos() {
     activeLayersSet.clear();
   });
 
-  // Integración Gemini AI
-  document.getElementById('btn-generate-gemini')?.addEventListener('click', async () => {
-    const plainText = document.getElementById('plain-text-input')?.value.trim();
-    const btn = document.getElementById('btn-generate-gemini');
-
-    if (!plainText) {
-      alert('Por favor, pega un texto plano antes de generar la anotación.');
-      return;
-    }
-
-    try {
-      btn.disabled = true;
-      btn.textContent = '⏳ Analizando texto con IA...';
-
-      const response = await fetch(BACKEND_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ textoPlano: plainText })
-      });
-
-      if (!response.ok) {
-        const errorPayload = await response.json();
-        const detalle = errorPayload.detalles ? ` (${errorPayload.detalles})` : '';
-        throw new Error(`${errorPayload.error}${detalle}`);
-      }
-
-      const jsonAnotado = await response.json();
-      renderizarTextoAnotado(jsonAnotado);
-
-      const acordeon = document.querySelector('.json-accordion-container');
-      if (acordeon) acordeon.removeAttribute('open');
-
-      alert('¡Texto anotado correctamente!');
-
-    } catch (error) {
-      console.error('Error al generar anotaciones:', error);
-      alert(`No se pudo procesar el texto: ${error.message}`);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '✨ Anotar texto automáticamente';
-    }
-  });
+  // Integración con IA (fragmentos + reintentos): ver generarAnotacionConIA()
+  document.getElementById('btn-generate-gemini')?.addEventListener('click', generarAnotacionConIA);
 
   document.getElementById('btn-select-all-cats')?.addEventListener('click', () => {
     document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
