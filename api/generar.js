@@ -9,7 +9,7 @@ const client = new OpenAI({
   apiKey: process.env.OPENROUTER_API_KEY,
   baseURL: 'https://openrouter.ai/api/v1',
   defaultHeaders: {
-    'HTTP-Referer': 'https://github.com', // Opcional: Tu web o repo para aparecer en el ranking de OpenRouter
+    'HTTP-Referer': 'https://lectorespa.github.io/LexiLectura/', // Opcional: Tu web o repo para aparecer en el ranking de OpenRouter
     'X-Title': 'Edicion Interactiva Anotada', // Opcional: Nombre de tu aplicación
   },
 });
