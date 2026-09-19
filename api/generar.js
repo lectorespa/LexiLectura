@@ -35,7 +35,7 @@ function leerAjustes() {
     maxCaracteres: Number(env.MAX_INPUT_CHARS) || 6000,
     // '*' = cualquier origen (comportamiento actual). Cuando todo funcione, restringe:
     // ALLOWED_ORIGINS=https://lectorespa.github.io
-    origenes: (env.ALLOWED_ORIGINS || '*').split(',').map((s) => s.trim()).filter(Boolean),
+    origenes: (env.ALLOWED_ORIGINS || 'https://lectorespa.github.io').split(',').map((s) => s.trim()).filter(Boolean),
     presupuestoMs: 270_000, // Edge permite 300 s de streaming: dejamos margen
     inactividadMs: 75_000, // sin recibir ni un token durante este tiempo → probar otro modelo
     latidoMs: 8_000,
