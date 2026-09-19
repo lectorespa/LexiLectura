@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
-    "@google/genai": "latest"
+    "next": "14.0.0",
+    "openai": "^4.80.0",
+    "react": "^18.2.0"
   }
 }
