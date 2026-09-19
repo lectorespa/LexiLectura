@@ -1,304 +1,343 @@
+// api/generar.js — Vercel Function (Edge)
+// Anota un fragmento de texto con un modelo de OpenRouter y devuelve el JSON del visor.
+//
+// PROTOCOLO DE RESPUESTA (clave para que el navegador no corte la conexión)
+//   · Toda petición POST válida recibe HTTP 200, Content-Type: application/json.
+//   · El cuerpo son espacios en blanco (latido, JSON válido) + UN objeto JSON final:
+//       éxito → { meta, interactiveNodes, stanzas }
+//       fallo → { error, codigo, detalles }
+//   · Los errores de configuración / petición (antes de generar) usan su código HTTP
+//     habitual (400, 413, 500) y también llevan siempre cabeceras CORS.
+//
+// Nada que pueda fallar ocurre fuera del try/catch: así el navegador siempre recibe
+// una respuesta con CORS y puede mostrar el motivo real en lugar de "Load failed".
+
 import OpenAI from 'openai';
+import { SYSTEM_PROMPT } from '../lib/prompt.js';
 
-export const config = {
-  runtime: 'edge',
-};
+export const config = { runtime: 'edge' };
 
-// Inicialización para OpenRouter
-const client = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL: 'https://openrouter.ai/api/v1',
-  defaultHeaders: {
-    'HTTP-Referer': 'https://lectorespa.github.io/LexiLectura/', // Tu web o repo
-    'X-Title': 'Edicion Interactiva Anotada',
-  },
-});
+// Los IDs ":free" de OpenRouter cambian con frecuencia. Sobrescríbelos sin tocar código
+// con la variable de entorno OPENROUTER_MODELS (lista separada por comas, en orden de preferencia).
+const MODELOS_POR_DEFECTO = [
+  'meta-llama/llama-3.3-70b-instruct:free',
+  'openrouter/free', // router de OpenRouter: elige un modelo gratuito disponible
+];
 
-export default async function handler(req) {
-  const corsHeaders = {
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,OPTIONS,PATCH,DELETE,POST,PUT',
-    'Access-Control-Allow-Headers':
-      'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version',
+function leerAjustes() {
+  const env = process.env;
+  return {
+    apiKey: env.OPENROUTER_API_KEY,
+    baseURL: env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+    modelos: (env.OPENROUTER_MODELS || MODELOS_POR_DEFECTO.join(','))
+      .split(',').map((s) => s.trim()).filter(Boolean),
+    maxTokens: Number(env.MAX_TOKENS) || 8000,
+    maxCaracteres: Number(env.MAX_INPUT_CHARS) || 6000,
+    // '*' = cualquier origen (comportamiento actual). Cuando todo funcione, restringe:
+    // ALLOWED_ORIGINS=https://lectorespa.github.io
+    origenes: (env.ALLOWED_ORIGINS || '*').split(',').map((s) => s.trim()).filter(Boolean),
+    presupuestoMs: 270_000, // Edge permite 300 s de streaming: dejamos margen
+    inactividadMs: 75_000, // sin recibir ni un token durante este tiempo → probar otro modelo
+    latidoMs: 8_000,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Utilidades
+// ---------------------------------------------------------------------------
+
+function cabecerasCors(req, ajustes) {
+  const origen = req.headers.get('origin') || '';
+  let permitido = '*';
+  if (!ajustes.origenes.includes('*')) {
+    permitido = ajustes.origenes.includes(origen) ? origen : ajustes.origenes[0] || 'null';
+  }
+  return {
+    'Access-Control-Allow-Origin': permitido,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Accept',
+    'Access-Control-Max-Age': '86400',
+    Vary: 'Origin',
+  };
+}
+
+function respuestaJson(status, objeto, cors) {
+  return new Response(JSON.stringify(objeto), {
+    status,
+    headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
+  });
+}
+
+function errorConCodigo(codigo, mensaje) {
+  const e = new Error(mensaje);
+  e.codigo = codigo;
+  return e;
+}
+
+function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto) {
+  let extra = '';
+  if (totalPartes > 1) {
+    extra += `\nMODO FRAGMENTO: este texto es la parte ${parte} de ${totalPartes} de una obra más larga que se anota por partes. Anota ÚNICAMENTE este fragmento; no resumas ni comentes el resto. Los identificadores de nodo (node_1, node_2…) pueden repetirse entre partes: se renumeran al unirlas.`;
+    if (parte > 1) {
+      extra += ` NO generes los nodos node_author ni node_period (ya existen en la parte 1). En "meta" repite exactamente estos valores: ${JSON.stringify(contexto || {})}.`;
+    }
+  }
+  return `TEXTO A ANALIZAR:\n"""\n${textoPlano}\n"""${extra}`;
+}
+
+// Extrae el objeto JSON aunque el modelo lo envuelva en ```json, añada texto o razonamiento.
+function extraerJson(texto) {
+  let t = String(texto)
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/```\s*$/i, '')
+    .trim();
+  const ini = t.indexOf('{');
+  const fin = t.lastIndexOf('}');
+  if (ini === -1 || fin <= ini) throw errorConCodigo('JSON_INVALIDO', 'La respuesta no contiene un objeto JSON.');
+  t = t.slice(ini, fin + 1);
+  try {
+    return JSON.parse(t);
+  } catch (_) {
+    try {
+      return JSON.parse(t.replace(/,\s*([}\]])/g, '$1')); // coma final típica de los LLM
+    } catch (e2) {
+      throw errorConCodigo('JSON_INVALIDO', `JSON mal formado: ${e2.message}`);
+    }
+  }
+}
+
+function validarAnotacion(d) {
+  const mal = (m) => { throw errorConCodigo('JSON_INVALIDO', m); };
+  if (!d || typeof d !== 'object' || Array.isArray(d)) mal('La respuesta no es un objeto.');
+  if (!d.meta || typeof d.meta !== 'object') mal('Falta "meta".');
+  if (!d.interactiveNodes || typeof d.interactiveNodes !== 'object' || !Object.keys(d.interactiveNodes).length) {
+    mal('Falta "interactiveNodes" o está vacío.');
+  }
+  if (!Array.isArray(d.stanzas) || !d.stanzas.length || d.stanzas.some((s) => typeof s !== 'string')) {
+    mal('Falta "stanzas" o no es un array de cadenas.');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Llamada a un modelo (streaming interno, con temporizador de inactividad)
+// ---------------------------------------------------------------------------
+
+async function pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCliente) {
+  const ctrl = new AbortController();
+  let motivo = null;
+  const abortar = (m) => { motivo = m; ctrl.abort(); };
+  if (senalCliente) {
+    if (senalCliente.aborted) throw errorConCodigo('CANCELADO', 'Petición cancelada por el cliente.');
+    senalCliente.addEventListener('abort', () => abortar('cliente'), { once: true });
+  }
+
+  let temporizador;
+  const rearmar = () => {
+    clearTimeout(temporizador);
+    const espera = Math.max(1000, Math.min(ajustes.inactividadMs, limite - Date.now()));
+    temporizador = setTimeout(() => abortar('inactividad'), espera);
   };
 
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
+  rearmar();
+  try {
+    const flujo = await client.chat.completions.create(
+      {
+        model: modelo,
+        messages: mensajes,
+        stream: true,
+        temperature: 0.3,
+        max_tokens: ajustes.maxTokens,
+        // Sin response_format: muchos proveedores gratuitos no lo soportan y el
+        // parser de arriba ya tolera bloques ```json y texto alrededor.
+      },
+      { signal: ctrl.signal },
+    );
+
+    let texto = '';
+    let fin = null;
+    for await (const trozo of flujo) {
+      rearmar();
+      if (trozo.error) throw errorConCodigo('PROVEEDOR', trozo.error.message || 'Error del proveedor durante la generación.');
+      const eleccion = trozo.choices?.[0];
+      if (eleccion?.delta?.content) texto += eleccion.delta.content;
+      if (eleccion?.finish_reason) fin = eleccion.finish_reason;
+    }
+
+    if (fin === 'length') throw errorConCodigo('TRUNCADO', 'La respuesta superó el máximo de tokens y quedó cortada.');
+    if (fin === 'error') throw errorConCodigo('PROVEEDOR', 'El proveedor terminó la generación con error.');
+    if (!texto.trim()) throw errorConCodigo('VACIO', 'El modelo devolvió una respuesta vacía.');
+    return texto;
+  } catch (err) {
+    if (ctrl.signal.aborted) {
+      if (motivo === 'inactividad') {
+        throw errorConCodigo('TIEMPO', `El modelo no envió datos durante ${Math.round(ajustes.inactividadMs / 1000)} s.`);
+      }
+      throw errorConCodigo('CANCELADO', 'Petición cancelada.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(temporizador);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Respaldo entre modelos: falla el modelo O falla su salida → siguiente modelo
+// ---------------------------------------------------------------------------
+
+async function generarConRespaldo(mensajes, ajustes, senalCliente, referer) {
+  const client = new OpenAI({
+    apiKey: ajustes.apiKey,
+    baseURL: ajustes.baseURL,
+    maxRetries: 0, // los reintentos los gestionamos nosotros (cambiando de modelo)
+    defaultHeaders: { 'HTTP-Referer': referer, 'X-Title': 'Edicion Interactiva Anotada' },
+  });
+
+  const limite = Date.now() + ajustes.presupuestoMs;
+  const fallos = [];
+  let todosLimite = true;
+  let algunaSalidaInvalida = false;
+
+  for (const modelo of ajustes.modelos) {
+    if (limite - Date.now() < 20_000) break; // ya no da tiempo a otro intento
+
+    try {
+      const texto = await pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCliente);
+      const datos = extraerJson(texto);
+      validarAnotacion(datos);
+      console.log(`[generar] OK con ${modelo}`);
+      return datos;
+    } catch (err) {
+      const codigo = err.codigo || (err.status ? `HTTP_${err.status}` : 'DESCONOCIDO');
+      console.warn(`[generar] ${modelo} falló (${codigo}): ${err.message}`);
+      fallos.push(`${modelo} → ${codigo}: ${err.message}`);
+
+      if (codigo === 'CANCELADO') throw err;
+      if (codigo === 'TRUNCADO') throw err; // otro modelo tampoco cabrá: que el cliente divida el texto
+      if (err.status !== 429) todosLimite = false;
+      if (['JSON_INVALIDO', 'VACIO'].includes(codigo)) algunaSalidaInvalida = true;
+    }
   }
 
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Método no permitido. Utiliza POST.' }),
-      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  const detalles = fallos.join(' | ').slice(0, 700);
+  if (fallos.length && todosLimite) {
+    throw Object.assign(
+      errorConCodigo('LIMITE', 'Se ha alcanzado el límite de uso de los modelos gratuitos de OpenRouter.'),
+      { detalles },
     );
   }
-
-  try {
-    const body = await req.json();
-    const { textoPlano } = body || {};
-
-    if (!textoPlano || typeof textoPlano !== 'string' || !textoPlano.trim()) {
-      return new Response(
-        JSON.stringify({ error: 'El parámetro "textoPlano" es obligatorio.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const systemInstruction = `
-Asegúrate de actuar como un editor crítico e hispanista experto. Analiza el texto literario proporcionado y genera una edición interactiva anotada.
-
-Eres un asistente experto en Humanidades Digitales y edición crítica de textos. Tu función es analizar textos literarios y generar un objeto JSON perfectamente estructurado, descargable y multicapa para un visor de lectura interactiva con niveles duales de anotación (corta y profunda).
-
-REGLA DE ORO: CONTENIDO ACADÉMICO REAL Y VERIFICACIÓN DE TÍTULOS
-1. Rigor de Fuentes: Prohibido el uso de textos de ejemplo, plantillas o marcadores de posición (como "Explicación breve...", "Inserte aquí...", etc.). Todos los campos del JSON deben contener información académica real y rigurosa.
-2. Identificación Precisa del Fragmento: Debes verificar filológicamente el texto proporcionado para identificar con exactitud el título del poema, capítulo o sección específica a la que pertenece el fragmento, así como el libro o compendio mayor.
-3. El campo meta.title DEBE seguir el formato: «Título exacto del poema/capítulo» / Título de la obra principal (ejemplo: "«Orillas del Duero» / Campos de Castilla"). Queda prohibido poner títulos genéricos o erróneos.
-4. Traducir al español los textos en otros idiomas.
-5. Todas las anotaciones deben redactarse en el mismo idioma en que se presenta el texto final.
-
-FORMATO DE SALIDA ESTRICTO (JSON PURO DIRECTO)
-La respuesta debe consistir ÚNICAMENTE en el objeto JSON plano sin envolver en bloques de código markdown (SIN \`\`\`json ... \`\`\`).
-Queda ESTRICTAMENTE PROHIBIDO incluir cualquier texto introductorio, saludos, explicaciones previas o notas posteriores. La respuesta debe comenzar directamente en la primera línea con la llave { y terminar con }.
-
-DENSIDAD Y DISTRIBUCIÓN POR TEXTO (POESÍA Y PROSA)
-- Densidad general (categorías author, period, culture, syntax, analysis):
-  * Poesía: Entre 1 y 2 nodos interactivos por cada verso.
-  * Prosa: Entre 1 y 2 nodos interactivos por cada fragmento de aproximadamente 15 palabras.
-- Extensión del nodo: Prioriza anotar el sintagma o la figura central de cada verso o frase, manteniendo la integridad del sentido (no selecciones palabras sueltas si forman parte de una imagen o recurso mayor).
-- Cobertura total: Ningún verso o línea debe quedar descolgado de la lectura comentada.
-- Independencia de Vocabulario: La categoría "vocabulary" es independiente y sigue su propia regla de densidad por nivel (ver sección de niveles más abajo), no la regla general de 1-2 nodos por verso/fragmento.
-- Un nodo de vocabulary que coincide físicamente con un nodo de otra categoría (ver "SOLAPAMIENTO" más abajo) cuenta para la densidad de AMBAS categorías por separado: no reduzcas la densidad de la otra categoría por el hecho de que la expresión también sea una palabra de vocabulario, y viceversa.
-
-ARQUITECTURA DE CATEGORIZACIÓN (type / category)
-
-Los campos "type" y "category" dentro de cada objeto de "interactiveNodes" deben tomar OBLIGATORIAMENTE, y de forma literal, uno de estos 6 valores exactos en inglés:
-\`author\`, \`period\`, \`vocabulary\`, \`culture\`, \`syntax\`, \`analysis\`.
-
-No uses variantes en español, guiones bajos ni nombres heredados de otras versiones del esquema (p. ej. NO uses "sociedad", "simbologia_contexto", "metrica_retorica", "vocabulario_lexico" ni similares como valor de type/category). El visor construye automáticamente los filtros de categoría, sus colores y sus etiquetas en español a partir de estos 6 valores exactos; cualquier otro valor puede no reconocerse y dejar esas palabras sin resaltar ni ser filtrables.
-
-Por la misma razón:
-- NO generes ningún array de nivel superior llamado "layers".
-- NO generes ningún objeto "categoryLabels".
-- NO incluyas la propiedad "layerId" dentro de los nodos.
-El visor ignora por completo estos tres elementos: los colores y las etiquetas de cada categoría están fijados en el propio visor, no se leen del JSON. Incluirlos solo añade peso innecesario a la respuesta.
-
-REGLAS ESPECÍFICAS DE VOCABULARIO
-Cada nodo de tipo "vocabulary" debe llevar obligatoriamente la propiedad \`"vocabLevel": "B1" | "B2" | "C1" | "C2"\`.
-- Lectura Básica (short): se muestran todas las palabras de vocabulario de nivel B1 o superior (densidad alta, cobertura amplia).
-- Lectura Avanzada (deep): solo permanecen resaltadas y con foco filológico detallado las palabras de nivel C1 o C2; las de nivel B1/B2 se atenúan automáticamente en este modo (el visor las oculta visualmente sin alterar el texto). Por tanto, en el análisis "deep" de un nodo de vocabulario, concentra el comentario en el valor filológico real del término, no en una definición básica ya cubierta en "short".
-
-SOLAPAMIENTO: VOCABULARIO QUE ADEMÁS PERTENECE A OTRA CATEGORÍA
-Es habitual, y deseable, que una misma palabra o sintagma sea a la vez un término de vocabulario relevante (arcaísmo, cultismo, tecnicismo) Y, simultáneamente, un elemento significativo de otra categoría (una referencia cultural/mitológica, una figura retórica, un símbolo interpretativo, etc.). En ese caso NO seleccione solo una de las dos categorías: crea DOS nodos independientes en "interactiveNodes" —uno "vocabulary" y otro de la categoría que corresponda— y únelos en un solo \`<span>\` del texto mediante \`data-nodes\` (varios IDs separados por espacio) y \`data-layers\` (los mismos dos valores canónicos separados por espacio). Cada nodo debe tener sus propias anotaciones "short"/"deep", centradas exclusivamente en el ángulo de SU categoría, sin repetir el contenido del otro nodo:
-- El nodo "vocabulary" explica el significado léxico del término (con su vocabLevel).
-- El otro nodo explica la referencia cultural, el recurso retórico o la interpretación simbólica, sin volver a glosar el significado literal de la palabra.
-
-Recomendación de orden: cuando solapes un nodo "vocabulary" con otro nodo, coloca el ID del nodo de vocabulario en PRIMER lugar dentro de "data-nodes" (buena práctica, aunque el visor ya localiza el vocabLevel en cualquier posición).
-
-Ejemplo de solapamiento vocabulario + cultura:
-<span class="interactive-word" data-nodes="node_vocab_estigia node_cult_estigia" data-layers="vocabulary culture" tabindex="0" role="button" aria-haspopup="dialog">la laguna Estigia</span>
-con dos nodos independientes en interactiveNodes: \`node_vocab_estigia\` (type/category: "vocabulary", con vocabLevel y una glosa léxica del término) y \`node_cult_estigia\` (type/category: "culture", con la referencia mitológica/cultural, sin repetir la glosa léxica).
-
-Para un anidamiento simple de una sola categoría dentro de un sintagma mayor, usa \`<span>\` anidados de forma limpia y sin cruce de rangos.
-
-REGLAS OBLIGATORIAS DE REDACCIÓN Y SECUENCIA DIDÁCTICA
-
-1. NIVEL CORTA ("short") — SECUENCIA DIDÁCTICA DIRECTA
-- Audiencia: Consulta rápida / Estudiantes de secundaria, Bachillerato y nivel B1 o B2.
-- Nivel de lengua: Español estándar, directo, muy claro y resolutivo. En vocabulary, explica con claridad lo que significa el término en el contexto concreto del pasaje. Evita tecnicismos metalingüísticos complejos.
-- Estructura Didáctica Obligatoria (ORDEN SECUENCIAL ESTRICTO):
-  * definition: Glosa o identificación inmediata. Texto plano sin HTML. Máximo 15-20 palabras (1 sola frase resolutiva).
-  * content: Función en el pasaje. Un único párrafo breve continuo de texto plano (entre 40 y 70 palabras).
-
-2. NIVEL PROFUNDA ("deep") — ANÁLISIS CRÍTICO Y FILOLÓGICO
-- Audiencia: Investigación, docencia universitaria y análisis crítico avanzado.
-- Nivel de lengua: Académico especializado. Emplea con rigor terminología filológica, literaria, histórica y filosófica.
-- Estructura Interna:
-  * definition: Definición filológica o conceptual amplia con rigor terminológico (30-50 palabras, texto plano sin HTML).
-  * content: Análisis crítico profundo (180-300 palabras globales). DEBE desglosarse internamente en 2 párrafos separados obligatoriamente por la etiqueta HTML <br><br>:
-    - Párrafo 1: Análisis crítico directo del término, recurso métrico/fónico o significado filológico en el pasaje.
-    - Párrafo 2: Contexto histórico, intertexto, proyección simbólica o vinculación con las grandes líneas temáticas de la obra y la época.
-
-REGLAS ESTRICTAS DE SINTAXIS JSON, ANIDAMIENTO Y ETIQUETADO EN ESTROFAS (stanzas)
-1. Sintaxis de cadenas en JSON: En JSON no pueden existir saltos de línea físicos (Enter) dentro de una cadena de texto. Cada elemento del array stanzas debe ser una sola línea de código continua envuelta en <p>...</p>. Utiliza <br> al final de cada verso para indicar el salto poético.
-2. Comillas en HTML dentro del JSON: Para evitar errores de parseo y dobles escapados en JavaScript, utiliza comillas dobles normales dentro de las etiquetas HTML de stanzas (ejemplo: \`<span class="interactive-word" data-node="node_1" data-category="syntax" ...>Sintagma</span>\`).
-3. Vínculos de cabecera: node_author y node_period NO deben inyectarse mediante etiquetas <span> dentro de stanzas. Se vinculan automáticamente mediante authorNodeId y periodNodeId.
-4. Atributos de cada span, según pertenezca a una o varias categorías:
-   - UNA sola categoría: usa \`data-node="node_x"\` junto con \`data-category="<valor_canónico>"\` (el mismo valor que el campo type/category del nodo). NO añadas además un atributo \`data-layer\` heredado: solo \`data-category\`.
-   - VARIAS categorías simultáneas (solapamiento, incluido vocabulario + otra categoría): usa \`data-nodes="node_a node_b"\` junto con \`data-layers="valorA valorB"\` (valores canónicos separados por espacio, en el mismo orden que data-nodes). NO uses \`data-category\` en un span multicategoría.
-5. Anidamiento y Solapamiento de Nodos (Overlaps) — caso general (no vocabulario): cuando un fragmento poético o palabra pertenezca a varios nodos o capas simultáneamente por razones distintas al vocabulario (p. ej. una figura retórica que además es un símbolo interpretativo), únelo igualmente en un único elemento HTML combinando sus identificadores y capas mediante espacios:
-<span class="interactive-word" 
-      data-nodes="node_soplos node_infierno_simbolico" 
-      data-layers="syntax analysis" 
-      tabindex="0" 
-      role="button" 
-      aria-haspopup="dialog">
-  crudos soplos de infierno
-</span>
-
-BÚSQUEDA Y SELECCIÓN DE IMÁGENES Y MULTIMEDIA
-- Prohibida la invención de URLs: Asigna siempre "audioUrl": null en meta.
-- Uso obligatorio de imageSearchQuery concreto: Sustantivos visuales reales, concretos y descriptivos. También sustantivos y adjetivos metafóricos que encajen relevantemente con el sentido del sustantivo en el contexto del texto y la explicación de la anotación.
-- visualConceptType: Debe ser estrictamente uno de: "portrait", "landscape", "artwork", "symbol", o "diagram".
-- locationAnchor: Ubicación geográfica real si existe (ej. "Soria", "Toledo"); de lo contrario, null.
-- imageVisualKeywords: Array con 2 o 3 términos visuales clave en texto plano.
-
-REGLA IMPORTANTE — "wikipediaArticle" Y "youtubeSearchQuery" NO SON EXCLUSIVOS DE author/period:
-En el esquema de referencia de más abajo, estos dos campos solo se muestran de ejemplo en el nodo "author" porque hay sitio limitado, PERO deben añadirse a CUALQUIER nodo, sea de la categoría que sea, siempre que exista de verdad un artículo de Wikipedia o un vídeo relevante sobre el concepto concreto de ese nodo o relevante a la explicación de la anotación y su contexto:
-- vocabulary: si el término designa algo con artículo propio (una especie botánica o animal, un objeto histórico, un topónimo, etc.), añade "wikipediaArticle" con el título exacto de ese artículo (p. ej. un nodo de vocabulario sobre "chopos" → "wikipediaArticle": "Populus_nigra").
-- syntax: si el nodo nombra una figura retórica o un recurso métrico con entrada propia (hipérbaton, prosopopeya, sinestesia, anáfora...), añade su "wikipediaArticle" correspondiente, y "youtubeSearchQuery" cuando exista un vídeo divulgativo razonable sobre ese concepto concreto o relativo a la explicación de la anotación concreta sobre el texto.
-- culture / period / analysis: añade "wikipediaArticle" siempre que la referencia mitológica, histórica, geográfica o temática tenga artículo real, y "youtubeSearchQuery" cuando exista un vídeo divulgativo razonable sobre ese concepto concreto o sobre alguno de los elementos relevantes de interpretación de la notación en el texto (no solo sobre el autor).
-No dejes estos dos campos vacíos por defecto en las categorías que no sean author/period: solo se omiten cuando, tras verificar filológicamente el concepto, no existe ningún artículo o vídeo genuinamente relevante o relacionado con la explicación de la anotación y su contexto para él.
-
-ESTRUCTURA DE SALIDA JSON (ESQUEMA DE REFERENCIA)
-
-{
-  "meta": {
-    "title": "«Título exacto del poema o capítulo» / Libro u obra principal",
-    "author": "Nombre del autor",
-    "authorNodeId": "node_author",
-    "period": "Movimiento o Época",
-    "periodNodeId": "node_period",
-    "year": "Año de publicación",
-    "lang": "es",
-    "audioUrl": null
-  },
-  "interactiveNodes": {
-    "node_author": {
-      "type": "author",
-      "category": "author",
-      "title": "Perfil biográfico y literario",
-      "annotations": {
-        "short": {
-          "definition": "Glosa concisa del autor (15-20 palabras, texto plano).",
-          "content": "Resumen de su evolución poética y temas centrales (40-70 palabras)."
-        },
-        "deep": {
-          "definition": "Perfil filológico e historiográfico del autor en la tradición literaria (30-50 palabras).",
-          "content": "Primer párrafo de análisis biográfico.<br><br>Segundo párrafo sobre evolución e impacto."
-        }
-      },
-      "wikipediaArticle": "Nombre_Wikipedia",
-      "wikiLang": "es",
-      "visualConceptType": "portrait",
-      "locationAnchor": null,
-      "imageSearchQuery": "Retrato fotográfico o grabado del autor",
-      "imageVisualKeywords": ["retrato autor", "fotografia historica"],
-      "youtubeSearchQuery": "Nombre del autor Biografía y poesía"
-    },
-    "node_vocab_estigia": {
-      "type": "vocabulary",
-      "category": "vocabulary",
-      "vocabLevel": "C1",
-      "title": "Estigia (léxico)",
-      "annotations": {
-        "short": {
-          "definition": "Río mitológico que separa el mundo de los vivos del de los muertos.",
-          "content": "Aquí se usa como término culto para evocar el umbral entre la vida y la muerte, sin entrar en su origen mitológico, que se desarrolla en la anotación de cultura de este mismo pasaje."
-        },
-        "deep": {
-          "definition": "Hidrónimo mitológico incorporado al léxico culto como metonimia del tránsito hacia la muerte (30-50 palabras).",
-          "content": "Análisis filológico del término y de su uso connotativo en el pasaje.<br><br>Trayectoria del cultismo en la tradición literaria en lengua española."
-        }
-      }
-    },
-    "node_cult_estigia": {
-      "type": "culture",
-      "category": "culture",
-      "title": "La laguna Estigia en la mitología clásica",
-      "wikipediaArticle": "Estigia",
-      "visualConceptType": "artwork",
-      "imageSearchQuery": "Caronte barca laguna Estigia pintura clasica",
-      "imageVisualKeywords": ["Caronte", "barca", "inframundo"],
-      "youtubeSearchQuery": "Mitologia griega rio Estigia inframundo explicacion",
-      "annotations": {
-        "short": {
-          "definition": "Río del inframundo que cruzaban las almas de los difuntos.",
-          "content": "Referencia mitológica clásica que el autor recupera aquí para situar la escena en un umbral simbólico entre la vida y la muerte, sin detenerse en el significado léxico del término, ya cubierto en la anotación de vocabulario."
-        },
-        "deep": {
-          "definition": "Elemento del imaginario escatológico grecolatino recuperado como tópico literario del tránsito hacia la muerte (30-50 palabras).",
-          "content": "Análisis de la función simbólica de la referencia mitológica en el pasaje.<br><br>Pervivencia del tópico clásico en la tradición literaria posterior y su valor como intertexto."
-        }
-      }
-    }
-  },
-  "stanzas": [
-    "<p>Texto del poema con <span class=\"interactive-word\" data-node=\"node_1\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">un sintagma anotado</span> que requiere explicación.<br>Y aquí cruzaba <span class=\"interactive-word\" data-nodes=\"node_vocab_estigia node_cult_estigia\" data-layers=\"vocabulary culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">la laguna Estigia</span>, umbral de sombras.</p>"
-  ]
+  if (algunaSalidaInvalida) {
+    throw Object.assign(errorConCodigo('SALIDA_INVALIDA', 'Los modelos no devolvieron un JSON válido para este fragmento.'), { detalles });
+  }
+  throw Object.assign(
+    errorConCodigo('MODELOS_NO_DISPONIBLES', 'Ningún modelo configurado respondió. Revisa OPENROUTER_MODELS y la clave.'),
+    { detalles: detalles || 'Sin intentos (tiempo agotado).' },
+  );
 }
-`;
 
-    const userContent = `TEXTO A ANALIZAR:\n"""\n${textoPlano}\n"""`;
+// ---------------------------------------------------------------------------
+// Handler
+// ---------------------------------------------------------------------------
 
-    // Lista de modelos gratuitos estables y optimizados para JSON en OpenRouter
-    const freeModels = [
-      'deepseek/deepseek-chat:free',            // DeepSeek V3 Gratis
-      'meta-llama/llama-3.3-70b-instruct:free',   // Llama 3.3 70B Gratis
-      'qwen/qwen-2.5-coder-32b-instruct:free',    // Qwen 2.5 Coder Gratis (Excelente en JSON)
+export default async function handler(req) {
+  let cors = { 'Access-Control-Allow-Origin': '*' };
+  try {
+    const ajustes = leerAjustes();
+    cors = cabecerasCors(req, ajustes);
+
+    if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
+
+    // Comprobación de salud: abre /api/generar en el navegador para diagnosticar.
+    if (req.method === 'GET') {
+      return respuestaJson(200, {
+        ok: true,
+        servicio: 'lexi-lectura/generar',
+        apiKeyConfigurada: Boolean(ajustes.apiKey),
+        modelosConfigurados: ajustes.modelos.length,
+      }, cors);
+    }
+
+    if (req.method !== 'POST') {
+      return respuestaJson(405, { error: 'Método no permitido. Utiliza POST.', codigo: 'METODO' }, cors);
+    }
+
+    if (!ajustes.apiKey) {
+      return respuestaJson(500, {
+        error: 'El servidor no tiene configurada la clave OPENROUTER_API_KEY.',
+        codigo: 'CONFIG',
+        detalles: 'Añádela en Vercel → Settings → Environment Variables (entorno Production) y vuelve a desplegar.',
+      }, cors);
+    }
+
+    let cuerpo;
+    try {
+      cuerpo = await req.json();
+    } catch (_) {
+      return respuestaJson(400, { error: 'El cuerpo de la petición debe ser JSON válido.', codigo: 'PETICION' }, cors);
+    }
+
+    const textoPlano = typeof cuerpo?.textoPlano === 'string' ? cuerpo.textoPlano.trim() : '';
+    if (!textoPlano) {
+      return respuestaJson(400, { error: 'El parámetro "textoPlano" es obligatorio.', codigo: 'PETICION' }, cors);
+    }
+    if (textoPlano.length > ajustes.maxCaracteres) {
+      return respuestaJson(413, {
+        error: `El fragmento tiene ${textoPlano.length} caracteres; el máximo por petición es ${ajustes.maxCaracteres}.`,
+        codigo: 'TEXTO_LARGO',
+      }, cors);
+    }
+
+    const totalPartes = Number.isInteger(cuerpo.totalPartes) && cuerpo.totalPartes > 0 ? cuerpo.totalPartes : 1;
+    const parte = Number.isInteger(cuerpo.parte) && cuerpo.parte > 0 ? cuerpo.parte : 1;
+    const contexto = cuerpo.contexto && typeof cuerpo.contexto === 'object' ? cuerpo.contexto : null;
+
+    const mensajes = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto) },
     ];
+    const referer = req.headers.get('origin') || 'https://lectorespa.github.io/LexiLectura/';
 
-    let responseStream;
-    let lastError;
-
-    for (const model of freeModels) {
-      try {
-        responseStream = await client.chat.completions.create({
-          model: model,
-          messages: [
-            { role: 'system', content: systemInstruction },
-            { role: 'user', content: userContent },
-          ],
-          stream: true,
-          temperature: 0.3,
-          max_tokens: 8192,
-          response_format: { type: 'json_object' },
-        });
-
-        console.log(`Petición iniciada con éxito usando el modelo: ${model}`);
-        break;
-      } catch (err) {
-        console.warn(`Falló el modelo ${model}. Probando siguiente modelo de respaldo...`, err.message);
-        lastError = err;
-      }
-    }
-
-    if (!responseStream) {
-      throw lastError || new Error('Ningún modelo gratuito de OpenRouter está disponible en este momento.');
-    }
-
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
+    const enc = new TextEncoder();
+    const flujo = new ReadableStream({
       async start(controller) {
+        let cerrado = false;
+        const enviar = (t) => {
+          if (cerrado) return;
+          try { controller.enqueue(enc.encode(t)); } catch (_) { cerrado = true; }
+        };
+
+        enviar(' '); // primer byte inmediato (Edge exige empezar a responder antes de 25 s)
+        const latido = setInterval(() => enviar(' '), ajustes.latidoMs);
+
         try {
-          for await (const chunk of responseStream) {
-            const text = chunk.choices[0]?.delta?.content || '';
-            if (text) {
-              controller.enqueue(encoder.encode(text));
-            }
-          }
-          controller.close();
-        } catch (streamErr) {
-          console.error('Error durante la transmisión del stream:', streamErr);
-          controller.error(streamErr);
+          const resultado = await generarConRespaldo(mensajes, ajustes, req.signal, referer);
+          enviar(JSON.stringify(resultado));
+        } catch (err) {
+          console.error('[generar] error final:', err.codigo, err.message);
+          enviar(JSON.stringify({
+            error: err.message || 'Error procesando el texto.',
+            codigo: err.codigo || 'SERVIDOR',
+            detalles: err.detalles || '',
+          }));
+        } finally {
+          clearInterval(latido);
+          try { controller.close(); } catch (_) { /* ya cerrado */ }
+          cerrado = true;
         }
       },
     });
 
-    return new Response(stream, {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'text/plain; charset=utf-8',
-      },
+    return new Response(flujo, {
+      status: 200,
+      headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' },
     });
   } catch (error) {
-    console.error('Error en /api/generar:', error);
-    return new Response(
-      JSON.stringify({
-        error: 'Error procesando el texto con OpenRouter.',
-        detalles: error.message || String(error),
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    console.error('[generar] error inesperado:', error);
+    return respuestaJson(500, {
+      error: 'Error interno del servidor.',
+      codigo: 'SERVIDOR',
+      detalles: error?.message || String(error),
+    }, cors);
   }
 }
