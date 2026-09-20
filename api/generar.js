@@ -1,6 +1,6 @@
 // api/generar.js — Vercel Function (Edge)
-// Anota un fragmento de texto con OpenRouter o con Gemini y devuelve el JSON del visor.
-// El proveedor se elige con el campo "proveedor" del cuerpo: "openrouter" (por defecto) | "gemini".
+// Anota un fragmento de texto con OpenRouter, Gemini o Groq y devuelve el JSON del visor.
+// El proveedor se elige con el campo "proveedor" del cuerpo: "openrouter" (por defecto) | "gemini" | "groq".
 //
 // PROTOCOLO DE RESPUESTA (clave para que el navegador no corte la conexión)
 //   · Toda petición POST válida recibe HTTP 200, Content-Type: application/json.
@@ -18,12 +18,13 @@ import { SYSTEM_PROMPT } from '../lib/prompt.js';
 
 export const config = { runtime: 'edge' };
 
-const VERSION = '2026-09-19-c'; // súbela al cambiar el archivo: aparece en GET /api/generar
+const VERSION = '2026-09-19-d'; // súbela al cambiar el archivo: aparece en GET /api/generar
 
 // Los IDs cambian con frecuencia. Sobrescríbelos SIN tocar código con variables de entorno
 // (IDs separados por comas, en orden de preferencia):
 //   OPENROUTER_MODELS → lista vigente: https://openrouter.ai/collections/free-models
 //   GEMINI_MODELS     → lista vigente: https://ai.google.dev/gemini-api/docs/models
+//   GROQ_MODELS       → lista vigente: https://console.groq.com/docs/models
 // Ojo: cada intento cuenta para los límites de cuota, así que no conviene una lista larga.
 const MODELOS_OPENROUTER = [
   'deepseek/deepseek-v4-flash-0731:free',
@@ -31,12 +32,14 @@ const MODELOS_OPENROUTER = [
   'thinkingmachines/inkling:free',
 ];
 const MODELOS_GEMINI = ['gemini-3.8-flash', 'gemini-3.5-flash-lite'];
+const MODELOS_GROQ = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
 
 function leerAjustes() {
   const env = process.env;
   const lista = (valor, porDefecto) => (valor || porDefecto.join(','))
     .split(',').map((s) => s.trim()).filter(Boolean);
   const nivelPensamiento = env.GEMINI_THINKING_LEVEL === undefined ? 'low' : env.GEMINI_THINKING_LEVEL.trim();
+  const esfuerzoGroq = env.GROQ_REASONING_EFFORT === undefined ? 'low' : env.GROQ_REASONING_EFFORT.trim();
 
   return {
     // '*' = cualquier origen. Cuando todo funcione, restringe:
@@ -66,6 +69,17 @@ function leerAjustes() {
         maxTokens: Number(env.GEMINI_MAX_TOKENS) || 32000,
         // 'low' por defecto: más rápido y barato. Vacío u 'off' = no enviar thinkingConfig.
         thinkingLevel: nivelPensamiento.toLowerCase() === 'off' ? '' : nivelPensamiento,
+      },
+      groq: {
+        nombre: 'Groq',
+        claveEnv: 'GROQ_API_KEY',
+        modelosEnv: 'GROQ_MODELS',
+        apiKey: env.GROQ_API_KEY,
+        baseURL: env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1',
+        modelos: lista(env.GROQ_MODELS, MODELOS_GROQ),
+        maxTokens: Number(env.GROQ_MAX_TOKENS) || 16000, // se recorta solo si tu plan tiene poco TPM
+        // Solo para gpt-oss: 'low' por defecto. Vacío u 'off' = no enviar reasoning_effort.
+        esfuerzoRazonamiento: esfuerzoGroq.toLowerCase() === 'off' ? '' : esfuerzoGroq,
       },
     },
   };
@@ -214,10 +228,10 @@ async function conControlDeTiempo(ajustes, limite, senalCliente, tarea) {
 }
 
 // ---------------------------------------------------------------------------
-// Proveedor 1: OpenRouter (SDK de OpenAI, streaming interno)
+// Proveedores con API compatible con OpenAI (OpenRouter y Groq): streaming interno
 // ---------------------------------------------------------------------------
 
-async function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
+async function pedirAOpenAICompat(client, modelo, prompt, senal, latir, opciones) {
   const flujo = await client.chat.completions.create(
     {
       model: modelo,
@@ -226,10 +240,9 @@ async function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
         { role: 'user', content: prompt.usuario },
       ],
       stream: true,
-      temperature: 0.3,
-      max_tokens: prov.maxTokens,
-      // Sin response_format: muchos proveedores gratuitos no lo soportan y el
-      // parser ya tolera bloques ```json y texto alrededor.
+      temperature: opciones.temperature,
+      ...opciones.tokens, // { max_tokens } (OpenRouter) o { max_completion_tokens } (Groq)
+      ...opciones.extra,
     },
     { signal: senal },
   );
@@ -242,7 +255,7 @@ async function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
     if (trozo.model) modeloReal = trozo.model;
     if (trozo.error) throw errorConCodigo('PROVEEDOR', trozo.error.message || 'Error del proveedor durante la generación.');
     const eleccion = trozo.choices?.[0];
-    if (eleccion?.delta?.content) texto += eleccion.delta.content;
+    if (eleccion?.delta?.content) texto += eleccion.delta.content; // el razonamiento (delta.reasoning) se ignora
     if (eleccion?.finish_reason) fin = eleccion.finish_reason;
   }
 
@@ -250,6 +263,124 @@ async function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
   if (fin === 'error') throw errorConCodigo('PROVEEDOR', 'El proveedor terminó la generación con error.');
   if (!texto.trim()) throw errorConCodigo('VACIO', 'El modelo devolvió una respuesta vacía.');
   return { texto, modeloReal };
+}
+
+// OpenRouter: sin response_format (muchos proveedores gratuitos no lo soportan; el parser
+// ya tolera bloques ```json y texto alrededor).
+function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
+  return pedirAOpenAICompat(client, modelo, prompt, senal, latir, {
+    temperature: 0.3,
+    tokens: { max_tokens: prov.maxTokens },
+    extra: {},
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Proveedor: Groq (mismo cliente OpenAI + gestión de sus límites de tokens/minuto)
+// ---------------------------------------------------------------------------
+
+const MIN_TOKENS_SALIDA_GROQ = 1200; // por debajo no compensa: la anotación no cabría
+
+const dormir = (ms, senal, latir) => new Promise((resolve, reject) => {
+  const alAbortar = () => { clearTimeout(t); reject(new Error('Espera cancelada.')); };
+  const t = setTimeout(() => { senal.removeEventListener('abort', alAbortar); latir(); resolve(); }, ms);
+  if (senal.aborted) { alAbortar(); return; }
+  senal.addEventListener('abort', alAbortar, { once: true });
+  latir(); // reinicia el temporizador de inactividad mientras esperamos
+});
+
+// Extrae del error de Groq: límite, usado, pedido y si el tope es diario o por minuto.
+function leerLimiteGroq(err) {
+  const msg = String(err?.message || '');
+  const conUsado = msg.match(/Limit\s+(\d+)[,\s]+Used\s+(\d+)[,\s]+Requested\s+(\d+)/i);
+  const sinUsado = msg.match(/Limit\s+(\d+)[,\s]+Requested\s+(\d+)/i);
+  return {
+    limite: conUsado ? Number(conUsado[1]) : sinUsado ? Number(sinUsado[1]) : null,
+    pedido: conUsado ? Number(conUsado[3]) : sinUsado ? Number(sinUsado[2]) : null,
+    esDiario: /per day|\((?:TPD|RPD)\)/i.test(msg),
+  };
+}
+
+// Milisegundos a esperar antes de reintentar un 429 por minuto (null = no merece la pena).
+function esperaSugeridaGroq(err) {
+  let seg = Number(err?.headers?.['retry-after']);
+  if (!Number.isFinite(seg)) {
+    const tras = String(err?.message || '').split(/try again in/i)[1] || '';
+    const trozos = [...tras.matchAll(/(\d+(?:\.\d+)?)\s*(ms|h|m|s)\b/gi)];
+    if (trozos.length) {
+      const unidad = { ms: 0.001, s: 1, m: 60, h: 3600 };
+      seg = trozos.reduce((a, [, n, u]) => a + Number(n) * unidad[u.toLowerCase()], 0);
+    }
+  }
+  if (!Number.isFinite(seg)) seg = 10; // 429 sin datos: espera prudente
+  return seg > 60 ? null : Math.ceil(seg * 1000) + 500;
+}
+
+// Solo los gpt-oss aceptan reasoning_effort / include_reasoning; con otros modelos no se envía nada.
+function extrasGroq(prov, modelo) {
+  if (!/^openai\/gpt-oss/i.test(modelo)) return {};
+  return { ...(prov.esfuerzoRazonamiento ? { reasoning_effort: prov.esfuerzoRazonamiento } : {}), include_reasoning: false };
+}
+
+async function pedirAGroq(client, prov, modelo, prompt, senal, latir) {
+  let maxTokens = prov.maxTokens;
+  let conExtras = true;
+  let esperas = 0;
+  let pedidoAnterior = Infinity;
+
+  for (let intento = 0; intento < 5; intento++) {
+    try {
+      return await pedirAOpenAICompat(client, modelo, prompt, senal, latir, {
+        temperature: 0.5, // rango recomendado por Groq para modelos de razonamiento: 0.5-0.7
+        tokens: { max_completion_tokens: maxTokens }, // por defecto Groq usa solo 1024
+        extra: conExtras ? extrasGroq(prov, modelo) : {},
+      });
+    } catch (err) {
+      // 1) parámetro de razonamiento no soportado por ese modelo → reintento sin él
+      if (err.status === 400 && conExtras && /reasoning/i.test(err.message) && Object.keys(extrasGroq(prov, modelo)).length) {
+        console.warn(`[generar] ${modelo} rechazó los parámetros de razonamiento; se reintenta sin ellos.`);
+        conExtras = false;
+        continue;
+      }
+
+      if (err.status === 413 || err.status === 429) {
+        const info = leerLimiteGroq(err);
+        if (info.esDiario) throw err;
+
+        // 2) la petición sola ya supera el tope por minuto de tu plan → recortar la salida máxima
+        if (info.limite && info.pedido && info.pedido > info.limite) {
+          const nuevo = maxTokens - (info.pedido - info.limite) - 256;
+          const sinProgreso = info.pedido >= pedidoAnterior;
+          if (nuevo < MIN_TOKENS_SALIDA_GROQ || sinProgreso) {
+            throw Object.assign(errorConCodigo('TPM_INSUFICIENTE',
+              `La petición (prompt + salida) necesita unos ${info.pedido} tokens y el límite por minuto de tu plan de Groq es ${info.limite}. `
+              + 'Con ese límite este prompt no cabe: pasa al plan Developer de Groq o usa otro motor.'), { detalles: String(err.message).slice(0, 300) });
+          }
+          console.warn(`[generar] Groq: max_completion_tokens ${maxTokens} → ${nuevo} (límite ${info.limite}, pedido ${info.pedido}).`);
+          pedidoAnterior = info.pedido;
+          maxTokens = nuevo;
+          continue;
+        }
+
+        // 3) tope por minuto ocupado por peticiones anteriores → esperar y reintentar
+        if (err.status === 429 && esperas < 2) {
+          const ms = esperaSugeridaGroq(err);
+          if (ms !== null) {
+            esperas++;
+            console.warn(`[generar] Groq: límite por minuto; espera de ${ms} ms.`);
+            await dormir(ms, senal, latir);
+            continue;
+          }
+        }
+      }
+
+      if (err.codigo === 'TRUNCADO' && maxTokens < prov.maxTokens) {
+        err.detalles = `max_completion_tokens se redujo a ${maxTokens} por el límite de tokens/minuto de tu plan de Groq.`;
+      }
+      throw err;
+    }
+  }
+  throw errorConCodigo('PROVEEDOR', 'Groq: demasiados reintentos.');
 }
 
 // ---------------------------------------------------------------------------
@@ -349,14 +480,16 @@ async function pedirAGemini(prov, modelo, prompt, senal, latir) {
 
 async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, referer) {
   const prov = ajustes.proveedores[proveedorId];
-  const client = proveedorId === 'openrouter'
-    ? new OpenAI({
+  const client = proveedorId === 'gemini'
+    ? null
+    : new OpenAI({
       apiKey: prov.apiKey,
       baseURL: prov.baseURL,
       maxRetries: 0, // los reintentos los gestionamos nosotros (cambiando de modelo)
-      defaultHeaders: { 'HTTP-Referer': referer, 'X-Title': 'Edicion Interactiva Anotada' },
-    })
-    : null;
+      ...(proveedorId === 'openrouter'
+        ? { defaultHeaders: { 'HTTP-Referer': referer, 'X-Title': 'Edicion Interactiva Anotada' } }
+        : {}),
+    });
 
   const limite = Date.now() + ajustes.presupuestoMs;
   const fallos = [];
@@ -370,11 +503,11 @@ async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, re
     let modeloReal = modelo;
     let muestra = '';
     try {
-      const salida = await conControlDeTiempo(ajustes, limite, senalCliente, (senal, latir) => (
-        proveedorId === 'gemini'
-          ? pedirAGemini(prov, modelo, prompt, senal, latir)
-          : pedirAOpenRouter(client, prov, modelo, prompt, senal, latir)
-      ));
+      const salida = await conControlDeTiempo(ajustes, limite, senalCliente, (senal, latir) => {
+        if (proveedorId === 'gemini') return pedirAGemini(prov, modelo, prompt, senal, latir);
+        if (proveedorId === 'groq') return pedirAGroq(client, prov, modelo, prompt, senal, latir);
+        return pedirAOpenRouter(client, prov, modelo, prompt, senal, latir);
+      });
       modeloReal = salida.modeloReal;
       muestra = salida.texto.slice(0, 300);
       const datos = normalizarAnotacion(extraerJson(salida.texto));
@@ -389,6 +522,7 @@ async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, re
 
       if (codigo === 'CANCELADO') throw err;
       if (codigo === 'TRUNCADO') throw err; // otro modelo tampoco cabrá: que el cliente divida el texto
+      if (codigo === 'TPM_INSUFICIENTE') throw err; // el tope es del plan, no del modelo
       if (err.status !== 429) todosLimite = false;
       if (['JSON_INVALIDO', 'VACIO'].includes(codigo)) algunaSalidaInvalida = true;
       if (codigo === 'BLOQUEADO') algunBloqueo = true;
@@ -398,9 +532,10 @@ async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, re
   const detalles = fallos.join(' | ').slice(0, 700);
   if (fallos.length && todosLimite) {
     throw Object.assign(
-      errorConCodigo('LIMITE', proveedorId === 'gemini'
-        ? 'Se ha alcanzado el límite de uso de la API de Gemini (cuota diaria o por minuto).'
-        : 'Se ha alcanzado el límite de uso de los modelos gratuitos de OpenRouter (20 peticiones/minuto; 50/día sin créditos comprados).'),
+      errorConCodigo('LIMITE', {
+        gemini: 'Se ha alcanzado el límite de uso de la API de Gemini (cuota diaria o por minuto).',
+        groq: 'Se ha alcanzado el límite de uso de Groq (peticiones o tokens por minuto/día de tu plan).',
+      }[proveedorId] || 'Se ha alcanzado el límite de uso de los modelos gratuitos de OpenRouter (20 peticiones/minuto; 50/día sin créditos comprados).'),
       { detalles },
     );
   }
@@ -455,7 +590,7 @@ export default async function handler(req) {
     const prov = ajustes.proveedores[proveedorId];
     if (!prov) {
       return respuestaJson(400, {
-        error: `Proveedor no válido: "${proveedorId}". Usa "openrouter" o "gemini".`,
+        error: `Proveedor no válido: "${proveedorId}". Usa "openrouter", "gemini" o "groq".`,
         codigo: 'PETICION',
       }, cors);
     }
