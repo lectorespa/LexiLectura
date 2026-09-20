@@ -1036,9 +1036,9 @@ function isTechnicallyValidImage(url) {
 // =========================================================================
 
 const IA_CONFIG = {
-  // Tamaño objetivo de cada fragmento según el motor. Gemini admite salidas mucho más largas
-  // (y tiene pocas peticiones diarias gratuitas), así que trabaja con fragmentos mayores.
-  CHUNK_CHARS: { openrouter: 800, gemini: 2000 },
+  // Tamaño objetivo de cada fragmento según el motor. Gemini y Groq admiten salidas mucho más
+  // largas que los modelos gratuitos de OpenRouter, así que trabajan con fragmentos mayores.
+  CHUNK_CHARS: { openrouter: 800, gemini: 2000, groq: 1500 },
   MIN_CHUNK_CHARS: 200,  // por debajo de esto ya no se subdivide
   MAX_SPLIT_DEPTH: 2,    // cuántas veces se puede subdividir un fragmento que falla
   TIMEOUT_MS: 295000,    // corte del lado cliente por petición
@@ -1228,7 +1228,7 @@ function unirResultados(resultados) {
 
 // --- Mensajes de error comprensibles ---
 
-const NOMBRES_MOTOR = { openrouter: 'OpenRouter', gemini: 'Gemini Flash' };
+const NOMBRES_MOTOR = { openrouter: 'OpenRouter', gemini: 'Gemini Flash', groq: 'Groq' };
 
 function mensajeAmigable(err) {
   if (!(err instanceof ErrorAnotacion)) return err?.message || String(err);
@@ -1237,9 +1237,9 @@ function mensajeAmigable(err) {
       `Si no es así, el problema está en el despliegue de Vercel (ruta, variables de entorno o build), no en tu texto.\n\n(${err.detalle})`;
   }
   const base = err.detalle ? `${err.message}\n(${err.detalle})` : err.message;
-  const otroMotor = ['CONFIG', 'LIMITE', 'MODELOS_NO_DISPONIBLES', 'BLOQUEADO', 'SALIDA_INVALIDA'];
+  const otroMotor = ['CONFIG', 'LIMITE', 'MODELOS_NO_DISPONIBLES', 'BLOQUEADO', 'SALIDA_INVALIDA', 'TPM_INSUFICIENTE'];
   return otroMotor.includes(err.codigo)
-    ? `${base}\n\nPuedes probar con el otro botón de anotación.`
+    ? `${base}\n\nPuedes probar con otro de los botones de anotación.`
     : base;
 }
 
@@ -1357,7 +1357,7 @@ function inicializarEventos() {
     activeLayersSet.clear();
   });
 
-  // Botones de anotación con IA: cada uno lleva data-proveedor="openrouter" | "gemini"
+  // Botones de anotación con IA: cada uno lleva data-proveedor="openrouter" | "gemini" | "groq"
   document.querySelectorAll('[data-proveedor]').forEach((boton) => {
     boton.addEventListener('click', () => generarAnotacionConIA(boton.dataset.proveedor));
   });
