@@ -11,7 +11,7 @@
 
   <div class="main-container">
  <!-- Panel de Carga JSON (Acordeón Cerrado por Defecto) -->
-  <section class="top-controls"> 
+  <section class="top-controls" data-export-omit> 
     
     <details class="json-accordion-container">
       <summary class="json-accordion-summary">Genera y visualiza tus propios textos anotados (JSON)</summary>
@@ -45,7 +45,7 @@
 </section>
 
 
-    <div class="ia-generator-block mb-4" style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
+    <div class="ia-generator-block mb-4" data-export-omit style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
   <label for="plain-text-input" class="json-box-title" style="display:block; margin-bottom:6px;">
     ✨ Generar edición anotada con IA:
   </label>
@@ -68,8 +68,25 @@
 </div>
   
   
+    <!-- Descarga del HTML autónomo (este bloque no se incluye en el archivo exportado) -->
+    <div id="export-html-block" data-export-omit style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
+      <div class="json-actions">
+        <button id="btn-export-html" class="btn btn-secondary" type="button" disabled
+                title="Descarga la edición anotada actual como un único archivo HTML que funciona sin servidor">
+          💾 Descargar edición como HTML autónomo
+        </button>
+      </div>
+      <p id="export-status" role="status" aria-live="polite" style="margin: 8px 0 0; font-size: 0.85rem; color: #64748b;">
+        Anota o carga una edición para poder descargarla.
+      </p>
+      <div id="export-fallback" hidden style="margin-top: 10px; padding: 10px 12px; background: #fff8e1; border: 1px solid #f0d78c; border-radius: 6px; font-size: 0.9rem;">
+        <p id="export-fallback-msg" style="margin: 0 0 8px;"></p>
+        <input type="file" id="export-archivos-locales" multiple accept=".css,.js" />
+      </div>
+    </div>
+
     <!-- Selector de Obra -->
-    <section class="top-controls mb-4">
+    <section class="top-controls mb-4" data-export-omit>
       <div class="selector-container">
         <label for="selector-obras" class="json-box-title">O selecciona una obra del catálogo:</label>
         <select id="selector-obras" class="select-input">
