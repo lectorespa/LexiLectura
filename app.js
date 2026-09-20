@@ -1036,7 +1036,9 @@ function isTechnicallyValidImage(url) {
 // =========================================================================
 
 const IA_CONFIG = {
-  CHUNK_CHARS: 800,      // tamaño objetivo de cada fragmento enviado al modelo
+  // Tamaño objetivo de cada fragmento según el motor. Gemini admite salidas mucho más largas
+  // (y tiene pocas peticiones diarias gratuitas), así que trabaja con fragmentos mayores.
+  CHUNK_CHARS: { openrouter: 800, gemini: 2000 },
   MIN_CHUNK_CHARS: 200,  // por debajo de esto ya no se subdivide
   MAX_SPLIT_DEPTH: 2,    // cuántas veces se puede subdividir un fragmento que falla
   TIMEOUT_MS: 295000,    // corte del lado cliente por petición
@@ -1084,7 +1086,7 @@ function partirUnidad(unidad, max) {
   return salida;
 }
 
-function dividirEnFragmentos(texto, max = IA_CONFIG.CHUNK_CHARS) {
+function dividirEnFragmentos(texto, max = IA_CONFIG.CHUNK_CHARS.openrouter) {
   const unidades = String(texto)
     .replace(/\r\n?/g, '\n')
     .split(/\n\s*\n/)
@@ -1166,6 +1168,7 @@ async function anotarFragmento(texto, estado, profundidad) {
     try {
       const resultado = await pedirAnotacion({
         textoPlano: texto,
+        proveedor: estado.proveedor,
         parte,
         totalPartes: estado.total,
         contexto: estado.resultados[0]?.meta || null,
@@ -1225,38 +1228,41 @@ function unirResultados(resultados) {
 
 // --- Mensajes de error comprensibles ---
 
+const NOMBRES_MOTOR = { openrouter: 'OpenRouter', gemini: 'Gemini Flash' };
+
 function mensajeAmigable(err) {
   if (!(err instanceof ErrorAnotacion)) return err?.message || String(err);
-  const url = BACKEND_URL;
-  switch (err.codigo) {
-    case 'RED':
-      return `No se pudo conectar con el servidor de anotación.\n\nAbre ${url} en el navegador: debería mostrar {"ok":true,...}. ` +
-        `Si no es así, el problema está en el despliegue de Vercel (ruta, variables de entorno o build), no en tu texto.\n\n(${err.detalle})`;
-    case 'CONFIG':
-      return `${err.message}\n${err.detalle}`;
-    case 'LIMITE':
-      return 'Se ha alcanzado el límite de los modelos gratuitos de OpenRouter (20 peticiones/minuto y 50/día sin créditos). ' +
-        'Espera al reinicio diario (00:00 UTC), espera un minuto o añade créditos a tu cuenta.';
-    case 'MODELOS_NO_DISPONIBLES':
-      return `${err.message}\n${err.detalle}`;
-    default:
-      return err.detalle ? `${err.message} (${err.detalle})` : err.message;
+  if (err.codigo === 'RED') {
+    return `No se pudo conectar con el servidor de anotación.\n\nAbre ${BACKEND_URL} en el navegador: debería mostrar {"ok":true,...}. ` +
+      `Si no es así, el problema está en el despliegue de Vercel (ruta, variables de entorno o build), no en tu texto.\n\n(${err.detalle})`;
   }
+  const base = err.detalle ? `${err.message}\n(${err.detalle})` : err.message;
+  const otroMotor = ['CONFIG', 'LIMITE', 'MODELOS_NO_DISPONIBLES', 'BLOQUEADO', 'SALIDA_INVALIDA'];
+  return otroMotor.includes(err.codigo)
+    ? `${base}\n\nPuedes probar con el otro botón de anotación.`
+    : base;
 }
 
-// --- Orquestador: lo que ejecuta el botón "Anotar texto automáticamente" ---
+// --- Orquestador: lo que ejecutan los botones "Anotar con …" ---
 
-async function generarAnotacionConIA() {
+async function generarAnotacionConIA(proveedor = 'openrouter') {
   const plainText = document.getElementById('plain-text-input')?.value.trim();
-  const btn = document.getElementById('btn-generate-gemini');
+  const botones = Array.from(document.querySelectorAll('[data-proveedor]'));
+  const btn = botones.find((b) => b.dataset.proveedor === proveedor) || { textContent: '', disabled: false };
 
+  if (!IA_CONFIG.CHUNK_CHARS[proveedor]) {
+    alert(`Motor de anotación desconocido: ${proveedor}`);
+    return;
+  }
   if (!plainText) {
     alert('Por favor, pega un texto plano antes de generar la anotación.');
     return;
   }
 
-  const fragmentos = dividirEnFragmentos(plainText);
+  const etiquetas = botones.map((b) => [b, b.textContent]);
+  const fragmentos = dividirEnFragmentos(plainText, IA_CONFIG.CHUNK_CHARS[proveedor]);
   const estado = {
+    proveedor,
     resultados: [],
     total: fragmentos.length,
     alProgreso: (parte, total) => { btn.textContent = `⏳ Anotando parte ${parte} de ${total}…`; },
@@ -1264,22 +1270,23 @@ async function generarAnotacionConIA() {
   };
 
   try {
+    botones.forEach((b) => { b.disabled = true; }); // un solo motor a la vez
     btn.disabled = true;
     for (const f of fragmentos) await anotarFragmento(f, estado, 0);
 
     const acordeon = document.querySelector('.json-accordion-container');
     if (acordeon) acordeon.removeAttribute('open');
-    alert('¡Texto anotado correctamente!');
+    alert(`¡Texto anotado correctamente con ${NOMBRES_MOTOR[proveedor] || proveedor}!`);
   } catch (error) {
     console.error('Error al generar anotaciones:', error);
     const hechas = estado.resultados.length;
     alert(
-      `No se pudo procesar el texto: ${mensajeAmigable(error)}` +
+      `No se pudo procesar el texto (${NOMBRES_MOTOR[proveedor] || proveedor}): ${mensajeAmigable(error)}` +
       (hechas ? `\n\nSe anotaron ${hechas} parte(s) antes del fallo; el resultado parcial está en pantalla.` : ''),
     );
   } finally {
+    etiquetas.forEach(([b, texto]) => { b.textContent = texto; b.disabled = false; });
     btn.disabled = false;
-    btn.textContent = '✨ Anotar texto automáticamente';
   }
 }
 
@@ -1350,8 +1357,10 @@ function inicializarEventos() {
     activeLayersSet.clear();
   });
 
-  // Integración con IA (fragmentos + reintentos): ver generarAnotacionConIA()
-  document.getElementById('btn-generate-gemini')?.addEventListener('click', generarAnotacionConIA);
+  // Botones de anotación con IA: cada uno lleva data-proveedor="openrouter" | "gemini"
+  document.querySelectorAll('[data-proveedor]').forEach((boton) => {
+    boton.addEventListener('click', () => generarAnotacionConIA(boton.dataset.proveedor));
+  });
 
   document.getElementById('btn-select-all-cats')?.addEventListener('click', () => {
     document.querySelectorAll('#category-filter-bar .filter-chip').forEach(btn => {
