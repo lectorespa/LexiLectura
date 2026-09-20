@@ -243,6 +243,7 @@ function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
   activeLayersSet.clear();
+  actualizarBotonExportar();
 
   const docTitle = document.getElementById('doc-title');
   const docAuthor = document.getElementById('doc-author');
@@ -1291,6 +1292,337 @@ async function generarAnotacionConIA(proveedor = 'openrouter') {
 }
 
 // =========================================================================
+//  DESCARGA DE UN HTML AUTÓNOMO (edición anotada + visor en un solo archivo)
+// =========================================================================
+// El archivo descargado contiene: el HTML del visor (sin los paneles de edición), el CSS y el JS
+// incrustados, y la edición anotada como JSON. Se abre con doble clic, sin servidor ni conexión.
+// (Solo las imágenes de Wikipedia/Commons del modal y el audio remoto, si lo hay, necesitan internet.)
+
+const EXPORT_CONFIG = {
+  MAX_ASSET_BYTES: 800 * 1024,           // recursos del CSS (fuentes, imágenes) mayores no se incrustan
+  MAX_TOTAL_ASSET_BYTES: 6 * 1024 * 1024, // tope del total de recursos incrustados
+  FETCH_TIMEOUT_MS: 15000,
+  MAX_IMPORT_DEPTH: 3,
+};
+
+class ErrorExport extends Error {
+  constructor(codigo, mensaje, extra = {}) {
+    super(mensaje);
+    this.name = 'ErrorExport';
+    this.codigo = codigo;
+    Object.assign(this, extra);
+  }
+}
+
+// --- Utilidades ---
+
+function nombreArchivoSeguro(titulo) {
+  const base = String(titulo || '')
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+    .slice(0, 60).replace(/-+$/g, '');
+  return `${base || 'edicion-anotada'}.html`;
+}
+
+function nombreDeUrl(url) {
+  try {
+    return decodeURIComponent(new URL(url, document.baseURI).pathname.split('/').pop() || '');
+  } catch (_) {
+    return String(url).split('/').pop();
+  }
+}
+
+async function fetchConLimite(url) {
+  const ctrl = new AbortController();
+  const temporizador = setTimeout(() => ctrl.abort(), EXPORT_CONFIG.FETCH_TIMEOUT_MS);
+  try {
+    const resp = await fetch(url, { signal: ctrl.signal });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return resp;
+  } finally {
+    clearTimeout(temporizador);
+  }
+}
+
+const blobADataUri = (blob) => new Promise((resolve, reject) => {
+  const lector = new FileReader();
+  lector.onload = () => resolve(lector.result);
+  lector.onerror = () => reject(lector.error);
+  lector.readAsDataURL(blob);
+});
+
+const leerArchivoLocal = (archivo) => new Promise((resolve, reject) => {
+  const lector = new FileReader();
+  lector.onload = () => resolve(String(lector.result));
+  lector.onerror = () => reject(lector.error);
+  lector.readAsText(archivo);
+});
+
+// Busca un archivo elegido a mano: por nombre exacto o, si solo hay uno de esa extensión, por extensión
+// (así sirve "app-29.js" aunque el visor pida "app.js").
+function buscarLocal(nombre, locales) {
+  if (locales[nombre] !== undefined) return locales[nombre];
+  const extension = ((nombre.match(/\.[a-z0-9]+$/i) || [''])[0]).toLowerCase();
+  if (!extension) return undefined;
+  const candidatos = Object.keys(locales).filter((n) => n.toLowerCase().endsWith(extension));
+  return candidatos.length === 1 ? locales[candidatos[0]] : undefined;
+}
+
+async function reemplazarAsync(texto, regex, fn) { // regex con flag g
+  const coincidencias = [...texto.matchAll(regex)];
+  const reemplazos = await Promise.all(coincidencias.map((m) => fn(m)));
+  let salida = '';
+  let cursor = 0;
+  coincidencias.forEach((m, i) => {
+    salida += texto.slice(cursor, m.index) + reemplazos[i];
+    cursor = m.index + m[0].length;
+  });
+  return salida + texto.slice(cursor);
+}
+
+// --- CSS: incrusta @import y url() (fuentes, imágenes) como data URI ---
+
+const RE_IMPORT = /@import\s+(?:url\(\s*(['"]?)([^'")]+)\1\s*\)|(['"])([^'"]+)\3)\s*([^;]*);/gi;
+const RE_URL = /url\(\s*(['"]?)(?!data:|#|about:|blob:)([^'")]+?)\1\s*\)/gi;
+
+async function recursoComoDataUri(url, estado) {
+  if (estado.cache.has(url)) return estado.cache.get(url);
+  const promesa = (async () => {
+    if (estado.bytes >= EXPORT_CONFIG.MAX_TOTAL_ASSET_BYTES) return null;
+    try {
+      const blob = await (await fetchConLimite(url)).blob();
+      if (blob.size > EXPORT_CONFIG.MAX_ASSET_BYTES || estado.bytes + blob.size > EXPORT_CONFIG.MAX_TOTAL_ASSET_BYTES) return null;
+      estado.bytes += blob.size;
+      return await blobADataUri(blob);
+    } catch (_) {
+      return null;
+    }
+  })();
+  estado.cache.set(url, promesa);
+  return promesa;
+}
+
+async function inlinarCss(css, base, estado, profundidad = 0) {
+  css = await reemplazarAsync(css, RE_IMPORT, async (m) => {
+    const ruta = m[2] || m[4];
+    const medios = (m[5] || '').trim();
+    let absoluta;
+    try { absoluta = new URL(ruta, base).href; } catch (_) { return m[0]; }
+    if (estado.importados.has(absoluta)) return ''; // ya incluido (evita ciclos y duplicados)
+    estado.importados.add(absoluta);
+
+    const sentencia = `@import url("${absoluta}")${medios ? ` ${medios}` : ''};`;
+    if (profundidad >= EXPORT_CONFIG.MAX_IMPORT_DEPTH) { estado.importsFallidos.push(sentencia); return ''; }
+    try {
+      const texto = await (await fetchConLimite(absoluta)).text();
+      const interior = await inlinarCss(texto, absoluta, estado, profundidad + 1);
+      return medios ? `@media ${medios} {\n${interior}\n}` : interior;
+    } catch (_) {
+      estado.avisos.add(absoluta);
+      estado.importsFallidos.push(sentencia); // se "sube" al principio: un @import solo vale antes de otras reglas
+      return '';
+    }
+  });
+
+  return reemplazarAsync(css, RE_URL, async (m) => {
+    let absoluta;
+    try { absoluta = new URL(m[2].trim(), base).href; } catch (_) { return m[0]; }
+    const dataUri = await recursoComoDataUri(absoluta, estado);
+    if (dataUri) return `url("${dataUri}")`;
+    estado.avisos.add(absoluta); // no cabe o no se pudo leer: URL absoluta (funciona con conexión)
+    return `url("${absoluta}")`;
+  });
+}
+
+// --- Recopilación de las hojas de estilo y los scripts de la página ---
+
+async function recopilarCss(locales) {
+  const partes = [];
+  const faltan = [];
+  const puedeFetch = location.protocol !== 'file:';
+
+  for (const nodo of document.querySelectorAll('link[rel~="stylesheet"], style')) {
+    if (nodo.tagName === 'STYLE') { partes.push({ css: nodo.textContent || '', base: document.baseURI }); continue; }
+    const href = nodo.href;
+    const nombre = nombreDeUrl(href);
+    let css = null;
+
+    if (puedeFetch) { try { css = await (await fetchConLimite(href)).text(); } catch (_) { /* siguiente opción */ } }
+    if (css === null) { const local = buscarLocal(nombre, locales); if (local !== undefined) css = local; }
+    if (css === null) { try { css = Array.from(nodo.sheet.cssRules).map((r) => r.cssText).join('\n'); } catch (_) { /* file:// o CORS */ } }
+    if (css === null) { faltan.push(nombre); continue; }
+
+    const medio = (nodo.getAttribute('media') || '').trim();
+    partes.push({ css: medio && medio !== 'all' ? `@media ${medio} {\n${css}\n}` : css, base: href });
+  }
+  return { partes, faltan };
+}
+
+async function recopilarScripts(locales) {
+  const partes = [];
+  const faltan = [];
+  const puedeFetch = location.protocol !== 'file:';
+
+  for (const nodo of document.querySelectorAll('script[src]')) {
+    if (!/^(https?|file):/i.test(nodo.src)) continue; // extensiones del navegador, etc.
+    const nombre = nombreDeUrl(nodo.src);
+    let js = null;
+
+    if (puedeFetch) { try { js = await (await fetchConLimite(nodo.src)).text(); } catch (_) { /* siguiente opción */ } }
+    if (js === null) { const local = buscarLocal(nombre, locales); if (local !== undefined) js = local; }
+    if (js === null) { faltan.push(nombre); continue; }
+    partes.push(js);
+  }
+  return { partes, faltan };
+}
+
+// --- Construcción del HTML autónomo ---
+
+const escaparJsonParaHtml = (texto) => texto
+  .replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+
+async function construirHtmlAutonomo(locales = {}) {
+  if (!obraActiva) throw new ErrorExport('SIN_OBRA', 'No hay ninguna edición cargada.');
+
+  const hojas = await recopilarCss(locales);
+  const scripts = await recopilarScripts(locales);
+  const faltan = [...hojas.faltan, ...scripts.faltan];
+  if (faltan.length) throw new ErrorExport('FALTAN_ARCHIVOS', `No se pudieron leer: ${faltan.join(', ')}`, { faltan });
+
+  // CSS con fuentes e imágenes incrustadas
+  const estado = { cache: new Map(), bytes: 0, importados: new Set(), importsFallidos: [], avisos: new Set() };
+  const trozosCss = [];
+  for (const hoja of hojas.partes) trozosCss.push(await inlinarCss(hoja.css, hoja.base, estado));
+  const css = [...estado.importsFallidos, ...trozosCss].join('\n\n');
+
+  // Plantilla = la página actual sin los paneles de edición ni el estado dinámico
+  const raiz = document.documentElement.cloneNode(true);
+  const q = (sel) => raiz.querySelector(sel);
+  raiz.querySelectorAll('script, link[rel~="stylesheet"], style, [data-export-omit], .overlap-selector-popup').forEach((n) => n.remove());
+  const comentarios = []; // los comentarios de los paneles retirados quedarían sueltos: fuera todos
+  for (const it = document.createNodeIterator(raiz, NodeFilter.SHOW_COMMENT); it.nextNode();) comentarios.push(it.referenceNode);
+  comentarios.forEach((c) => c.remove());
+  ['#json-input', '#plain-text-input', '#selector-obras', '#btn-export-html', '[data-proveedor]']
+    .forEach((sel) => raiz.querySelectorAll(sel).forEach((n) => n.remove())); // red de seguridad
+
+  ['#text-stanzas', '#category-filter-bar', '#doc-author', '#doc-period', '#doc-year',
+    '#modal-category', '#modal-title', '#modal-definition', '#modal-content', '#modal-links', '#modal-image-caption']
+    .forEach((sel) => { const n = q(sel); if (n) n.innerHTML = ''; });
+  raiz.querySelectorAll('#modal-category, #modal-title, #modal-content').forEach((n) => n.removeAttribute('style'));
+  const modal = q('#annotation-modal');
+  if (modal) { modal.classList.add('hidden'); modal.setAttribute('aria-hidden', 'true'); }
+  const envoltorioImg = q('#modal-image-wrapper');
+  if (envoltorioImg) { envoltorioImg.classList.add('hidden'); envoltorioImg.classList.remove('is-loading'); }
+  const enlaces = q('#modal-links');
+  if (enlaces) enlaces.classList.add('hidden');
+  const img = q('#modal-image');
+  if (img) { img.setAttribute('src', ''); img.setAttribute('style', 'display:none;'); }
+  const cuerpo = q('body');
+  if (cuerpo) cuerpo.removeAttribute('style');
+
+  const titulo = obraActiva.meta?.title || 'Edición anotada interactiva';
+  const tituloDoc = q('#doc-title');
+  if (tituloDoc) tituloDoc.textContent = titulo;
+  const etiquetaTitulo = q('title');
+  if (etiquetaTitulo) etiquetaTitulo.textContent = titulo;
+  const idioma = String(obraActiva.meta?.lang || '');
+  if (/^[a-z]{2,3}(-[A-Za-z0-9]+)?$/.test(idioma)) raiz.setAttribute('lang', idioma);
+
+  // CSS, datos, scripts del visor y arranque
+  const crear = (tag, texto, atributos = {}) => {
+    const el = document.createElement(tag);
+    Object.entries(atributos).forEach(([k, v]) => el.setAttribute(k, v));
+    el.textContent = texto;
+    return el;
+  };
+  q('head').appendChild(crear('style', css.replace(/<\/style/gi, '<\\/style')));
+
+  const datos = escaparJsonParaHtml(JSON.stringify({ obra: obraActiva, nivel: nivelLecturaActual }));
+  cuerpo.appendChild(crear('script', datos, { type: 'application/json', id: 'datos-obra' }));
+  scripts.partes.forEach((js) => cuerpo.appendChild(crear('script', js.replace(/<\/script/gi, '<\\/script').replace(/<!--/g, '<\\!--'))));
+  cuerpo.appendChild(crear('script', `(function () {
+  var paquete = JSON.parse(document.getElementById('datos-obra').textContent);
+  document.addEventListener('DOMContentLoaded', function () {
+    nivelLecturaActual = paquete.nivel || 'short';
+    renderizarTextoAnotado(paquete.obra);
+  });
+})();`));
+
+  raiz.insertBefore(document.createComment(` Edición anotada autónoma «${titulo.replace(/--/g, '- -')}» — generada el ${new Date().toISOString().slice(0, 10)} `), q('head'));
+
+  return {
+    html: `<!DOCTYPE html>\n${raiz.outerHTML}`,
+    nombre: nombreArchivoSeguro(titulo),
+    avisos: [...estado.avisos],
+  };
+}
+
+function descargarArchivo(nombre, contenido, tipo = 'text/html;charset=utf-8') {
+  const url = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+  const enlace = document.createElement('a');
+  enlace.href = url;
+  enlace.download = nombre;
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 15000);
+}
+
+// --- Interfaz del botón ---
+
+function actualizarBotonExportar() {
+  const boton = document.getElementById('btn-export-html');
+  const estado = document.getElementById('export-status');
+  if (boton) boton.disabled = !obraActiva;
+  if (estado) {
+    estado.textContent = obraActiva
+      ? `Edición lista para descargar: «${obraActiva.meta?.title || 'Sin título'}».`
+      : 'Anota o carga una edición para poder descargarla.';
+  }
+}
+
+async function exportarHtmlAutonomo(locales = {}) {
+  const boton = document.getElementById('btn-export-html');
+  const estado = document.getElementById('export-status');
+  const panel = document.getElementById('export-fallback');
+  const mensaje = document.getElementById('export-fallback-msg');
+
+  if (!obraActiva) {
+    alert('Primero anota o carga una edición para poder descargarla.');
+    return;
+  }
+
+  const etiqueta = boton ? boton.textContent : '';
+  if (boton) { boton.disabled = true; boton.textContent = '⏳ Preparando el HTML…'; }
+
+  try {
+    const { html, nombre, avisos } = await construirHtmlAutonomo(locales);
+    descargarArchivo(nombre, html);
+    if (panel) panel.hidden = true;
+    const kb = Math.round(new Blob([html]).size / 1024);
+    if (estado) {
+      estado.textContent = `Descargado «${nombre}» (${kb} KB).` + (avisos.length
+        ? ` ${avisos.length} recurso(s) externo(s) del CSS no se pudieron incrustar y seguirán cargándose desde internet.`
+        : '');
+    }
+  } catch (err) {
+    if (err instanceof ErrorExport && err.codigo === 'FALTAN_ARCHIVOS') {
+      if (mensaje) {
+        mensaje.textContent = `El navegador no me deja leer automáticamente ${err.faltan.join(' y ')} (¿abres el visor desde el disco?). ` +
+          'Selecciona esos archivos aquí (puedes elegir varios a la vez) y se descargará el HTML.';
+      }
+      if (panel) panel.hidden = false;
+      if (estado) estado.textContent = 'Falta un paso: selecciona los archivos indicados.';
+    } else {
+      console.error('Error al exportar:', err);
+      alert(`No se pudo generar el HTML autónomo: ${err.message}`);
+    }
+  } finally {
+    if (boton) { boton.textContent = etiqueta; boton.disabled = !obraActiva; }
+  }
+}
+
+// =========================================================================
 //  INICIALIZACIÓN DE EVENTOS
 // =========================================================================
 
@@ -1355,7 +1687,18 @@ function inicializarEventos() {
     if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra o pega un JSON arriba.</p>';
     obraActiva = null;
     activeLayersSet.clear();
+    actualizarBotonExportar();
   });
+
+  // Descarga del HTML autónomo (y selector de archivos de respaldo si el navegador no deja leerlos)
+  document.getElementById('btn-export-html')?.addEventListener('click', () => exportarHtmlAutonomo());
+  document.getElementById('export-archivos-locales')?.addEventListener('change', async (e) => {
+    const locales = {};
+    for (const archivo of Array.from(e.target.files || [])) locales[archivo.name] = await leerArchivoLocal(archivo);
+    e.target.value = '';
+    await exportarHtmlAutonomo(locales);
+  });
+  actualizarBotonExportar();
 
   // Botones de anotación con IA: cada uno lleva data-proveedor="openrouter" | "gemini" | "groq"
   document.querySelectorAll('[data-proveedor]').forEach((boton) => {
