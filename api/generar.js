@@ -57,7 +57,7 @@ function leerAjustes() {
         apiKey: env.OPENROUTER_API_KEY,
         baseURL: env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
         modelos: lista(env.OPENROUTER_MODELS, MODELOS_OPENROUTER),
-        temperature: 0.7,
+        : 0.7,
         maxTokens: Number(env.MAX_TOKENS) || 8000,
       },
       gemini: {
@@ -272,7 +272,7 @@ async function pedirAOpenAICompat(client, modelo, prompt, senal, latir, opciones
 // ya tolera bloques ```json y texto alrededor).
 function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
   return pedirAOpenAICompat(client, modelo, prompt, senal, latir, {
-    temperature: 0.3,
+    temperature: 0.7,
     tokens: { max_tokens: prov.maxTokens },
     extra: {},
   });
@@ -334,7 +334,7 @@ async function pedirAGroq(client, prov, modelo, prompt, senal, latir) {
   for (let intento = 0; intento < 5; intento++) {
     try {
       return await pedirAOpenAICompat(client, modelo, prompt, senal, latir, {
-        temperature: 0.5, // rango recomendado por Groq para modelos de razonamiento: 0.5-0.7
+        temperature: 0.7, // rango recomendado por Groq para modelos de razonamiento: 0.5-0.7
         tokens: { max_completion_tokens: maxTokens }, // por defecto Groq usa solo 1024
         extra: conExtras ? extrasGroq(prov, modelo) : {},
       });
