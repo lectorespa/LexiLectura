@@ -27,7 +27,6 @@ const VERSION = '2026-09-19-d'; // súbela al cambiar el archivo: aparece en GET
 //   GROQ_MODELS       → lista vigente: https://console.groq.com/docs/models
 // Ojo: cada intento cuenta para los límites de cuota, así que no conviene una lista larga.
 const MODELOS_OPENROUTER = [
-  'nvidia/nemotron-3-embed-1b:free',
   'nvidia/nemotron-3-ultra-550b-a55b:free',
   'thinkingmachines/inkling:free',
 ];
