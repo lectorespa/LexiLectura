@@ -32,7 +32,7 @@ const MODELOS_OPENROUTER = [
   'thinkingmachines/inkling:free',
 ];
 const MODELOS_GEMINI = ['gemini-3.8-flash', 'gemini-3.5-flash-lite'];
-const MODELOS_GROQ = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+const MODELOS_GROQ = ['llama-3.3-70b-versatile', 'openai/gpt-oss-120b'];
 
 function leerAjustes() {
   const env = process.env;
