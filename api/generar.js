@@ -1,5 +1,6 @@
 // api/generar.js — Vercel Function (Edge)
-// Anota un fragmento de texto con un modelo de OpenRouter y devuelve el JSON del visor.
+// Anota un fragmento de texto con OpenRouter o con Gemini y devuelve el JSON del visor.
+// El proveedor se elige con el campo "proveedor" del cuerpo: "openrouter" (por defecto) | "gemini".
 //
 // PROTOCOLO DE RESPUESTA (clave para que el navegador no corte la conexión)
 //   · Toda petición POST válida recibe HTTP 200, Content-Type: application/json.
@@ -9,42 +10,64 @@
 //   · Los errores de configuración / petición (antes de generar) usan su código HTTP
 //     habitual (400, 413, 500) y también llevan siempre cabeceras CORS.
 //
-// Nada que pueda fallar ocurre fuera del try/catch: así el navegador siempre recibe
-// una respuesta con CORS y puede mostrar el motivo real en lugar de "Load failed".
+// Gemini se llama por REST con fetch (sin @google/genai): así no hay dependencias
+// incompatibles con Edge.
 
 import OpenAI from 'openai';
 import { SYSTEM_PROMPT } from '../lib/prompt.js';
 
 export const config = { runtime: 'edge' };
 
-const VERSION = '2026-09-19-b'; // súbela al cambiar el archivo: aparece en GET /api/generar
+const VERSION = '2026-09-19-c'; // súbela al cambiar el archivo: aparece en GET /api/generar
 
-// Los IDs ":free" de OpenRouter cambian con frecuencia (p. ej. meta-llama/llama-3.3-70b-instruct:free
-// ya no existe). Lista vigente: https://openrouter.ai/collections/free-models
-// Sobrescríbelos sin tocar código con la variable de entorno OPENROUTER_MODELS
-// (IDs separados por comas, en orden de preferencia).
-// Ojo: cada intento cuenta para el límite diario de peticiones gratuitas, así que no conviene una lista larga.
-const MODELOS_POR_DEFECTO = [
+// Los IDs cambian con frecuencia. Sobrescríbelos SIN tocar código con variables de entorno
+// (IDs separados por comas, en orden de preferencia):
+//   OPENROUTER_MODELS → lista vigente: https://openrouter.ai/collections/free-models
+//   GEMINI_MODELS     → lista vigente: https://ai.google.dev/gemini-api/docs/models
+// Ojo: cada intento cuenta para los límites de cuota, así que no conviene una lista larga.
+const MODELOS_OPENROUTER = [
   'deepseek/deepseek-v4-flash-0731:free',
   'nvidia/nemotron-3-ultra-550b-a55b:free',
   'thinkingmachines/inkling:free',
 ];
+const MODELOS_GEMINI = ['gemini-3.8-flash', 'gemini-3.5-flash-lite'];
 
 function leerAjustes() {
   const env = process.env;
+  const lista = (valor, porDefecto) => (valor || porDefecto.join(','))
+    .split(',').map((s) => s.trim()).filter(Boolean);
+  const nivelPensamiento = env.GEMINI_THINKING_LEVEL === undefined ? 'low' : env.GEMINI_THINKING_LEVEL.trim();
+
   return {
-    apiKey: env.OPENROUTER_API_KEY,
-    baseURL: env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-    modelos: (env.OPENROUTER_MODELS || MODELOS_POR_DEFECTO.join(','))
-      .split(',').map((s) => s.trim()).filter(Boolean),
-    maxTokens: Number(env.MAX_TOKENS) || 8000,
-    maxCaracteres: Number(env.MAX_INPUT_CHARS) || 6000,
-    // '*' = cualquier origen (comportamiento actual). Cuando todo funcione, restringe:
+    // '*' = cualquier origen. Cuando todo funcione, restringe:
     // ALLOWED_ORIGINS=https://lectorespa.github.io
     origenes: (env.ALLOWED_ORIGINS || '*').split(',').map((s) => s.trim()).filter(Boolean),
+    maxCaracteres: Number(env.MAX_INPUT_CHARS) || 6000,
     presupuestoMs: 270_000, // Edge permite 300 s de streaming: dejamos margen
-    inactividadMs: 75_000, // sin recibir ni un token durante este tiempo → probar otro modelo
+    inactividadMs: 75_000, // sin recibir datos durante este tiempo → probar otro modelo
     latidoMs: 8_000,
+    proveedores: {
+      openrouter: {
+        nombre: 'OpenRouter',
+        claveEnv: 'OPENROUTER_API_KEY',
+        modelosEnv: 'OPENROUTER_MODELS',
+        apiKey: env.OPENROUTER_API_KEY,
+        baseURL: env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+        modelos: lista(env.OPENROUTER_MODELS, MODELOS_OPENROUTER),
+        maxTokens: Number(env.MAX_TOKENS) || 8000,
+      },
+      gemini: {
+        nombre: 'Gemini',
+        claveEnv: 'GEMINI_API_KEY',
+        modelosEnv: 'GEMINI_MODELS',
+        apiKey: env.GEMINI_API_KEY,
+        baseURL: env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta',
+        modelos: lista(env.GEMINI_MODELS, MODELOS_GEMINI),
+        maxTokens: Number(env.GEMINI_MAX_TOKENS) || 32000,
+        // 'low' por defecto: más rápido y barato. Vacío u 'off' = no enviar thinkingConfig.
+        thinkingLevel: nivelPensamiento.toLowerCase() === 'off' ? '' : nivelPensamiento,
+      },
+    },
   };
 }
 
@@ -155,10 +178,10 @@ function normalizarAnotacion(d) {
 }
 
 // ---------------------------------------------------------------------------
-// Llamada a un modelo (streaming interno, con temporizador de inactividad)
+// Control de tiempo común: inactividad, presupuesto total y cancelación del cliente
 // ---------------------------------------------------------------------------
 
-async function pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCliente) {
+async function conControlDeTiempo(ajustes, limite, senalCliente, tarea) {
   const ctrl = new AbortController();
   let motivo = null;
   const abortar = (m) => { motivo = m; ctrl.abort(); };
@@ -168,43 +191,15 @@ async function pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCli
   }
 
   let temporizador;
-  const rearmar = () => {
+  const latir = () => { // llamar cada vez que llegan datos
     clearTimeout(temporizador);
     const espera = Math.max(1000, Math.min(ajustes.inactividadMs, limite - Date.now()));
     temporizador = setTimeout(() => abortar('inactividad'), espera);
   };
 
-  rearmar();
+  latir();
   try {
-    const flujo = await client.chat.completions.create(
-      {
-        model: modelo,
-        messages: mensajes,
-        stream: true,
-        temperature: 0.3,
-        max_tokens: ajustes.maxTokens,
-        // Sin response_format: muchos proveedores gratuitos no lo soportan y el
-        // parser de arriba ya tolera bloques ```json y texto alrededor.
-      },
-      { signal: ctrl.signal },
-    );
-
-    let texto = '';
-    let fin = null;
-    let modeloReal = modelo;
-    for await (const trozo of flujo) {
-      rearmar();
-      if (trozo.model) modeloReal = trozo.model;
-      if (trozo.error) throw errorConCodigo('PROVEEDOR', trozo.error.message || 'Error del proveedor durante la generación.');
-      const eleccion = trozo.choices?.[0];
-      if (eleccion?.delta?.content) texto += eleccion.delta.content;
-      if (eleccion?.finish_reason) fin = eleccion.finish_reason;
-    }
-
-    if (fin === 'length') throw errorConCodigo('TRUNCADO', 'La respuesta superó el máximo de tokens y quedó cortada.');
-    if (fin === 'error') throw errorConCodigo('PROVEEDOR', 'El proveedor terminó la generación con error.');
-    if (!texto.trim()) throw errorConCodigo('VACIO', 'El modelo devolvió una respuesta vacía.');
-    return { texto, modeloReal };
+    return await tarea(ctrl.signal, latir);
   } catch (err) {
     if (ctrl.signal.aborted) {
       if (motivo === 'inactividad') {
@@ -219,37 +214,175 @@ async function pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCli
 }
 
 // ---------------------------------------------------------------------------
+// Proveedor 1: OpenRouter (SDK de OpenAI, streaming interno)
+// ---------------------------------------------------------------------------
+
+async function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
+  const flujo = await client.chat.completions.create(
+    {
+      model: modelo,
+      messages: [
+        { role: 'system', content: prompt.sistema },
+        { role: 'user', content: prompt.usuario },
+      ],
+      stream: true,
+      temperature: 0.3,
+      max_tokens: prov.maxTokens,
+      // Sin response_format: muchos proveedores gratuitos no lo soportan y el
+      // parser ya tolera bloques ```json y texto alrededor.
+    },
+    { signal: senal },
+  );
+
+  let texto = '';
+  let fin = null;
+  let modeloReal = modelo;
+  for await (const trozo of flujo) {
+    latir();
+    if (trozo.model) modeloReal = trozo.model;
+    if (trozo.error) throw errorConCodigo('PROVEEDOR', trozo.error.message || 'Error del proveedor durante la generación.');
+    const eleccion = trozo.choices?.[0];
+    if (eleccion?.delta?.content) texto += eleccion.delta.content;
+    if (eleccion?.finish_reason) fin = eleccion.finish_reason;
+  }
+
+  if (fin === 'length') throw errorConCodigo('TRUNCADO', 'La respuesta superó el máximo de tokens y quedó cortada.');
+  if (fin === 'error') throw errorConCodigo('PROVEEDOR', 'El proveedor terminó la generación con error.');
+  if (!texto.trim()) throw errorConCodigo('VACIO', 'El modelo devolvió una respuesta vacía.');
+  return { texto, modeloReal };
+}
+
+// ---------------------------------------------------------------------------
+// Proveedor 2: Gemini (REST + SSE con fetch, sin SDK)
+// ---------------------------------------------------------------------------
+
+function errorHttpGemini(status, cuerpo) {
+  let mensaje = String(cuerpo || '').slice(0, 300);
+  try {
+    const j = JSON.parse(cuerpo);
+    if (j?.error?.message) mensaje = `${j.error.status || ''} ${j.error.message}`.trim().slice(0, 300);
+  } catch (_) { /* cuerpo no JSON */ }
+  const e = new Error(`HTTP ${status}: ${mensaje}`);
+  e.status = status;
+  return e;
+}
+
+async function pedirAGemini(prov, modelo, prompt, senal, latir) {
+  const url = `${prov.baseURL}/models/${encodeURIComponent(modelo)}:streamGenerateContent?alt=sse`;
+  const construirCuerpo = (conPensamiento) => ({
+    systemInstruction: { parts: [{ text: prompt.sistema }] },
+    contents: [{ role: 'user', parts: [{ text: prompt.usuario }] }],
+    generationConfig: {
+      // Sin temperature/topP/topK: Google los da por obsoletos en los modelos Gemini 3.
+      maxOutputTokens: prov.maxTokens,
+      responseMimeType: 'application/json',
+      ...(conPensamiento && prov.thinkingLevel ? { thinkingConfig: { thinkingLevel: prov.thinkingLevel } } : {}),
+    },
+  });
+  const enviar = (conPensamiento) => fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': prov.apiKey },
+    body: JSON.stringify(construirCuerpo(conPensamiento)),
+    signal: senal,
+  });
+
+  let resp = await enviar(true);
+  if (resp.status === 400 && prov.thinkingLevel) {
+    // Algunos modelos no admiten ese nivel de razonamiento: se reintenta sin thinkingConfig.
+    const cuerpo = await resp.text();
+    if (!/thinking/i.test(cuerpo)) throw errorHttpGemini(resp.status, cuerpo);
+    console.warn(`[generar] ${modelo} rechazó thinkingLevel="${prov.thinkingLevel}"; se reintenta sin él.`);
+    resp = await enviar(false);
+  }
+  if (!resp.ok) throw errorHttpGemini(resp.status, await resp.text());
+  if (!resp.body) throw errorConCodigo('PROVEEDOR', 'Gemini respondió sin cuerpo.');
+
+  let texto = '';
+  let fin = null;
+  let bloqueo = null;
+  let modeloReal = modelo;
+
+  const procesarEvento = (evento) => {
+    const datos = evento.split(/\r?\n/).filter((l) => l.startsWith('data:')).map((l) => l.slice(5).trim()).join('\n');
+    if (!datos) return;
+    let d;
+    try { d = JSON.parse(datos); } catch (_) { return; }
+    if (d.error) throw errorConCodigo('PROVEEDOR', d.error.message || 'Error de Gemini durante la generación.');
+    if (d.modelVersion) modeloReal = d.modelVersion;
+    if (d.promptFeedback?.blockReason) bloqueo = `prompt bloqueado (${d.promptFeedback.blockReason})`;
+    const cand = d.candidates?.[0];
+    for (const p of cand?.content?.parts || []) {
+      if (typeof p.text === 'string' && !p.thought) texto += p.text; // se ignoran los "pensamientos"
+    }
+    if (cand?.finishReason) fin = cand.finishReason;
+  };
+
+  const lector = resp.body.getReader();
+  const decodificador = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { value, done } = await lector.read();
+    if (done) break;
+    latir();
+    buffer += decodificador.decode(value, { stream: true });
+    let i;
+    while ((i = buffer.search(/\r?\n\r?\n/)) !== -1) {
+      const evento = buffer.slice(0, i);
+      buffer = buffer.slice(i).replace(/^\r?\n\r?\n/, '');
+      procesarEvento(evento);
+    }
+  }
+  if (buffer.trim()) procesarEvento(buffer);
+
+  if (bloqueo && !texto) throw errorConCodigo('BLOQUEADO', `Gemini bloqueó la petición: ${bloqueo}.`);
+  if (fin === 'MAX_TOKENS') throw errorConCodigo('TRUNCADO', 'La respuesta superó el máximo de tokens y quedó cortada.');
+  if (fin && fin !== 'STOP') {
+    throw errorConCodigo('BLOQUEADO', `Gemini detuvo la generación (finishReason: ${fin}), p. ej. por filtros de seguridad o de recitación.`);
+  }
+  if (!texto.trim()) throw errorConCodigo('VACIO', 'Gemini devolvió una respuesta vacía.');
+  return { texto, modeloReal };
+}
+
+// ---------------------------------------------------------------------------
 // Respaldo entre modelos: falla el modelo O falla su salida → siguiente modelo
 // ---------------------------------------------------------------------------
 
-async function generarConRespaldo(mensajes, ajustes, senalCliente, referer) {
-  const client = new OpenAI({
-    apiKey: ajustes.apiKey,
-    baseURL: ajustes.baseURL,
-    maxRetries: 0, // los reintentos los gestionamos nosotros (cambiando de modelo)
-    defaultHeaders: { 'HTTP-Referer': referer, 'X-Title': 'Edicion Interactiva Anotada' },
-  });
+async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, referer) {
+  const prov = ajustes.proveedores[proveedorId];
+  const client = proveedorId === 'openrouter'
+    ? new OpenAI({
+      apiKey: prov.apiKey,
+      baseURL: prov.baseURL,
+      maxRetries: 0, // los reintentos los gestionamos nosotros (cambiando de modelo)
+      defaultHeaders: { 'HTTP-Referer': referer, 'X-Title': 'Edicion Interactiva Anotada' },
+    })
+    : null;
 
   const limite = Date.now() + ajustes.presupuestoMs;
   const fallos = [];
   let todosLimite = true;
   let algunaSalidaInvalida = false;
+  let algunBloqueo = false;
 
-  for (const modelo of ajustes.modelos) {
+  for (const modelo of prov.modelos) {
     if (limite - Date.now() < 20_000) break; // ya no da tiempo a otro intento
 
     let modeloReal = modelo;
     let muestra = '';
     try {
-      const salida = await pedirAlModelo(client, modelo, mensajes, ajustes, limite, senalCliente);
+      const salida = await conControlDeTiempo(ajustes, limite, senalCliente, (senal, latir) => (
+        proveedorId === 'gemini'
+          ? pedirAGemini(prov, modelo, prompt, senal, latir)
+          : pedirAOpenRouter(client, prov, modelo, prompt, senal, latir)
+      ));
       modeloReal = salida.modeloReal;
       muestra = salida.texto.slice(0, 300);
       const datos = normalizarAnotacion(extraerJson(salida.texto));
-      console.log(`[generar] OK con ${modeloReal}`);
+      console.log(`[generar] OK con ${prov.nombre}/${modeloReal}`);
       return datos;
     } catch (err) {
       const codigo = err.codigo || (err.status ? `HTTP_${err.status}` : 'DESCONOCIDO');
-      console.warn(`[generar] ${modelo} falló (${codigo}): ${err.message}`);
+      console.warn(`[generar] ${prov.nombre}/${modelo} falló (${codigo}): ${err.message}`);
       if (muestra) console.warn(`[generar] inicio de la salida recibida: ${muestra}`);
       const etiqueta = modeloReal !== modelo ? `${modelo} [${modeloReal}]` : modelo;
       fallos.push(`${etiqueta} → ${codigo}: ${err.message}`);
@@ -258,21 +391,27 @@ async function generarConRespaldo(mensajes, ajustes, senalCliente, referer) {
       if (codigo === 'TRUNCADO') throw err; // otro modelo tampoco cabrá: que el cliente divida el texto
       if (err.status !== 429) todosLimite = false;
       if (['JSON_INVALIDO', 'VACIO'].includes(codigo)) algunaSalidaInvalida = true;
+      if (codigo === 'BLOQUEADO') algunBloqueo = true;
     }
   }
 
   const detalles = fallos.join(' | ').slice(0, 700);
   if (fallos.length && todosLimite) {
     throw Object.assign(
-      errorConCodigo('LIMITE', 'Se ha alcanzado el límite de uso de los modelos gratuitos de OpenRouter.'),
+      errorConCodigo('LIMITE', proveedorId === 'gemini'
+        ? 'Se ha alcanzado el límite de uso de la API de Gemini (cuota diaria o por minuto).'
+        : 'Se ha alcanzado el límite de uso de los modelos gratuitos de OpenRouter (20 peticiones/minuto; 50/día sin créditos comprados).'),
       { detalles },
     );
   }
   if (algunaSalidaInvalida) {
     throw Object.assign(errorConCodigo('SALIDA_INVALIDA', 'Los modelos no devolvieron un JSON válido para este fragmento.'), { detalles });
   }
+  if (algunBloqueo) {
+    throw Object.assign(errorConCodigo('BLOQUEADO', `${prov.nombre} bloqueó la respuesta para este fragmento.`), { detalles });
+  }
   throw Object.assign(
-    errorConCodigo('MODELOS_NO_DISPONIBLES', 'Ningún modelo configurado respondió. Revisa OPENROUTER_MODELS y la clave.'),
+    errorConCodigo('MODELOS_NO_DISPONIBLES', `Ningún modelo de ${prov.nombre} respondió. Revisa ${prov.modelosEnv} y ${prov.claveEnv}.`),
     { detalles: detalles || 'Sin intentos (tiempo agotado).' },
   );
 }
@@ -295,8 +434,9 @@ export default async function handler(req) {
         ok: true,
         servicio: 'lexi-lectura/generar',
         version: VERSION,
-        apiKeyConfigurada: Boolean(ajustes.apiKey),
-        modelos: ajustes.modelos,
+        proveedores: Object.fromEntries(Object.entries(ajustes.proveedores).map(([id, p]) => [
+          id, { apiKeyConfigurada: Boolean(p.apiKey), modelos: p.modelos },
+        ])),
       }, cors);
     }
 
@@ -304,19 +444,28 @@ export default async function handler(req) {
       return respuestaJson(405, { error: 'Método no permitido. Utiliza POST.', codigo: 'METODO' }, cors);
     }
 
-    if (!ajustes.apiKey) {
-      return respuestaJson(500, {
-        error: 'El servidor no tiene configurada la clave OPENROUTER_API_KEY.',
-        codigo: 'CONFIG',
-        detalles: 'Añádela en Vercel → Settings → Environment Variables (entorno Production) y vuelve a desplegar.',
-      }, cors);
-    }
-
     let cuerpo;
     try {
       cuerpo = await req.json();
     } catch (_) {
       return respuestaJson(400, { error: 'El cuerpo de la petición debe ser JSON válido.', codigo: 'PETICION' }, cors);
+    }
+
+    const proveedorId = cuerpo?.proveedor === undefined ? 'openrouter' : String(cuerpo.proveedor);
+    const prov = ajustes.proveedores[proveedorId];
+    if (!prov) {
+      return respuestaJson(400, {
+        error: `Proveedor no válido: "${proveedorId}". Usa "openrouter" o "gemini".`,
+        codigo: 'PETICION',
+      }, cors);
+    }
+
+    if (!prov.apiKey) {
+      return respuestaJson(500, {
+        error: `El servidor no tiene configurada la clave ${prov.claveEnv} (necesaria para ${prov.nombre}).`,
+        codigo: 'CONFIG',
+        detalles: `Añádela en Vercel → Settings → Environment Variables (entorno Production) y vuelve a desplegar.`,
+      }, cors);
     }
 
     const textoPlano = typeof cuerpo?.textoPlano === 'string' ? cuerpo.textoPlano.trim() : '';
@@ -334,10 +483,10 @@ export default async function handler(req) {
     const parte = Number.isInteger(cuerpo.parte) && cuerpo.parte > 0 ? cuerpo.parte : 1;
     const contexto = cuerpo.contexto && typeof cuerpo.contexto === 'object' ? cuerpo.contexto : null;
 
-    const mensajes = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto) },
-    ];
+    const prompt = {
+      sistema: SYSTEM_PROMPT,
+      usuario: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto),
+    };
     const referer = req.headers.get('origin') || 'https://lectorespa.github.io/LexiLectura/';
 
     const enc = new TextEncoder();
@@ -353,7 +502,7 @@ export default async function handler(req) {
         const latido = setInterval(() => enviar(' '), ajustes.latidoMs);
 
         try {
-          const resultado = await generarConRespaldo(mensajes, ajustes, req.signal, referer);
+          const resultado = await generarConRespaldo(proveedorId, prompt, ajustes, req.signal, referer);
           enviar(JSON.stringify(resultado));
         } catch (err) {
           console.error('[generar] error final:', err.codigo, err.message);
