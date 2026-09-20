@@ -52,8 +52,13 @@
   <textarea id="plain-text-input" class="json-textarea" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma..."></textarea>
 
   <div class="json-actions" style="margin-top: 10px;">
-    <button id="btn-generate-gemini" class="btn btn-primary" type="button">
-      ✨ Anotar texto automáticamente
+    <button id="btn-generate-openrouter" class="btn btn-primary" type="button" data-proveedor="openrouter"
+            title="Anota con modelos gratuitos de OpenRouter">
+      ✨ Anotar con OpenRouter
+    </button>
+    <button id="btn-generate-gemini" class="btn btn-primary" type="button" data-proveedor="gemini"
+            title="Anota con Gemini Flash (Google)">
+      ✨ Anotar con Gemini Flash
     </button>
   </div>
 </div>
