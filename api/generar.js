@@ -57,7 +57,10 @@ function leerAjustes() {
         apiKey: env.OPENROUTER_API_KEY,
         baseURL: env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
         modelos: lista(env.OPENROUTER_MODELS, MODELOS_OPENROUTER),
-        : 0.7,
+        temperature: 0.7,
+        top_p: 0.95,
+        presence_penalty: 0.4,
+        frequency_penalty: 0.2,
         maxTokens: Number(env.MAX_TOKENS) || 8000,
       },
       gemini: {
@@ -68,6 +71,9 @@ function leerAjustes() {
         baseURL: env.GEMINI_BASE_URL || 'https://generativelanguage.googleapis.com/v1beta',
         modelos: lista(env.GEMINI_MODELS, MODELOS_GEMINI),
         temperature: 0.7,
+        top_p: 0.95,
+        presence_penalty: 0.4,
+        frequency_penalty: 0.2,
         maxTokens: Number(env.GEMINI_MAX_TOKENS) || 32000,
         // 'low' por defecto: más rápido y barato. Vacío u 'off' = no enviar thinkingConfig.
         thinkingLevel: nivelPensamiento.toLowerCase() === 'off' ? '' : nivelPensamiento,
@@ -80,6 +86,9 @@ function leerAjustes() {
         baseURL: env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1',
         modelos: lista(env.GROQ_MODELS, MODELOS_GROQ),
         temperature: 0.7,
+        top_p: 0.95,
+        presence_penalty: 0.4,
+        frequency_penalty: 0.2,
         maxTokens: Number(env.GROQ_MAX_TOKENS) || 16000, // se recorta solo si tu plan tiene poco TPM
         // Solo para gpt-oss: 'low' por defecto. Vacío u 'off' = no enviar reasoning_effort.
         esfuerzoRazonamiento: esfuerzoGroq.toLowerCase() === 'off' ? '' : esfuerzoGroq,
