@@ -1,6 +1,6 @@
 // api/generar.js — Vercel Function (Edge)
-// Anota un fragmento de texto con OpenRouter, Gemini o Groq y devuelve el JSON del visor.
-// El proveedor se elige con el campo "proveedor" del cuerpo: "openrouter" (por defecto) | "gemini" | "groq".
+// Anota un fragmento de texto con Gemini o Groq y devuelve el JSON del visor.
+// El proveedor se elige con el campo "proveedor" del cuerpo: "gemini" (por defecto) | "groq".
 //
 // PROTOCOLO DE RESPUESTA (clave para que el navegador no corte la conexión)
 //   · Toda petición POST válida recibe HTTP 200, Content-Type: application/json.
@@ -18,18 +18,13 @@ import { SYSTEM_PROMPT } from '../lib/prompt.js';
 
 export const config = { runtime: 'edge' };
 
-const VERSION = '2026-09-19-d'; // súbela al cambiar el archivo: aparece en GET /api/generar
+const VERSION = '2026-09-21-a'; // súbela al cambiar el archivo: aparece en GET /api/generar
 
 // Los IDs cambian con frecuencia. Sobrescríbelos SIN tocar código con variables de entorno
 // (IDs separados por comas, en orden de preferencia):
-//   OPENROUTER_MODELS → lista vigente: https://openrouter.ai/collections/free-models
 //   GEMINI_MODELS     → lista vigente: https://ai.google.dev/gemini-api/docs/models
 //   GROQ_MODELS       → lista vigente: https://console.groq.com/docs/models
 // Ojo: cada intento cuenta para los límites de cuota, así que no conviene una lista larga.
-const MODELOS_OPENROUTER = [
-  'nvidia/nemotron-3-ultra-550b-a55b:free',
-  'thinkingmachines/inkling:free',
-];
 const MODELOS_GEMINI = ['gemini-3.8-flash', 'gemini-3.5-flash-lite'];
 const MODELOS_GROQ = ['Qwen/Qwen3.8-27B', 'openai/gpt-oss-120b'];
 
@@ -49,19 +44,6 @@ function leerAjustes() {
     inactividadMs: 75_000, // sin recibir datos durante este tiempo → probar otro modelo
     latidoMs: 8_000,
     proveedores: {
-      openrouter: {
-        nombre: 'OpenRouter',
-        claveEnv: 'OPENROUTER_API_KEY',
-        modelosEnv: 'OPENROUTER_MODELS',
-        apiKey: env.OPENROUTER_API_KEY,
-        baseURL: env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-        modelos: lista(env.OPENROUTER_MODELS, MODELOS_OPENROUTER),
-        temperature: 0.7,
-        top_p: 0.95,
-        presence_penalty: 0.4,
-        frequency_penalty: 0.2,
-        maxTokens: Number(env.MAX_TOKENS) || 8000,
-      },
       gemini: {
         nombre: 'Gemini',
         claveEnv: 'GEMINI_API_KEY',
@@ -239,7 +221,7 @@ async function conControlDeTiempo(ajustes, limite, senalCliente, tarea) {
 }
 
 // ---------------------------------------------------------------------------
-// Proveedores con API compatible con OpenAI (OpenRouter y Groq): streaming interno
+// Proveedores con API compatible con OpenAI (Groq): streaming interno
 // ---------------------------------------------------------------------------
 
 async function pedirAOpenAICompat(client, modelo, prompt, senal, latir, opciones) {
@@ -252,7 +234,7 @@ async function pedirAOpenAICompat(client, modelo, prompt, senal, latir, opciones
       ],
       stream: true,
       temperature: opciones.temperature,
-      ...opciones.tokens, // { max_tokens } (OpenRouter) o { max_completion_tokens } (Groq)
+      ...opciones.tokens, // { max_completion_tokens } (Groq)
       ...opciones.extra,
     },
     { signal: senal },
@@ -274,16 +256,6 @@ async function pedirAOpenAICompat(client, modelo, prompt, senal, latir, opciones
   if (fin === 'error') throw errorConCodigo('PROVEEDOR', 'El proveedor terminó la generación con error.');
   if (!texto.trim()) throw errorConCodigo('VACIO', 'El modelo devolvió una respuesta vacía.');
   return { texto, modeloReal };
-}
-
-// OpenRouter: sin response_format (muchos proveedores gratuitos no lo soportan; el parser
-// ya tolera bloques ```json y texto alrededor).
-function pedirAOpenRouter(client, prov, modelo, prompt, senal, latir) {
-  return pedirAOpenAICompat(client, modelo, prompt, senal, latir, {
-    temperature: 0.7,
-    tokens: { max_tokens: prov.maxTokens },
-    extra: {},
-  });
 }
 
 // ---------------------------------------------------------------------------
@@ -489,7 +461,7 @@ async function pedirAGemini(prov, modelo, prompt, senal, latir) {
 // Respaldo entre modelos: falla el modelo O falla su salida → siguiente modelo
 // ---------------------------------------------------------------------------
 
-async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, referer) {
+async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente) {
   const prov = ajustes.proveedores[proveedorId];
   const client = proveedorId === 'gemini'
     ? null
@@ -497,9 +469,6 @@ async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, re
       apiKey: prov.apiKey,
       baseURL: prov.baseURL,
       maxRetries: 0, // los reintentos los gestionamos nosotros (cambiando de modelo)
-      ...(proveedorId === 'openrouter'
-        ? { defaultHeaders: { 'HTTP-Referer': referer, 'X-Title': 'Edicion Interactiva Anotada' } }
-        : {}),
     });
 
   const limite = Date.now() + ajustes.presupuestoMs;
@@ -516,8 +485,7 @@ async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, re
     try {
       const salida = await conControlDeTiempo(ajustes, limite, senalCliente, (senal, latir) => {
         if (proveedorId === 'gemini') return pedirAGemini(prov, modelo, prompt, senal, latir);
-        if (proveedorId === 'groq') return pedirAGroq(client, prov, modelo, prompt, senal, latir);
-        return pedirAOpenRouter(client, prov, modelo, prompt, senal, latir);
+        return pedirAGroq(client, prov, modelo, prompt, senal, latir);
       });
       modeloReal = salida.modeloReal;
       muestra = salida.texto.slice(0, 300);
@@ -546,7 +514,7 @@ async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente, re
       errorConCodigo('LIMITE', {
         gemini: 'Se ha alcanzado el límite de uso de la API de Gemini (cuota diaria o por minuto).',
         groq: 'Se ha alcanzado el límite de uso de Groq (peticiones o tokens por minuto/día de tu plan).',
-      }[proveedorId] || 'Se ha alcanzado el límite de uso de los modelos gratuitos de OpenRouter (20 peticiones/minuto; 50/día sin créditos comprados).'),
+      }[proveedorId] || 'Se ha alcanzado el límite de uso de la API del proveedor.'),
       { detalles },
     );
   }
@@ -597,11 +565,11 @@ export default async function handler(req) {
       return respuestaJson(400, { error: 'El cuerpo de la petición debe ser JSON válido.', codigo: 'PETICION' }, cors);
     }
 
-    const proveedorId = cuerpo?.proveedor === undefined ? 'openrouter' : String(cuerpo.proveedor);
+    const proveedorId = cuerpo?.proveedor === undefined ? 'gemini' : String(cuerpo.proveedor);
     const prov = ajustes.proveedores[proveedorId];
     if (!prov) {
       return respuestaJson(400, {
-        error: `Proveedor no válido: "${proveedorId}". Usa "openrouter", "gemini" o "groq".`,
+        error: `Proveedor no válido: "${proveedorId}". Usa "gemini" o "groq".`,
         codigo: 'PETICION',
       }, cors);
     }
@@ -633,7 +601,6 @@ export default async function handler(req) {
       sistema: SYSTEM_PROMPT,
       usuario: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto),
     };
-    const referer = req.headers.get('origin') || 'https://lectorespa.github.io/LexiLectura/';
 
     const enc = new TextEncoder();
     const flujo = new ReadableStream({
@@ -648,7 +615,7 @@ export default async function handler(req) {
         const latido = setInterval(() => enviar(' '), ajustes.latidoMs);
 
         try {
-          const resultado = await generarConRespaldo(proveedorId, prompt, ajustes, req.signal, referer);
+          const resultado = await generarConRespaldo(proveedorId, prompt, ajustes, req.signal);
           enviar(JSON.stringify(resultado));
         } catch (err) {
           console.error('[generar] error final:', err.codigo, err.message);
