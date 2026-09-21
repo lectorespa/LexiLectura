@@ -46,94 +46,6 @@ const STOPWORDS = new Set([
   "mi","tu","ha","han","fue","ser","era","será","the","of","in","on","at","with","and","or","an"
 ]);
 
-// Estructura integrada con soporte para data-nodes y data-layers
-const EJEMPLO_JSON = {
-  "meta": {
-    "title": "Cantar de mio Cid (Fragmento)",
-    "author": "Anónimo",
-    "authorNodeId": "node_author",
-    "period": "Medieval",
-    "periodNodeId": "node_period",
-    "year": "1200",
-    "lang": "es"
-  },
-  "interactiveNodes": {
-    "node_author": {
-      "type": "author",
-      "category": "author",
-      "title": "Autor Anónimo",
-      "wikipediaArticle": "Cantar_de_mio_Cid",
-      "visualConceptType": "artwork",
-      "imageSearchQuery": "Cantar de mio Cid manuscrito",
-      "annotations": {
-        "short": { "definition": "Autor desconocido del Mío Cid.", "content": "Obra cumbre del cantar de gesta hispánico." },
-        "deep": { "definition": "Tradición juglaresca mester de juglaría.", "content": "Composición de transmisión oral preservada en manuscrito." }
-      }
-    },
-    "node_period": {
-      "type": "period",
-      "category": "period",
-      "title": "Contexto Medieval (Siglo XII-XIII)",
-      "wikipediaArticle": "Literatura_espa%C3%B1ola_del_Medievo",
-      "visualConceptType": "landscape",
-      "imageSearchQuery": "Reconquista Espana mapa medieval",
-      "annotations": {
-        "short": { "definition": "Época de consolidación del castellano.", "content": "Contexto de Reconquista y difusión oral por medio de la juglaría." },
-        "deep": { "definition": "Mester de juglaría y sociedad feudal.", "content": "Refleja los valores de honor, lealtad y vasallaje propios de la Edad Media hispánica." }
-      }
-    },
-    "node_1": {
-      "type": "syntax",
-      "category": "syntax",
-      "title": "De los sus ojos",
-      "youtubeSearchQuery": "Pleonasmo recursos literarios Mio Cid",
-      "annotations": {
-        "short": { "definition": "Pleonasmo emotivo.", "content": "Enfatiza el dolor del desierto y el destierro." },
-        "deep": { "definition": "Fórmula juglaresca épica.", "content": "Recurso expresivo para cautivar a la audiencia mediante la emoción visual." }
-      }
-    },
-    "node_sintaxis": {
-      "type": "syntax",
-      "category": "syntax",
-      "title": "Paredro sintáctico / Hipérbaton",
-      "annotations": {
-        "short": { "definition": "Estructura sintáctica bimembre.", "content": "Explicación de la estructura sintáctica de la frase y alteración del orden habitual." },
-        "deep": { "definition": "Recurso retórico estilístico.", "content": "Análisis profundo de la alteración sintáctica orientada al ritmo de recitación épica." }
-      }
-    },
-    "node_vocab": {
-      "type": "vocabulary",
-      "category": "vocabulary",
-      "title": "Llorando (Glosario)",
-      "annotations": {
-        "short": { "definition": "Expresión del llanto en la épica.", "content": "Definición del verbo y notas léxicas del Cantar." },
-        "deep": { "definition": "Semántica del llanto heroico.", "content": "Uso del léxico del llanto para humanizar al héroe en el mester de juglaría." }
-      }
-    },
-    "node_vocab_1": {
-      "type": "vocabulary",
-      "category": "vocabulary",
-      "title": "Tornar la cabeza",
-      "annotations": {
-        "short": { "definition": "Girar la mirada atrás.", "content": "Nota léxica sobre la expresión de despedida y nostalgia." },
-        "deep": { "definition": "Expresión idiomatica medieval.", "content": "Gesto expresivo que representa el desapego físico de la patria." }
-      }
-    },
-    "node_cultura_2": {
-      "type": "culture",
-      "category": "culture",
-      "title": "Gesto del héroe",
-      "annotations": {
-        "short": { "definition": "Simbolismo del dolor del héroe.", "content": "Nota sobre la gestualidad en la épica medieval y el llanto público." },
-        "deep": { "definition": "Antropología de las emociones medievales.", "content": "Manifestación exteriorizada del honor mancillado según los códigos feudales." }
-      }
-    }
-  },
-  "stanzas": [
-    "<p><span class=\"interactive-word\" data-nodes=\"node_1 node_sintaxis node_vocab\" data-layers=\"syntax vocabulary\" tabindex=\"0\" role=\"button\">De los sus ojos tan fuemente llorando</span>,<br><span class=\"interactive-word\" data-nodes=\"node_vocab_1 node_cultura_2\" data-layers=\"vocabulary culture\" tabindex=\"0\" role=\"button\">tornaba la cabeza i estábalos mirando</span>.</p>"
-  ]
-};
-
 // =========================================================================
 //  LÓGICA DE VISIBILIDAD DE CAPAS
 // =========================================================================
@@ -270,11 +182,6 @@ function renderizarTextoAnotado(datosObra) {
 
   if (docYear) {
     docYear.textContent = datosObra.meta?.year ? ` (${datosObra.meta.year})` : '';
-  }
-
-  const jsonInput = document.getElementById('json-input');
-  if (jsonInput) {
-    jsonInput.value = JSON.stringify(datosObra, null, 2);
   }
 
   renderizarFiltrosCategorias(datosObra);
@@ -1037,9 +944,8 @@ function isTechnicallyValidImage(url) {
 // =========================================================================
 
 const IA_CONFIG = {
-  // Tamaño objetivo de cada fragmento según el motor. Gemini y Groq admiten salidas mucho más
-  // largas que los modelos gratuitos de OpenRouter, así que trabajan con fragmentos mayores.
-  CHUNK_CHARS: { openrouter: 800, gemini: 2000, groq: 1500 },
+  // Tamaño objetivo de cada fragmento según el motor.
+  CHUNK_CHARS: { gemini: 2000, groq: 1500 },
   MIN_CHUNK_CHARS: 200,  // por debajo de esto ya no se subdivide
   MAX_SPLIT_DEPTH: 2,    // cuántas veces se puede subdividir un fragmento que falla
   TIMEOUT_MS: 295000,    // corte del lado cliente por petición
@@ -1087,7 +993,7 @@ function partirUnidad(unidad, max) {
   return salida;
 }
 
-function dividirEnFragmentos(texto, max = IA_CONFIG.CHUNK_CHARS.openrouter) {
+function dividirEnFragmentos(texto, max = IA_CONFIG.CHUNK_CHARS.groq) {
   const unidades = String(texto)
     .replace(/\r\n?/g, '\n')
     .split(/\n\s*\n/)
@@ -1229,7 +1135,7 @@ function unirResultados(resultados) {
 
 // --- Mensajes de error comprensibles ---
 
-const NOMBRES_MOTOR = { openrouter: 'OpenRouter', gemini: 'Gemini Flash', groq: 'Groq' };
+const NOMBRES_MOTOR = { gemini: 'Gemini Flash', groq: 'Groq' };
 
 function mensajeAmigable(err) {
   if (!(err instanceof ErrorAnotacion)) return err?.message || String(err);
@@ -1246,7 +1152,7 @@ function mensajeAmigable(err) {
 
 // --- Orquestador: lo que ejecutan los botones "Anotar con …" ---
 
-async function generarAnotacionConIA(proveedor = 'openrouter') {
+async function generarAnotacionConIA(proveedor = 'gemini') {
   const plainText = document.getElementById('plain-text-input')?.value.trim();
   const botones = Array.from(document.querySelectorAll('[data-proveedor]'));
   const btn = botones.find((b) => b.dataset.proveedor === proveedor) || { textContent: '', disabled: false };
@@ -1275,8 +1181,6 @@ async function generarAnotacionConIA(proveedor = 'openrouter') {
     btn.disabled = true;
     for (const f of fragmentos) await anotarFragmento(f, estado, 0);
 
-    const acordeon = document.querySelector('.json-accordion-container');
-    if (acordeon) acordeon.removeAttribute('open');
     alert(`¡Texto anotado correctamente con ${NOMBRES_MOTOR[proveedor] || proveedor}!`);
   } catch (error) {
     console.error('Error al generar anotaciones:', error);
@@ -1316,12 +1220,12 @@ class ErrorExport extends Error {
 
 // --- Utilidades ---
 
-function nombreArchivoSeguro(titulo) {
+function nombreArchivoSeguro(titulo, extension = 'html') {
   const base = String(titulo || '')
     .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
     .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
     .slice(0, 60).replace(/-+$/g, '');
-  return `${base || 'edicion-anotada'}.html`;
+  return `${base || 'edicion-anotada'}.${extension}`;
 }
 
 function nombreDeUrl(url) {
@@ -1502,7 +1406,7 @@ async function construirHtmlAutonomo(locales = {}) {
   const comentarios = []; // los comentarios de los paneles retirados quedarían sueltos: fuera todos
   for (const it = document.createNodeIterator(raiz, NodeFilter.SHOW_COMMENT); it.nextNode();) comentarios.push(it.referenceNode);
   comentarios.forEach((c) => c.remove());
-  ['#json-input', '#plain-text-input', '#selector-obras', '#btn-export-html', '[data-proveedor]']
+  ['#plain-text-input', '#btn-clear-plain-text', '#selector-obras', '#btn-export-html', '#btn-export-json', '[data-proveedor]']
     .forEach((sel) => raiz.querySelectorAll(sel).forEach((n) => n.remove())); // red de seguridad
 
   ['#text-stanzas', '#category-filter-bar', '#doc-author', '#doc-period', '#doc-year',
@@ -1572,8 +1476,10 @@ function descargarArchivo(nombre, contenido, tipo = 'text/html;charset=utf-8') {
 
 function actualizarBotonExportar() {
   const boton = document.getElementById('btn-export-html');
+  const botonJson = document.getElementById('btn-export-json');
   const estado = document.getElementById('export-status');
   if (boton) boton.disabled = !obraActiva;
+  if (botonJson) botonJson.disabled = !obraActiva;
   if (estado) {
     estado.textContent = obraActiva
       ? `Edición lista para descargar: «${obraActiva.meta?.title || 'Sin título'}».`
@@ -1622,6 +1528,30 @@ async function exportarHtmlAutonomo(locales = {}) {
   }
 }
 
+// --- Descarga de la edición anotada como archivo .json ---
+
+function descargarJsonAnotado() {
+  const estado = document.getElementById('export-status');
+
+  if (!obraActiva) {
+    alert('Primero anota o carga una edición para poder descargarla.');
+    return;
+  }
+
+  try {
+    const nombre = nombreArchivoSeguro(obraActiva.meta?.title, 'json');
+    const json = JSON.stringify(obraActiva, null, 2);
+    descargarArchivo(nombre, json, 'application/json;charset=utf-8');
+    if (estado) {
+      const kb = Math.max(1, Math.round(new Blob([json]).size / 1024));
+      estado.textContent = `Descargado «${nombre}» (${kb} KB).`;
+    }
+  } catch (err) {
+    console.error('Error al descargar el JSON:', err);
+    alert(`No se pudo generar el archivo JSON: ${err.message}`);
+  }
+}
+
 // =========================================================================
 //  INICIALIZACIÓN DE EVENTOS
 // =========================================================================
@@ -1660,38 +1590,18 @@ function inicializarEventos() {
     }
   });
 
-  document.getElementById('btn-load-json')?.addEventListener('click', () => {
-    const jsonInput = document.getElementById('json-input');
-    if (!jsonInput || !jsonInput.value.trim()) {
-      alert('Pega un JSON válido antes de procesar.');
-      return;
-    }
-    try {
-      const data = JSON.parse(jsonInput.value);
-      renderizarTextoAnotado(data);
-    } catch (e) {
-      alert('Error de sintaxis en el JSON pegado. Revisa comas y comillas.');
-    }
-  });
-
-  document.getElementById('btn-sample-json')?.addEventListener('click', () => {
-    renderizarTextoAnotado(EJEMPLO_JSON);
-    const acordeon = document.querySelector('.json-accordion-container');
-    if (acordeon) acordeon.setAttribute('open', 'true');
-  });
-
-  document.getElementById('btn-clear-json')?.addEventListener('click', () => {
-    const jsonInput = document.getElementById('json-input');
-    if (jsonInput) jsonInput.value = '';
-    const stanzas = document.getElementById('text-stanzas');
-    if (stanzas) stanzas.innerHTML = '<p class="loading-state">Carga una obra o pega un JSON arriba.</p>';
-    obraActiva = null;
-    activeLayersSet.clear();
-    actualizarBotonExportar();
+  // Limpiar el cajetín de texto plano (no toca la edición anotada que ya esté en pantalla)
+  document.getElementById('btn-clear-plain-text')?.addEventListener('click', () => {
+    const cajetin = document.getElementById('plain-text-input');
+    if (!cajetin) return;
+    cajetin.value = '';
+    cajetin.focus();
   });
 
   // Descarga del HTML autónomo (y selector de archivos de respaldo si el navegador no deja leerlos)
   document.getElementById('btn-export-html')?.addEventListener('click', () => exportarHtmlAutonomo());
+  // Descarga del JSON de la edición anotada actual
+  document.getElementById('btn-export-json')?.addEventListener('click', () => descargarJsonAnotado());
   document.getElementById('export-archivos-locales')?.addEventListener('change', async (e) => {
     const locales = {};
     for (const archivo of Array.from(e.target.files || [])) locales[archivo.name] = await leerArchivoLocal(archivo);
@@ -1700,7 +1610,7 @@ function inicializarEventos() {
   });
   actualizarBotonExportar();
 
-  // Botones de anotación con IA: cada uno lleva data-proveedor="openrouter" | "gemini" | "groq"
+  // Botones de anotación con IA: cada uno lleva data-proveedor="gemini" | "groq"
   document.querySelectorAll('[data-proveedor]').forEach((boton) => {
     boton.addEventListener('click', () => generarAnotacionConIA(boton.dataset.proveedor));
   });
@@ -1732,34 +1642,4 @@ function inicializarEventos() {
 document.addEventListener('DOMContentLoaded', () => {
   cargarMenuObras();
   inicializarEventos();
-
-  const btnUploadLocal = document.getElementById('btn-upload-local');
-  const inputFileLocal = document.getElementById('local-json-file');
-
-  if (btnUploadLocal && inputFileLocal) {
-    btnUploadLocal.addEventListener('click', (e) => {
-      e.preventDefault(); 
-      inputFileLocal.click();
-    });
-
-    inputFileLocal.addEventListener('change', (e) => {
-      const archivo = e.target.files[0];
-      if (!archivo) return;
-
-      const lector = new FileReader();
-      lector.onload = (eventoFichero) => {
-        try {
-          const datos = JSON.parse(eventoFichero.target.result);
-          renderizarTextoAnotado(datos);
-
-          const acordeon = document.querySelector('.json-accordion-container');
-          if (acordeon) acordeon.removeAttribute('open');
-        } catch (err) {
-          alert('El archivo seleccionado no contiene un JSON válido.');
-        }
-      };
-      lector.readAsText(archivo);
-      inputFileLocal.value = '';
-    });
-  }
 });
