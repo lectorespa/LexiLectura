@@ -14,11 +14,11 @@
 // incompatibles con Edge.
 
 import OpenAI from 'openai';
-import { getSystemPrompt } from '../lib/prompt.js';
+import { SYSTEM_PROMPT } from '../lib/prompt.js';
 
 export const config = { runtime: 'edge' };
 
-const VERSION = '2026-09-21-b'; // súbela al cambiar el archivo: aparece en GET /api/generar
+const VERSION = '2026-09-21-a'; // súbela al cambiar el archivo: aparece en GET /api/generar
 
 // Los IDs cambian con frecuencia. Sobrescríbelos SIN tocar código con variables de entorno
 // (IDs separados por comas, en orden de preferencia):
@@ -280,7 +280,7 @@ function leerLimiteGroq(err) {
   return {
     limite: conUsado ? Number(conUsado[1]) : sinUsado ? Number(sinUsado[1]) : null,
     pedido: conUsado ? Number(conUsado[3]) : sinUsado ? Number(sinUsado[2]) : null,
-    esDiario: /per day|\((?:TPD\vert{}RPD)\)/i.test(msg),
+    esDiario: /per day|\((?:TPD|RPD)\)/i.test(msg),
   };
 }
 
@@ -597,17 +597,8 @@ export default async function handler(req) {
     const parte = Number.isInteger(cuerpo.parte) && cuerpo.parte > 0 ? cuerpo.parte : 1;
     const contexto = cuerpo.contexto && typeof cuerpo.contexto === 'object' ? cuerpo.contexto : null;
 
-    // Configuración multilingüe desde el cuerpo de la petición:
-    const textLanguage = cuerpo?.textLanguage || cuerpo?.idiomaTexto || 'original';
-    const annotationLanguage = cuerpo?.annotationLanguage || cuerpo?.idiomaAnotaciones || 'español';
-
-    // Se genera el prompt del sistema parametrizado según la selección del usuario
-    const systemPrompt = typeof getSystemPrompt === 'function'
-      ? getSystemPrompt({ textLanguage, annotationLanguage })
-      : getSystemPrompt;
-
     const prompt = {
-      sistema: systemPrompt,
+      sistema: SYSTEM_PROMPT,
       usuario: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto),
     };
 
