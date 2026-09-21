@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visor de Ediciones Críticas e Interactivas</title>
+  <title>LexiLectura · Ediciones anotadas interactivas</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -16,7 +16,7 @@
   <label for="plain-text-input" class="json-box-title" style="display:block; margin-bottom:6px;">
     ✨ Generar edición anotada con IA:
   </label>
-  <textarea id="plain-text-input" class="json-textarea" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma..."></textarea>
+  <textarea id="plain-text-input" class="json-textarea" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma y pulsa anotar. Gemini Flash es rápido y puede anotar textos más largos de 1000 palabras. Groq es muy rápido pero solo para textos de 700 palabras o menos."></textarea>
 
   <div class="json-actions" style="margin-top: 10px;">
     <button id="btn-clear-plain-text" class="btn btn-danger" type="button"
@@ -29,7 +29,7 @@
     </button>
     <button id="btn-generate-groq" class="btn btn-primary" type="button" data-proveedor="groq"
             title="Anota con Groq (modelos gpt-oss)">
-      ✨ Anotar con Groq
+      ✨ Anotar con Groq/Qwen
     </button>
   </div>
 </div>
@@ -81,7 +81,7 @@
 
     <!-- Cabecera del Documento -->
     <header class="doc-header">
-      <h1 id="doc-title">Edición anotada interactiva</h1>
+      <h1 id="doc-title">Ediciones anotadas interactivas</h1>
       <div class="meta-details">
         <span id="doc-author"></span>
         <span id="doc-period"></span>
