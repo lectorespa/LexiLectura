@@ -12,39 +12,7 @@
   <div class="main-container">
 
 
-<!-- Nivel 1: Idioma de la aplicación / UI -->
-<div class="ui-header">
-  <label for="uiLangSelect">Idioma de la app:</label>
-  <select id="uiLangSelect" onchange="cambiarIdiomaInterfaz(this.value)">
-    <option value="es" selected>Español</option>
-    <option value="en">English</option>
-    <option value="no">Norsk</option>
-  </select>
-</div>
-    
-<!-- Nivel 2: Opciones de anotación (se muestran antes de procesar el texto) -->
-<div class="annotation-config-panel">
-  <h3 id="lblConfigTitle">Configuración de la Edición</h3>
 
-  <div class="field">
-    <label for="textLangSelect" id="lblTextLang">Texto base (stanzas):</label>
-    <select id="textLangSelect">
-      <option value="original" selected>Conservar idioma original</option>
-      <option value="español">Traducir al Español</option>
-      <option value="inglés">Traducir al Inglés</option>
-      <option value="francés">Traducir al Francés</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <label for="annotationLangSelect" id="lblAnnotationLang">Idioma de las anotaciones:</label>
-    <select id="annotationLangSelect">
-      <option value="español" selected>Español</option>
-      <option value="inglés">English</option>
-      <option value="francés">Français</option>
-      <option value="noruego">Norsk</option>
-    </select>
-  </div>
 
   <!-- Cajetin de texto para anotar -->
   <button id="btnAnnotate" onclick="generarAnotaciones()">Generar edición anotada</button>
