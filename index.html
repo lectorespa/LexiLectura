@@ -10,39 +10,6 @@
 <body>
 
   <div class="main-container">
- <!-- Panel de Carga JSON (Acordeón Cerrado por Defecto) -->
-  <section class="top-controls" data-export-omit> 
-    
-    <details class="json-accordion-container">
-      <summary class="json-accordion-summary">Genera y visualiza tus propios textos anotados (JSON)</summary>
-      <div class="json-box-container">
-        <div class="json-box-header">
-          <div class="json-toolbar">
-            <button id="btn-sample-json" class="btn btn-secondary" type="button">Cargar ejemplo</button>
-            <button id="btn-clear-json" class="btn btn-danger" type="button">Limpiar</button>
-          </div>
-        </div>
-        <textarea id="json-input" class="json-textarea" placeholder="Pega aquí un texto JSON anotado y pulsa el botón del paso 3: Ver texto anotado. Si no tienes un texto anotado mediante JSON sigue los pasos 1-3."></textarea>
-        
-        <div class="json-actions">
-
-
-
-          
-          <!-- Enlace externo a la herramienta de Gemini -->
-          <a href="https://gemini.google.com/gem/1DOSkyIsaEnRUID9CmsrPpVPVb4tjZsV7?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn btn-secondary external-gem-btn">Paso 1. Crea aquí tu propio texto anotado (.json)</a>
-          
-          <!-- Input de archivo oculto y botón de subida local -->
-          <input type="file" id="local-json-file" accept=".json" style="display: none;" />
-          <button id="btn-upload-local" class="btn btn-secondary" type="button">Paso 2. Sube tu texto anotado (.json)</button>
-      
-          
-          <!-- Botón de renderizado -->
-          <button id="btn-load-json" class="btn btn-primary" type="button">Paso 3. Ver texto anotado</button>
-        </div>
-      </div>
-    </details>
-</section>
 
 
     <div class="ia-generator-block mb-4" data-export-omit style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
@@ -52,9 +19,9 @@
   <textarea id="plain-text-input" class="json-textarea" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma..."></textarea>
 
   <div class="json-actions" style="margin-top: 10px;">
-    <button id="btn-generate-openrouter" class="btn btn-primary" type="button" data-proveedor="openrouter"
-            title="Anota con modelos gratuitos de OpenRouter">
-      ✨ Anotar con OpenRouter
+    <button id="btn-clear-plain-text" class="btn btn-danger" type="button"
+            title="Borra el texto pegado en el cajetín (no afecta a la edición anotada en pantalla)">
+      🧹 Limpiar texto
     </button>
     <button id="btn-generate-gemini" class="btn btn-primary" type="button" data-proveedor="gemini"
             title="Anota con Gemini Flash (Google)">
@@ -74,6 +41,10 @@
         <button id="btn-export-html" class="btn btn-secondary" type="button" disabled
                 title="Descarga la edición anotada actual como un único archivo HTML que funciona sin servidor">
           💾 Descargar edición como HTML autónomo
+        </button>
+        <button id="btn-export-json" class="btn btn-secondary" type="button" disabled
+                title="Descarga la edición anotada actual como archivo JSON">
+          📄 Descargar edición como JSON
         </button>
       </div>
       <p id="export-status" role="status" aria-live="polite" style="margin: 8px 0 0; font-size: 0.85rem; color: #64748b;">
@@ -130,7 +101,7 @@
     <!-- Cuerpo del Texto -->
     <main class="text-card">
       <article id="text-stanzas" class="stanzas-wrapper">
-        <p class="loading-state">Pega o sube un texto anotado en JSON en el área superior o selecciona alguna obra ya anotada.</p>
+        <p class="loading-state">Pega un texto arriba y anótalo con IA, o selecciona alguna obra ya anotada del catálogo.</p>
       </article>
     </main>
   </div>
