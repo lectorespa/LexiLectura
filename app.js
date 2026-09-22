@@ -87,34 +87,38 @@ function alternarVisibilidadCapa(capaId, visible) {
   renderActiveLayers(activeLayersSet);
 }
 
+// Nivel de vocabulario de un nodo concreto: el propio nodo manda; si no lo indica,
+// se recurre al atributo data-vocab-level del span (compatibilidad con ediciones antiguas).
+function nivelVocabDeNodo(nodo, el) {
+  return nodo?.vocabLevel || el?.getAttribute('data-vocab-level') || 'B1';
+}
+
+// ¿Debe ocultarse ESTE nodo (no el span entero) en el nivel de lectura actual?
+// Solo aplica a nodos de la categoría "vocabulary"; el resto de categorías nunca se ocultan así.
+function esNodoOcultoPorVocabulario(nodo, el) {
+  if (!nodo || nivelLecturaActual !== 'deep') return false;
+  const capa = resolverCapa(nodo.type || nodo.category);
+  if (!capa || capa.id !== 'vocabulary') return false;
+  const nivel = nivelVocabDeNodo(nodo, el);
+  return nivel === 'B1' || nivel === 'B2';
+}
+
 function aplicarFiltroVocabularioPorNivel() {
   if (!obraActiva) return;
 
-  const nodosVocabulario = document.querySelectorAll('[data-category="vocabulary"], [data-layers*="vocabulary"]');
+  // Un span puede llevar varios nodos solapados (p. ej. vocabulario + sintaxis). Solo se
+  // desactiva por completo cuando TODOS sus nodos son de vocabulario y están ocultos en este
+  // nivel; si conserva algún nodo de otra categoría (o de vocabulario en un nivel visible),
+  // el span sigue activo y esa anotación sigue siendo consultable.
+  document.querySelectorAll('[data-node], [data-nodes]').forEach(el => {
+    const nodeIds = (el.getAttribute('data-nodes') || el.getAttribute('data-node') || '').trim().split(/\s+/).filter(Boolean);
+    if (!nodeIds.length) return;
 
-  nodosVocabulario.forEach(el => {
-    const nodeIds = (el.getAttribute('data-nodes') || el.getAttribute('data-node') || '').trim().split(/\s+/);
-    let vocabLevel = el.getAttribute('data-vocab-level');
-    if (!vocabLevel) {
-      for (const id of nodeIds) {
-        const nodoCandidato = obraActiva.interactiveNodes?.[id];
-        if (nodoCandidato?.vocabLevel) {
-          vocabLevel = nodoCandidato.vocabLevel;
-          break;
-        }
-      }
-    }
-    vocabLevel = vocabLevel || 'B1';
+    const nodos = nodeIds.map(id => obraActiva.interactiveNodes?.[id]).filter(Boolean);
+    if (!nodos.length) return;
 
-    if (nivelLecturaActual === 'deep') {
-      if (vocabLevel === 'B1' || vocabLevel === 'B2') {
-        el.classList.add('vocab-hidden-in-deep');
-      } else {
-        el.classList.remove('vocab-hidden-in-deep');
-      }
-    } else {
-      el.classList.remove('vocab-hidden-in-deep');
-    }
+    const todosOcultos = nodos.every(nodo => esNodoOcultoPorVocabulario(nodo, el));
+    el.classList.toggle('vocab-hidden-in-deep', todosOcultos);
   });
 }
 
@@ -375,19 +379,17 @@ document.addEventListener('click', (e) => {
 
   if (nodeIds.length === 0) return;
 
-  if (nodeIds.length === 1) {
-    const nodo = obraActiva?.interactiveNodes?.[nodeIds[0]];
-    if (nodo) abrirModalAnotacion(nodo);
-  } else {
-    const nodosDetectados = nodeIds
-      .map(id => ({ id, data: obraActiva?.interactiveNodes?.[id] }))
-      .filter(item => item.data !== undefined);
+  // Se excluyen los nodos de vocabulario ocultos en el nivel actual: así, si el span solapa
+  // vocabulario (oculto en deep) con otra categoría, el clic abre directamente esa otra
+  // categoría en vez de ofrecer (o abrir) una anotación de vocabulario que no debería verse.
+  const nodosDetectados = nodeIds
+    .map(id => ({ id, data: obraActiva?.interactiveNodes?.[id] }))
+    .filter(item => item.data !== undefined && !esNodoOcultoPorVocabulario(item.data, target));
 
-    if (nodosDetectados.length === 1) {
-      abrirModalAnotacion(nodosDetectados[0].data);
-    } else if (nodosDetectados.length > 1) {
-      mostrarMenuSolapamiento(nodosDetectados, e.clientX, e.clientY);
-    }
+  if (nodosDetectados.length === 1) {
+    abrirModalAnotacion(nodosDetectados[0].data);
+  } else if (nodosDetectados.length > 1) {
+    mostrarMenuSolapamiento(nodosDetectados, e.clientX, e.clientY);
   }
 });
 
