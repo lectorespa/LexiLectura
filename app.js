@@ -50,30 +50,84 @@ const STOPWORDS = new Set([
 //  LÓGICA DE VISIBILIDAD DE CAPAS
 // =========================================================================
 
+// Añade un canal alfa a un color hexadecimal (#RRGGBB) para obtener una versión suave,
+// usada como fondo. Si el valor no es un hex de 6 dígitos, se devuelve tal cual.
+function tintarColor(hex, alfaHex = '26') {
+  if (typeof hex !== 'string' || !/^#[0-9a-fA-F]{6}$/.test(hex)) return hex;
+  return `${hex}${alfaHex}`;
+}
+
+// Pinta un span con el color de su(s) categoría(s) real(es): un color sólido si solo
+// tiene una capa activa, o un reparto a partes iguales de todos los colores implicados
+// cuando el span solapa varias categorías, para que ambas anotaciones sigan siendo
+// visualmente identificables en vez de fundirse en un azul genérico único.
+function aplicarEstiloDeCapas(word, capas) {
+  if (!capas.length) {
+    word.style.background = '';
+    word.style.borderBottomWidth = '';
+    word.style.borderBottomStyle = '';
+    word.style.borderBottomColor = '';
+    word.style.borderImage = '';
+    return;
+  }
+
+  if (capas.length === 1) {
+    const color = capas[0].color;
+    word.style.background = tintarColor(color);
+    word.style.borderImage = 'none';
+    word.style.borderBottomWidth = '2.5px';
+    word.style.borderBottomStyle = 'solid';
+    word.style.borderBottomColor = color;
+  } else {
+    const n = capas.length;
+    const paradasFondo = capas
+      .map((c, i) => `${tintarColor(c.color)} ${(i * 100) / n}%, ${tintarColor(c.color)} ${((i + 1) * 100) / n}%`)
+      .join(', ');
+    const paradasBorde = capas
+      .map((c, i) => `${c.color} ${(i * 100) / n}%, ${c.color} ${((i + 1) * 100) / n}%`)
+      .join(', ');
+    word.style.background = `linear-gradient(90deg, ${paradasFondo})`;
+    word.style.borderBottomWidth = '3px';
+    word.style.borderBottomStyle = 'solid';
+    word.style.borderBottomColor = 'transparent';
+    word.style.borderImage = `linear-gradient(90deg, ${paradasBorde}) 1`;
+  }
+}
+
 function renderActiveLayers(activeLayersSet) {
   const words = document.querySelectorAll('.interactive-word, [data-node], [data-nodes]');
 
   words.forEach(word => {
-    const rawLayers = word.dataset.layers || word.dataset.layer || word.getAttribute('data-category') || '';
-    const wordLayers = rawLayers.trim().split(/\s+/).map(l => {
-      const resolved = resolverCapa(l);
-      return resolved ? resolved.id : l;
+    const nodeIds = (word.dataset.nodes || word.dataset.node || '').trim().split(/\s+/).filter(Boolean);
+
+    // Capas de los nodos que ESTE span tiene realmente disponibles ahora mismo: existen en
+    // la obra y, si son de vocabulario, no están ocultos por el nivel de lectura actual.
+    // Así, una capa oculta por nivel nunca pinta ni cuenta como "activa" en el span.
+    const capasVisibles = [];
+    const vistos = new Set();
+    nodeIds.forEach(id => {
+      const nodo = obraActiva?.interactiveNodes?.[id];
+      if (!nodo || esNodoOcultoPorVocabulario(nodo, word)) return;
+      const capaObj = resolverCapa(nodo.type || nodo.category);
+      if (capaObj && !vistos.has(capaObj.id)) {
+        vistos.add(capaObj.id);
+        capasVisibles.push(capaObj);
+      }
     });
 
-    const hasActiveLayer = wordLayers.some(layer => activeLayersSet.has(layer));
+    // De esas, cuáles siguen activas según el filtro de categorías (chips "Vocabulario",
+    // "Sintaxis", etc.): si el usuario desactiva una categoría, esa capa deja de contar
+    // aunque el span comparta otra categoría que sí siga activa.
+    const capasActivas = capasVisibles.filter(capa => activeLayersSet.has(capa.id));
 
-    if (hasActiveLayer) {
+    if (capasActivas.length > 0) {
       word.classList.remove('layer-disabled');
       word.classList.add('is-highlighted');
-
-      const primaryLayer = wordLayers.find(layer => activeLayersSet.has(layer)) || wordLayers[0];
-      const capaObj = resolverCapa(primaryLayer);
-      if (capaObj) {
-        word.style.setProperty('--current-layer-color', capaObj.color);
-      }
+      aplicarEstiloDeCapas(word, capasActivas);
     } else {
       word.classList.add('layer-disabled');
       word.classList.remove('is-highlighted');
+      aplicarEstiloDeCapas(word, []);
     }
   });
 }
@@ -379,12 +433,18 @@ document.addEventListener('click', (e) => {
 
   if (nodeIds.length === 0) return;
 
-  // Se excluyen los nodos de vocabulario ocultos en el nivel actual: así, si el span solapa
-  // vocabulario (oculto en deep) con otra categoría, el clic abre directamente esa otra
-  // categoría en vez de ofrecer (o abrir) una anotación de vocabulario que no debería verse.
+  // Se excluyen: los nodos que no existan, los de vocabulario ocultos en el nivel actual, y
+  // los cuya categoría esté desactivada en el filtro de capas. Así, si el span solapa una
+  // categoría desactivada (o vocabulario oculto por nivel) con otra que sigue activa, el
+  // clic abre directamente esa otra categoría en vez de ofrecer también la que no debería
+  // ser consultable ahora mismo.
   const nodosDetectados = nodeIds
     .map(id => ({ id, data: obraActiva?.interactiveNodes?.[id] }))
-    .filter(item => item.data !== undefined && !esNodoOcultoPorVocabulario(item.data, target));
+    .filter(item => {
+      if (!item.data || esNodoOcultoPorVocabulario(item.data, target)) return false;
+      const capa = resolverCapa(item.data.type || item.data.category);
+      return capa && activeLayersSet.has(capa.id);
+    });
 
   if (nodosDetectados.length === 1) {
     abrirModalAnotacion(nodosDetectados[0].data);
