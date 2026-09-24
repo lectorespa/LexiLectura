@@ -1683,6 +1683,10 @@ function inicializarEventos() {
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const datos = await resp.json();
       renderizarTextoAnotado(datos);
+
+      // Igual que al terminar de anotar con IA: se sube la pantalla para que el filtro de
+      // categorías y el comienzo del texto queden arriba, sin scroll manual.
+      document.getElementById('category-filters-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
       alert(`Error al cargar la obra seleccionada (${ruta}): ${err.message}`);
     }
