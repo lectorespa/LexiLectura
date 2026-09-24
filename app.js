@@ -286,6 +286,29 @@ function renderizarTextoAnotado(datosObra) {
   }
   renderActiveLayers(activeLayersSet);
   aplicarFiltroVocabularioPorNivel();
+  renderizarPieAnotacionIA(datosObra.meta);
+}
+
+// Pie con el motor de IA y la fecha/hora en que se anotó la edición. Se guarda en
+// meta.iaProveedor / meta.iaFecha (fecha en ISO), así que viaja con el JSON descargado y con
+// el HTML autónomo, y vuelve a mostrarse al recargar esa edición más adelante.
+function renderizarPieAnotacionIA(meta) {
+  const pie = document.getElementById('edition-ia-footer');
+  if (!pie) return;
+
+  if (!meta?.iaProveedor || !meta?.iaFecha) {
+    pie.hidden = true;
+    pie.textContent = '';
+    return;
+  }
+
+  const fecha = new Date(meta.iaFecha);
+  const fechaTexto = Number.isNaN(fecha.getTime())
+    ? meta.iaFecha
+    : fecha.toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' });
+
+  pie.hidden = false;
+  pie.textContent = `Anotado con ${meta.iaProveedor} el ${fechaTexto}.`;
 }
 
 function renderizarFiltrosCategorias(datosObra) {
@@ -1243,7 +1266,20 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
     btn.disabled = true;
     for (const f of fragmentos) await anotarFragmento(f, estado, 0);
 
+    // Resultado final con el motor y la fecha/hora de anotación, para el pie de la edición.
+    const resultadoFinal = unirResultados(estado.resultados);
+    resultadoFinal.meta = {
+      ...resultadoFinal.meta,
+      iaProveedor: NOMBRES_MOTOR[proveedor] || proveedor,
+      iaFecha: new Date().toISOString(),
+    };
+    renderizarTextoAnotado(resultadoFinal);
+
     alert(`¡Texto anotado correctamente con ${NOMBRES_MOTOR[proveedor] || proveedor}!`);
+
+    // Tras cerrar el aviso, se sube la pantalla para que el filtro de categorías y el texto
+    // queden arriba, sin necesidad de bajar manualmente para empezar a leer.
+    document.getElementById('category-filters-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (error) {
     console.error('Error al generar anotaciones:', error);
     const hechas = estado.resultados.length;
