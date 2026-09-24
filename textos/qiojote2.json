@@ -1,0 +1,44 @@
+{
+  "meta": {
+    "title": "«Capítulo I. Que trata de la condición y ejercicio del famoso hidalgo don Quijote de la Mancha» / El ingenioso hidalgo don Quijote de la Mancha",
+    "author": "Miguel de Cervantes Saavedra",
+    "authorNodeId": "node_author",
+    "period": "Siglo de Oro (Barroco)",
+    "periodNodeId": "node_period",
+    "year": "1605",
+    "lang": "es",
+    "audioUrl": null
+  },
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "author",
+      "title": "Miguel de Cervantes Saavedra",
+      "annotations": {
+        "short": {
+          "definition": "Figura cumbre de las letras hispánicas y creador de la novela moderna.",
+          "content": "Autor de El Quijote, obra revolucionaria que transforma las tradiciones narrativas del Renacimiento e inaugura la novela moderna a través del diálogo y la perspectiva plural."
+        },
+        "deep": {
+          "definition": "Máximo exponente de la literatura española (1547-1616), cuya compleja biografía de soldado, cautivo y recaudador nutrió una de las obras más influyentes de la literatura universal.",
+          "content": "Miguel de Cervantes encarna el tránsito decisivo del idealismo renacentista a la desengañada complejidad del Barroco. Su aportación fundamental consiste en la desarticulación de los géneros narrativos tradicionales mediante el uso de la ironía, la parodia y la polifonía de voces.<br><br>En el *Quijote*, Cervantes logra construir una sát```json
+{
+  "meta": {
+    "title": "«Capítulo I» / Don Quijote de la Mancha",
+    "author": "Miguel de Cervantes Saavedra",
+    "authorNodeId": "node_author",
+    "period": "Siglo de Oro / Barroco",
+    "periodNodeId": "node_period",
+    "year": "1605",
+    "lang": "es",
+    "audioUrl": null
+  },
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "author",
+      "title": "Miguel de Cervantes Saavedra",
+      "annotations": {
+        "short": {
+          "definition": "Escritor español, máxima figura de la literatura hispánica y creador de la novela moderna.",
+          "content": "Cervantes revolucionó la narrativa occidental al
