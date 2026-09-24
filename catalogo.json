@@ -18,11 +18,5 @@
     "file": "quijote1.json",
     "title": "Don Quijote de la Mancha",
     "author": "Miguel de Cervantes"
-  },
-
-   {
-    "file": "qiojote2.json",
-    "title": "Don Quijote de la Mancha 2",
-    "author": "Miguel de Cervantes"
-  },
+  }
 ]
