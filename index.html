@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LexiLectura · Ediciones anotadas interactivas</title>
+  <title>Visor de Ediciones Críticas e Interactivas</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,15 +12,11 @@
   <div class="main-container">
 
 
-
-
-  <!-- Cajetin de texto para anotar -->
-
     <div class="ia-generator-block mb-4" data-export-omit style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
   <label for="plain-text-input" class="json-box-title" style="display:block; margin-bottom:6px;">
     ✨ Generar edición anotada con IA:
   </label>
-  <textarea id="plain-text-input" class="json-textarea" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma y pulsa anotar. Gemini Flash es rápido y puede anotar textos más largos de 1000 palabras. Groq es muy rápido pero solo para textos de 700 palabras o menos."></textarea>
+  <textarea id="plain-text-input" class="json-textarea" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma..."></textarea>
 
   <div class="json-actions" style="margin-top: 10px;">
     <button id="btn-clear-plain-text" class="btn btn-danger" type="button"
@@ -33,7 +29,7 @@
     </button>
     <button id="btn-generate-groq" class="btn btn-primary" type="button" data-proveedor="groq"
             title="Anota con Groq (modelos gpt-oss)">
-      ✨ Anotar con Groq/Qwen
+      ✨ Anotar con Groq
     </button>
   </div>
 </div>
@@ -72,7 +68,7 @@
   
   
     <!-- Filtros de Categorías -->
-    <section class="top-controls">
+    <section class="top-controls" id="category-filters-section">
       <div class="filter-header">
         <span class="filter-title">Filtro de Categorías / Capas</span>
         <div class="filter-actions">
@@ -85,7 +81,7 @@
 
     <!-- Cabecera del Documento -->
     <header class="doc-header">
-      <h1 id="doc-title">Ediciones anotadas interactivas</h1>
+      <h1 id="doc-title">Edición anotada interactiva</h1>
       <div class="meta-details">
         <span id="doc-author"></span>
         <span id="doc-period"></span>
@@ -107,6 +103,8 @@
       <article id="text-stanzas" class="stanzas-wrapper">
         <p class="loading-state">Pega un texto arriba y anótalo con IA, o selecciona alguna obra ya anotada del catálogo.</p>
       </article>
+      <footer id="edition-ia-footer" hidden
+              style="margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 0.82rem; color: #64748b; text-align: right;"></footer>
     </main>
   </div>
 
