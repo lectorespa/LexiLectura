@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generar catalogo.js
+      - name: Generar catalogo.json
         run: node generate-index.cjs
 
       - name: Hacer commit y push del catalogo
@@ -32,10 +32,10 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add obras-data.js
           
-          # Solo hace commit si hay cambios reales en catalogo.js
+          # Solo hace commit si hay cambios reales en catalogo.json
           if git diff --staged --quiet; then
             echo "No hay cambios en el catálogo."
           else
-            git commit -m "auto: actualizar catálogo catalogo.js"
+            git commit -m "auto: actualizar catálogo catalogo.json"
             git push origin ${{ github.ref_name }}
           fi
