@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const textosDir = './textos';
-const outputFile = './catalogo.js';
+const outputFile = './catalogo.json';
 
 if (!fs.existsSync(textosDir)) {
   console.log('El directorio /textos no existe.');
