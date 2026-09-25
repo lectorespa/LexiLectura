@@ -1,10 +1,9 @@
-import fs from 'fs';
-import path from 'path';
+const fs = require('fs');
+const path = require('path');
 
 const textosDir = './textos';
 const outputFile = './catalogo.json';
 
-// Si no existe la carpeta, genera un array JSON vacío válido
 if (!fs.existsSync(textosDir)) {
   console.log('El directorio /textos no existe.');
   fs.writeFileSync(outputFile, JSON.stringify([], null, 2));
@@ -34,6 +33,6 @@ const catalog = files.map(file => {
   }
 });
 
-// Escribir JSON plano y válido sin la asignación window.OBRAS_CATALOGO
+// IMPORTANTE: Se guarda como JSON plano válido, sin "window.OBRAS_CATALOGO ="
 fs.writeFileSync(outputFile, JSON.stringify(catalog, null, 2), 'utf-8');
 console.log(`Catálogo generado con ${catalog.length} obras en ${outputFile}`);
