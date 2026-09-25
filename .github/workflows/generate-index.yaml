@@ -23,8 +23,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generar catalogo.cjs
-        run: node generate-index.js
+      - name: Generar catalogo.js
+        run: node generate-index.cjs
 
       - name: Hacer commit y push del catalogo
         run: |
@@ -36,6 +36,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No hay cambios en el catálogo."
           else
-            git commit -m "auto: actualizar catálogo catalogo.cjs"
+            git commit -m "auto: actualizar catálogo catalogo.js"
             git push origin ${{ github.ref_name }}
           fi
