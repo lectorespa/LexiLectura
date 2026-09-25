@@ -6,7 +6,7 @@
   },
   {
     "file": "elrayo.json",
-    "title": "El rayo que no cesa",
+    "title": "«¿No cesará este rayo que me habita...» / El rayo que no cesa",
     "author": "Miguel Hernández"
   },
   {
@@ -16,6 +16,11 @@
   },
   {
     "file": "qiojote2.json",
+    "title": "«Capítulo I. Que trata de la condición y ejercicio del famoso hidalgo don Quijote de la Mancha» / El ingenioso hidalgo don Quijote de la Mancha",
+    "author": "Miguel de Cervantes Saavedra"
+  },
+  {
+    "file": "quijote1.json",
     "title": "Don Quijote de la Mancha",
     "author": "Miguel de Cervantes"
   }
