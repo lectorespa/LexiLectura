@@ -10,6 +10,10 @@ let nivelLecturaActual = 'short';
 let currentImageFetchController = null;
 const activeLayersSet = new Set(); // Estado global de capas activas
 
+// --- Internacionalización (i18n) de la interfaz ---
+let diccionarioIdiomas = null; // se rellena en cargarDiccionarioIdiomas()
+let idiomaInterfazActual = 'es';
+
 const CAPAS_CATALOGO = {
   author:     { id: 'author',     label: 'Autoría',                  color: '#8E44AD' },
   period:     { id: 'period',     label: 'Época y Contexto',         color: '#2980B9' },
@@ -209,6 +213,122 @@ async function cargarMenuObras() {
   }
 }
 
+// =========================================================================
+//  INTERNACIONALIZACIÓN (i18n) DE LA INTERFAZ
+// =========================================================================
+//
+// El diccionario vive en i18n/strings.json: { _idiomas: [...], es: {...}, en: {...}, ... }.
+// "es" es la fuente de verdad. Un idioma sin traducir aún (objeto vacío o clave ausente)
+// cae automáticamente al texto en español: la interfaz nunca se queda con un hueco en
+// blanco. Para añadir un texto nuevo basta con darle una clave nueva en "es" en este
+// diccionario y usar data-i18n (o t('clave')) donde corresponda; para tener ese texto
+// también en el resto de idiomas, ejecuta i18n/actualizar-traducciones.mjs — no hace
+// falta traducir nada a mano ni tocar este archivo.
+
+const CLAVE_IDIOMA_GUARDADO = 'lexilectura-idioma-interfaz';
+
+// Carga el diccionario: primero busca los datos incrustados (ediciones HTML autónomas,
+// que funcionan sin servidor) y, si no los hay, los pide por fetch (sitio en vivo).
+async function cargarDiccionarioIdiomas() {
+  const embebido = document.getElementById('datos-i18n');
+  if (embebido) {
+    try { return JSON.parse(embebido.textContent); } catch (_) { /* sigue al fetch */ }
+  }
+  try {
+    const resp = await fetch('i18n/strings.json', { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    return await resp.json();
+  } catch (_) {
+    console.warn('[LexiLectura] No se pudo cargar i18n/strings.json; la interfaz se queda en español.');
+    return null;
+  }
+}
+
+// Traduce una clave al idioma activo, con sustitución de {variables} y caída a español.
+function t(clave, variables) {
+  const dicIdioma = (diccionarioIdiomas && diccionarioIdiomas[idiomaInterfazActual]) || {};
+  const dicBase = (diccionarioIdiomas && diccionarioIdiomas.es) || {};
+  let texto = dicIdioma[clave] || dicBase[clave] || clave;
+  if (variables) {
+    Object.entries(variables).forEach(([clave2, valor]) => {
+      texto = texto.replaceAll(`{${clave2}}`, String(valor));
+    });
+  }
+  return texto;
+}
+
+// Llena los dos selectores de idioma (interfaz y anotaciones) a partir de _idiomas, así
+// que añadir un idioma nuevo al diccionario es lo único que hace falta: no hay que tocar
+// el HTML ni añadir <option> a mano.
+function poblarSelectoresIdioma() {
+  const idiomas = diccionarioIdiomas?._idiomas || [];
+
+  const selInterfaz = document.getElementById('selector-idioma-interfaz');
+  if (selInterfaz) {
+    selInterfaz.innerHTML = '';
+    idiomas.forEach((idioma) => {
+      const op = document.createElement('option');
+      op.value = idioma.codigo;
+      op.textContent = idioma.nombreNativo;
+      selInterfaz.appendChild(op);
+    });
+  }
+
+  const selAnotacion = document.getElementById('selector-idioma-anotacion');
+  if (selAnotacion) {
+    // Quita las opciones añadidas dinámicamente en una llamada anterior (deja solo la
+    // primera, "Automático", que ya viene en el HTML) para que la función sea segura de
+    // llamar más de una vez.
+    [...selAnotacion.options].slice(1).forEach((op) => op.remove());
+    idiomas.forEach((idioma) => {
+      if (idioma.codigo === 'es') return; // "es" ya está cubierto por la opción "Automático"
+      const op = document.createElement('option');
+      // Se envía el nombre en español (no el código) para que la IA lo entienda sin tener
+      // que mantener la misma tabla de códigos también en el servidor.
+      op.value = idioma.nombreEs;
+      op.textContent = idioma.nombreNativo === idioma.nombreEs
+        ? idioma.nombreEs
+        : `${idioma.nombreNativo} (${idioma.nombreEs})`;
+      selAnotacion.appendChild(op);
+    });
+  }
+}
+
+// Aplica el idioma de interfaz elegido: traduce todo lo marcado con data-i18n(-placeholder
+// /-title/-aria-label) y refresca los textos dinámicos que dependen del estado actual
+// (nivel de lectura, pie de anotación IA, estado de exportación). Si el idioma pedido no
+// existe en el diccionario, se usa español sin avisar (nunca deja la interfaz rota).
+function aplicarIdiomaInterfaz(codigo) {
+  if (!diccionarioIdiomas) return;
+  const idiomas = diccionarioIdiomas._idiomas || [];
+  const meta = idiomas.find((idioma) => idioma.codigo === codigo);
+  idiomaInterfazActual = meta ? codigo : 'es';
+
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll('[data-i18n-aria-label]').forEach((el) => { el.setAttribute('aria-label', t(el.dataset.i18nAriaLabel)); });
+
+  document.documentElement.lang = idiomaInterfazActual;
+  document.documentElement.dir = meta?.rtl ? 'rtl' : 'ltr';
+
+  const selector = document.getElementById('selector-idioma-interfaz');
+  if (selector) {
+    selector.value = idiomaInterfazActual;
+    // Además del valor, se marca el atributo "selected": así, si esta página se exporta
+    // como HTML autónomo, el <select> clonado conserva el idioma elegido al abrirlo.
+    [...selector.options].forEach((op) => op.toggleAttribute('selected', op.value === idiomaInterfazActual));
+  }
+
+  try { localStorage.setItem(CLAVE_IDIOMA_GUARDADO, idiomaInterfazActual); } catch (_) { /* almacenamiento no disponible */ }
+
+  // Textos dinámicos: no basta con data-i18n porque su contenido depende del estado actual.
+  const levelBadge = document.getElementById('levelIndicatorBadge');
+  if (levelBadge) levelBadge.textContent = t(nivelLecturaActual === 'deep' ? 'nivel.badge.avanzado' : 'nivel.badge.basico');
+  actualizarBotonExportar();
+  renderizarPieAnotacionIA(obraActiva?.meta);
+}
+
 function renderizarTextoAnotado(datosObra) {
   if (!datosObra) return;
   obraActiva = datosObra;
@@ -305,10 +425,11 @@ function renderizarPieAnotacionIA(meta) {
   const fecha = new Date(meta.iaFecha);
   const fechaTexto = Number.isNaN(fecha.getTime())
     ? meta.iaFecha
-    : fecha.toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' });
+    : fecha.toLocaleString(idiomaInterfazActual, { dateStyle: 'long', timeStyle: 'short' });
 
   pie.hidden = false;
-  pie.textContent = `Anotado con ${meta.iaProveedor} el ${fechaTexto}.`;
+  pie.textContent = t('pie.anotado', { motor: meta.iaProveedor, fecha: fechaTexto })
+    + (meta.iaIdiomaAnotaciones ? t('pie.anotado.idioma', { idioma: meta.iaIdiomaAnotaciones }) : '');
 }
 
 function renderizarFiltrosCategorias(datosObra) {
@@ -1164,6 +1285,7 @@ async function anotarFragmento(texto, estado, profundidad) {
         parte,
         totalPartes: estado.total,
         contexto: estado.resultados[0]?.meta || null,
+        idiomaAnotaciones: estado.idiomaAnotaciones || undefined,
       });
       estado.resultados.push(resultado);
       estado.alResultado();
@@ -1241,6 +1363,8 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
   const plainText = document.getElementById('plain-text-input')?.value.trim();
   const botones = Array.from(document.querySelectorAll('[data-proveedor]'));
   const btn = botones.find((b) => b.dataset.proveedor === proveedor) || { textContent: '', disabled: false };
+  // Idioma de las anotaciones elegido por el usuario; vacío = automático (idioma del texto).
+  const idiomaAnotaciones = document.getElementById('selector-idioma-anotacion')?.value.trim() || '';
 
   if (!IA_CONFIG.CHUNK_CHARS[proveedor]) {
     alert(`Motor de anotación desconocido: ${proveedor}`);
@@ -1255,9 +1379,10 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
   const fragmentos = dividirEnFragmentos(plainText, IA_CONFIG.CHUNK_CHARS[proveedor]);
   const estado = {
     proveedor,
+    idiomaAnotaciones,
     resultados: [],
     total: fragmentos.length,
-    alProgreso: (parte, total) => { btn.textContent = `⏳ Anotando parte ${parte} de ${total}…`; },
+    alProgreso: (parte, total) => { btn.textContent = t('anotar.progreso', { parte, total }); },
     alResultado: () => renderizarTextoAnotado(unirResultados(estado.resultados)), // se ve el avance
   };
 
@@ -1272,10 +1397,11 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
       ...resultadoFinal.meta,
       iaProveedor: NOMBRES_MOTOR[proveedor] || proveedor,
       iaFecha: new Date().toISOString(),
+      ...(idiomaAnotaciones ? { iaIdiomaAnotaciones: idiomaAnotaciones } : {}),
     };
     renderizarTextoAnotado(resultadoFinal);
 
-    alert(`¡Texto anotado correctamente con ${NOMBRES_MOTOR[proveedor] || proveedor}!`);
+    alert(t('anotar.exito', { motor: NOMBRES_MOTOR[proveedor] || proveedor }));
 
     // Tras cerrar el aviso, se sube la pantalla para que el filtro de categorías y el texto
     // queden arriba, sin necesidad de bajar manualmente para empezar a leer.
@@ -1539,14 +1665,34 @@ async function construirHtmlAutonomo(locales = {}) {
   };
   q('head').appendChild(crear('style', css.replace(/<\/style/gi, '<\\/style')));
 
-  const datos = escaparJsonParaHtml(JSON.stringify({ obra: obraActiva, nivel: nivelLecturaActual }));
+  const datos = escaparJsonParaHtml(JSON.stringify({
+    obra: obraActiva,
+    nivel: nivelLecturaActual,
+    idiomaInterfaz: idiomaInterfazActual,
+  }));
   cuerpo.appendChild(crear('script', datos, { type: 'application/json', id: 'datos-obra' }));
+  // Diccionario de idiomas incrustado: así el HTML autónomo también permite cambiar el
+  // idioma de la interfaz sin conexión (no depende de poder hacer fetch a i18n/strings.json).
+  if (diccionarioIdiomas) {
+    const datosI18n = escaparJsonParaHtml(JSON.stringify(diccionarioIdiomas));
+    cuerpo.appendChild(crear('script', datosI18n, { type: 'application/json', id: 'datos-i18n' }));
+  }
   scripts.partes.forEach((js) => cuerpo.appendChild(crear('script', js.replace(/<\/script/gi, '<\\/script').replace(/<!--/g, '<\\!--'))));
   cuerpo.appendChild(crear('script', `(function () {
   var paquete = JSON.parse(document.getElementById('datos-obra').textContent);
   document.addEventListener('DOMContentLoaded', function () {
-    nivelLecturaActual = paquete.nivel || 'short';
-    renderizarTextoAnotado(paquete.obra);
+    // setTimeout(0): se ejecuta después de que termine la propia inicialización asíncrona
+    // de app.js (carga del diccionario de idiomas desde #datos-i18n). Sin este margen hay
+    // una carrera: este bloque podría aplicar el idioma correcto y que, justo después,
+    // app.js terminara de cargar y lo pisara con "es" por defecto.
+    setTimeout(function () {
+      nivelLecturaActual = paquete.nivel || 'short';
+      renderizarTextoAnotado(paquete.obra);
+      // Reafirma el idioma de interfaz que estaba activo al exportar.
+      if (paquete.idiomaInterfaz && typeof aplicarIdiomaInterfaz === 'function') {
+        aplicarIdiomaInterfaz(paquete.idiomaInterfaz);
+      }
+    }, 0);
   });
 })();`));
 
@@ -1580,8 +1726,8 @@ function actualizarBotonExportar() {
   if (botonJson) botonJson.disabled = !obraActiva;
   if (estado) {
     estado.textContent = obraActiva
-      ? `Edición lista para descargar: «${obraActiva.meta?.title || 'Sin título'}».`
-      : 'Anota o carga una edición para poder descargarla.';
+      ? t('exportar.status.lista', { titulo: obraActiva.meta?.title || 'Sin título' })
+      : t('exportar.status.vacio');
   }
 }
 
@@ -1665,9 +1811,7 @@ function inicializarEventos() {
       nivelLecturaActual = btn.dataset.level || 'short';
       
       if (levelBadge) {
-        levelBadge.textContent = nivelLecturaActual === 'deep' 
-          ? 'Modo Edición Crítica (Vocabulario C1+)' 
-          : 'Modo Lectura Básica (Vocabulario B1+)';
+        levelBadge.textContent = t(nivelLecturaActual === 'deep' ? 'nivel.badge.avanzado' : 'nivel.badge.basico');
       }
 
       aplicarFiltroVocabularioPorNivel();
@@ -1690,6 +1834,11 @@ function inicializarEventos() {
     } catch (err) {
       alert(`Error al cargar la obra seleccionada (${ruta}): ${err.message}`);
     }
+  });
+
+  // Cambiar el idioma de la interfaz (se aplica al vuelo, sin recargar la página)
+  document.getElementById('selector-idioma-interfaz')?.addEventListener('change', (e) => {
+    aplicarIdiomaInterfaz(e.target.value);
   });
 
   // Limpiar el cajetín de texto plano (no toca la edición anotada que ya esté en pantalla)
@@ -1741,7 +1890,15 @@ function inicializarEventos() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  diccionarioIdiomas = await cargarDiccionarioIdiomas();
+  if (diccionarioIdiomas) {
+    poblarSelectoresIdioma();
+    let guardado = null;
+    try { guardado = localStorage.getItem(CLAVE_IDIOMA_GUARDADO); } catch (_) { /* almacenamiento no disponible */ }
+    aplicarIdiomaInterfaz(guardado || 'es');
+  }
+
   cargarMenuObras();
   inicializarEventos();
 });
