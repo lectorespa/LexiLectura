@@ -4,30 +4,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visor de Ediciones Críticas e Interactivas</title>
+  <title data-i18n="pagina.titulo">Visor de Ediciones Críticas e Interactivas</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
   <div class="main-container">
 
+    <div class="idioma-interfaz-bar" style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+      <label for="selector-idioma-interfaz" class="json-box-title" style="margin:0;" data-i18n="idioma.interfaz.etiqueta">Idioma de la interfaz:</label>
+      <select id="selector-idioma-interfaz" class="select-input"></select>
+    </div>
 
     <div class="ia-generator-block mb-4" data-export-omit style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
-  <label for="plain-text-input" class="json-box-title" style="display:block; margin-bottom:6px;">
+  <label for="plain-text-input" class="json-box-title" style="display:block; margin-bottom:6px;" data-i18n="anotar.etiqueta">
     ✨ Generar edición anotada con IA:
   </label>
-  <textarea id="plain-text-input" class="json-textarea" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma..."></textarea>
+  <textarea id="plain-text-input" class="json-textarea" data-i18n-placeholder="anotar.placeholder" placeholder="Pega aquí el texto plano en español o en cualquier otro idioma..."></textarea>
+
+  <div class="idioma-anotacion-bar" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px;">
+    <label for="selector-idioma-anotacion" class="json-box-title" style="margin:0;" data-i18n="anotar.idioma.etiqueta">Idioma de las anotaciones:</label>
+    <select id="selector-idioma-anotacion" class="select-input">
+      <option value="" data-i18n="anotar.idioma.automatico">Automático (mismo idioma que el texto)</option>
+    </select>
+  </div>
 
   <div class="json-actions" style="margin-top: 10px;">
     <button id="btn-clear-plain-text" class="btn btn-danger" type="button"
+            data-i18n="anotar.limpiar.boton" data-i18n-title="anotar.limpiar.title"
             title="Borra el texto pegado en el cajetín (no afecta a la edición anotada en pantalla)">
       🧹 Limpiar texto
     </button>
     <button id="btn-generate-gemini" class="btn btn-primary" type="button" data-proveedor="gemini"
+            data-i18n="anotar.gemini.boton" data-i18n-title="anotar.gemini.title"
             title="Anota con Gemini Flash (Google)">
       ✨ Anotar con Gemini Flash
     </button>
     <button id="btn-generate-groq" class="btn btn-primary" type="button" data-proveedor="groq"
+            data-i18n="anotar.groq.boton" data-i18n-title="anotar.groq.title"
             title="Anota con Groq (modelos gpt-oss)">
       ✨ Anotar con Groq
     </button>
@@ -39,15 +53,17 @@
     <div id="export-html-block" data-export-omit style="border-bottom: 1px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 16px;">
       <div class="json-actions">
         <button id="btn-export-html" class="btn btn-secondary" type="button" disabled
+                data-i18n="exportar.html.boton" data-i18n-title="exportar.html.title"
                 title="Descarga la edición anotada actual como un único archivo HTML que funciona sin servidor">
           💾 Descargar edición como HTML autónomo
         </button>
         <button id="btn-export-json" class="btn btn-secondary" type="button" disabled
+                data-i18n="exportar.json.boton" data-i18n-title="exportar.json.title"
                 title="Descarga la edición anotada actual como archivo JSON">
           📄 Descargar edición como JSON
         </button>
       </div>
-      <p id="export-status" role="status" aria-live="polite" style="margin: 8px 0 0; font-size: 0.85rem; color: #64748b;">
+      <p id="export-status" role="status" aria-live="polite" style="margin: 8px 0 0; font-size: 0.85rem; color: #64748b;" data-i18n="exportar.status.vacio">
         Anota o carga una edición para poder descargarla.
       </p>
       <div id="export-fallback" hidden style="margin-top: 10px; padding: 10px 12px; background: #fff8e1; border: 1px solid #f0d78c; border-radius: 6px; font-size: 0.9rem;">
@@ -59,9 +75,9 @@
     <!-- Selector de Obra -->
     <section class="top-controls mb-4" data-export-omit>
       <div class="selector-container">
-        <label for="selector-obras" class="json-box-title">O selecciona una obra del catálogo:</label>
+        <label for="selector-obras" class="json-box-title" data-i18n="catalogo.etiqueta">O selecciona una obra del catálogo:</label>
         <select id="selector-obras" class="select-input">
-          <option value="">-- Cargar obra anotada --</option>
+          <option value="" data-i18n="catalogo.opcion.vacia">-- Cargar obra anotada --</option>
         </select>
       </div>
     </section>
@@ -70,10 +86,10 @@
     <!-- Filtros de Categorías -->
     <section class="top-controls" id="category-filters-section">
       <div class="filter-header">
-        <span class="filter-title">Filtro de Categorías / Capas</span>
+        <span class="filter-title" data-i18n="filtros.titulo">Filtro de Categorías / Capas</span>
         <div class="filter-actions">
-          <button id="btn-select-all-cats" class="btn btn-secondary" type="button">Todas</button>
-          <button id="btn-deselect-all-cats" class="btn btn-secondary" type="button">Ninguna</button>
+          <button id="btn-select-all-cats" class="btn btn-secondary" type="button" data-i18n="filtros.todas">Todas</button>
+          <button id="btn-deselect-all-cats" class="btn btn-secondary" type="button" data-i18n="filtros.ninguna">Ninguna</button>
         </div>
       </div>
       <div id="category-filter-bar" class="category-filter-bar"></div>
@@ -92,16 +108,16 @@
     <!-- Selector de Nivel de Anotación -->
 <div class="annotation-level-selector">
   <div class="level-buttons">
-    <button class="btn btn-secondary level-btn active" data-level="short" type="button">Lectura Básica (B1+)</button>
-    <button class="btn btn-secondary level-btn" data-level="deep" type="button">Lectura Avanzada (C1+)</button>
+    <button class="btn btn-secondary level-btn active" data-level="short" type="button" data-i18n="nivel.basico.boton">Lectura Básica (B1+)</button>
+    <button class="btn btn-secondary level-btn" data-level="deep" type="button" data-i18n="nivel.avanzado.boton">Lectura Avanzada (C1+)</button>
   </div>
-  <span id="levelIndicatorBadge" class="level-badge short-mode">Modo Lectura Básica (Vocabulario B1+)</span>
+  <span id="levelIndicatorBadge" class="level-badge short-mode" data-i18n="nivel.badge.basico">Modo Lectura Básica (Vocabulario B1+)</span>
 </div>
 
     <!-- Cuerpo del Texto -->
     <main class="text-card">
       <article id="text-stanzas" class="stanzas-wrapper">
-        <p class="loading-state">Pega un texto arriba y anótalo con IA, o selecciona alguna obra ya anotada del catálogo.</p>
+        <p class="loading-state" data-i18n="texto.cargando">Pega un texto arriba y anótalo con IA, o selecciona alguna obra ya anotada del catálogo.</p>
       </article>
       <footer id="edition-ia-footer" hidden
               style="margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 0.82rem; color: #64748b; text-align: right;"></footer>
@@ -116,7 +132,7 @@
           <span id="modal-category" class="modal-category-badge"></span>
           <h2 id="modal-title" class="modal-title"></h2>
         </div>
-        <button id="modal-close-btn" class="modal-close-btn" aria-label="Cerrar modal">&times;</button>
+        <button id="modal-close-btn" class="modal-close-btn" data-i18n-aria-label="modal.cerrar.aria" aria-label="Cerrar modal">&times;</button>
       </header>
       <div class="modal-body">
         <div id="modal-definition" class="modal-definition"></div>
