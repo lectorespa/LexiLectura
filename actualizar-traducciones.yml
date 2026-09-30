@@ -1,0 +1,68 @@
+name: Actualizar traducciones de la interfaz
+
+# Se lanza a mano desde la pestaña "Actions" de GitHub (botón "Run workflow"), nunca solo.
+# Node.js no hace falta instalarlo en ningún sitio: el propio ordenador de GitHub que ejecuta
+# este workflow ya lo trae listo.
+on:
+  workflow_dispatch:
+    inputs:
+      proveedor:
+        description: "Proveedor de IA"
+        required: false
+        default: "gemini"
+        type: choice
+        options:
+          - gemini
+          - groq
+      idiomas:
+        description: "Códigos separados por comas (fr,de,ja...). Vacío = todos los idiomas."
+        required: false
+        default: ""
+      forzar:
+        description: "Retraducir TODAS las claves, no solo las que falten"
+        required: false
+        default: false
+        type: boolean
+
+# Necesario para que el workflow pueda subir (git push) el strings.json actualizado.
+permissions:
+  contents: write
+
+jobs:
+  traducir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Ejecutar el script de traducción
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          ARGS="--proveedor=${{ inputs.proveedor }}"
+          if [ -n "${{ inputs.idiomas }}" ]; then
+            ARGS="$ARGS --idiomas=${{ inputs.idiomas }}"
+          fi
+          if [ "${{ inputs.forzar }}" = "true" ]; then
+            ARGS="$ARGS --forzar"
+          fi
+          echo "Ejecutando: node i18n/actualizar-traducciones.mjs $ARGS"
+          node i18n/actualizar-traducciones.mjs $ARGS
+
+      - name: Subir el strings.json actualizado al repositorio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add i18n/strings.json
+          if git diff --cached --quiet; then
+            echo "No hay cambios que subir (todo ya estaba traducido)."
+          else
+            git commit -m "Actualiza traducciones de la interfaz (i18n)"
+            git push
+          fi
