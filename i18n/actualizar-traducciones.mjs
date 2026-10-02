@@ -69,14 +69,14 @@ function construirPrompt(nombreEs, nombreNativo, claves) {
 async function llamarGemini(prompt) {
   const clave = process.env.GEMINI_API_KEY;
   if (!clave) throw new Error('Falta la variable de entorno GEMINI_API_KEY.');
-  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const modelo = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${clave}`;
   const resp = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+      generationConfig: { temperature: 0.7, responseMimeType: 'application/json' },
     }),
   });
   if (!resp.ok) throw new Error(`Gemini respondió HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
@@ -95,7 +95,7 @@ async function llamarGroq(prompt) {
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${clave}` },
     body: JSON.stringify({
       model: modelo,
-      temperature: 0.2,
+      temperature: 0.7,
       messages: [{ role: 'user', content: prompt }],
     }),
   });
