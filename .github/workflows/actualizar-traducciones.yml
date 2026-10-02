@@ -66,3 +66,4 @@ jobs:
             git commit -m "Actualiza traducciones de la interfaz (i18n)"
             git push
           fi
+          
