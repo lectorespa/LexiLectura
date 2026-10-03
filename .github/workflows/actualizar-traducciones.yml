@@ -1,69 +1,190 @@
-name: Actualizar traducciones de la interfaz
+#!/usr/bin/env node
+// Rellena automáticamente, en i18n/strings.json, las claves que falten en cada idioma
+// a partir del idioma "es" (fuente de verdad). No hace falta traducir nada a mano: cuando
+// añadas un botón o una etiqueta nueva, añade su clave solo en "es" y ejecuta este script.
+//
+// Uso:
+//   GEMINI_API_KEY=tu_clave node i18n/actualizar-traducciones.mjs
+//   GROQ_API_KEY=tu_clave   node i18n/actualizar-traducciones.mjs --proveedor=groq
+//   node i18n/actualizar-traducciones.mjs --idiomas=fr,de,ja   (solo esos idiomas)
+//   node i18n/actualizar-traducciones.mjs --forzar             (retraduce TODAS las claves,
+//                                                                 no solo las que faltan)
+//
+// Requiere Node 18+ (usa el fetch global). No instala dependencias.
 
-# Se lanza a mano desde la pestaña "Actions" de GitHub (botón "Run workflow"), nunca solo.
-# Node.js no hace falta instalarlo en ningún sitio: el propio ordenador de GitHub que ejecuta
-# este workflow ya lo trae listo.
-on:
-  workflow_dispatch:
-    inputs:
-      proveedor:
-        description: "Proveedor de IA"
-        required: false
-        default: "gemini"
-        type: choice
-        options:
-          - gemini
-          - groq
-      idiomas:
-        description: "Códigos separados por comas (fr,de,ja...). Vacío = todos los idiomas."
-        required: false
-        default: ""
-      forzar:
-        description: "Retraducir TODAS las claves, no solo las que falten"
-        required: false
-        default: false
-        type: boolean
+import { readFile, writeFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-# Necesario para que el workflow pueda subir (git push) el strings.json actualizado.
-permissions:
-  contents: write
+const AQUI = path.dirname(fileURLToPath(import.meta.url));
+const RUTA_STRINGS = path.join(AQUI, 'strings.json');
 
-jobs:
-  traducir:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Descargar el repositorio
-        uses: actions/checkout@v4
+const args = Object.fromEntries(
+  process.argv.slice(2).map((a) => {
+    const [k, v] = a.replace(/^--/, '').split('=');
+    return [k, v === undefined ? true : v];
+  }),
+);
 
-      - name: Preparar Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+const PROVEEDOR = args.proveedor === 'groq' ? 'groq' : 'gemini';
+const SOLO_IDIOMAS = args.idiomas ? String(args.idiomas).split(',').map((s) => s.trim()) : null;
+const FORZAR = Boolean(args.forzar);
+const ESPERA_ENTRE_LLAMADAS_MS = 4000;
 
-      - name: Ejecutar el script de traducción
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-        run: |
-          ARGS="--proveedor=${{ inputs.proveedor }}"
-          if [ -n "${{ inputs.idiomas }}" ]; then
-            ARGS="$ARGS --idiomas=${{ inputs.idiomas }}"
-          fi
-          if [ "${{ inputs.forzar }}" = "true" ]; then
-            ARGS="$ARGS --forzar"
-          fi
-          echo "Ejecutando: node i18n/actualizar-traducciones.mjs $ARGS"
-          node i18n/actualizar-traducciones.mjs $ARGS
+async function cargarDiccionario() {
+  const bruto = await readFile(RUTA_STRINGS, 'utf8');
+  return JSON.parse(bruto);
+}
 
-      - name: Subir el strings.json actualizado al repositorio
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add i18n/strings.json
-          if git diff --cached --quiet; then
-            echo "No hay cambios que subir (todo ya estaba traducido)."
-          else
-            git commit -m "Actualiza traducciones de la interfaz (i18n)"
-            git push
-          fi
-          
+async function guardarDiccionario(dic) {
+  const orden = ['_idiomas', ...Object.keys(dic).filter((k) => k !== '_idiomas').sort()];
+  const ordenado = {};
+  for (const k of orden) ordenado[k] = dic[k];
+  await writeFile(RUTA_STRINGS, JSON.stringify(ordenado, null, 2) + '\n', 'utf8');
+}
+
+// Extrae el primer objeto JSON del texto, aunque el modelo lo envuelva en ```json o añada texto.
+function extraerJson(texto) {
+  const limpio = String(texto).replace(/```json|```/gi, '').trim();
+  const inicio = limpio.indexOf('{');
+  const fin = limpio.lastIndexOf('}');
+  if (inicio === -1 || fin === -1 || fin <= inicio) throw new Error('La respuesta no contiene un objeto JSON.');
+  return JSON.parse(limpio.slice(inicio, fin + 1));
+}
+
+function construirPrompt(nombreEs, nombreNativo, claves) {
+  return `Eres un traductor profesional de interfaces de usuario (UI strings) para un lector de textos ` +
+    `literarios anotados. Traduce el siguiente objeto JSON del español al idioma "${nombreEs}" (${nombreNativo}). ` +
+    `Reglas estrictas:\n` +
+    `- Devuelve ÚNICAMENTE un objeto JSON con las mismas claves, sin comentarios ni texto adicional, sin bloques de código.\n` +
+    `- No traduzcas ni alteres las claves, solo los valores.\n` +
+    `- Conserva intactos los marcadores entre llaves como {motor}, {fecha}, {titulo}, {idioma}, {parte}, {total}: no los ` +
+    `traduzcas ni los muevas fuera de una posición gramaticalmente natural.\n` +
+    `- Conserva los emoji que aparezcan al principio de un texto.\n` +
+    `- Usa un tono neutro, claro y breve, propio de botones y etiquetas de interfaz (no de prosa literaria).\n` +
+    `- Si "${nombreEs}" se escribe normalmente en un alfabeto distinto del latino, usa ESE alfabeto, no una transliteración.\n\n` +
+    `JSON a traducir:\n${JSON.stringify(claves, null, 2)}`;
+}
+
+async function llamarGemini(prompt) {
+  const clave = process.env.GEMINI_API_KEY;
+  if (!clave) throw new Error('Falta la variable de entorno GEMINI_API_KEY.');
+  const modelo = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${clave}`;
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+    }),
+  });
+  if (!resp.ok) throw new Error(`Gemini respondió HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
+  const datos = await resp.json();
+  const texto = datos?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
+  if (!texto) throw new Error('Gemini no devolvió texto.');
+  return texto;
+}
+
+async function llamarGroq(prompt) {
+  const clave = process.env.GROQ_API_KEY;
+  if (!clave) throw new Error('Falta la variable de entorno GROQ_API_KEY.');
+  const modelo = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
+  const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${clave}` },
+    body: JSON.stringify({
+      model: modelo,
+      temperature: 0.2,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+  if (!resp.ok) throw new Error(`Groq respondió HTTP ${resp.status}: ${(await resp.text()).slice(0, 300)}`);
+  const datos = await resp.json();
+  const texto = datos?.choices?.[0]?.message?.content || '';
+  if (!texto) throw new Error('Groq no devolvió texto.');
+  return texto;
+}
+
+const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function traducirClaves(nombreEs, nombreNativo, claves, intentos = 3) {
+  const prompt = construirPrompt(nombreEs, nombreNativo, claves);
+  for (let i = 1; i <= intentos; i++) {
+    try {
+      const texto = PROVEEDOR === 'groq' ? await llamarGroq(prompt) : await llamarGemini(prompt);
+      return extraerJson(texto);
+    } catch (err) {
+      console.warn(`  intento ${i}/${intentos} falló: ${err.message}`);
+      if (i === intentos) throw err;
+      await esperar(3000);
+    }
+  }
+}
+
+async function main() {
+  const dic = await cargarDiccionario();
+  const fuente = dic.es;
+  if (!fuente) throw new Error('El diccionario no tiene idioma "es" (fuente de verdad).');
+
+  const idiomas = dic._idiomas.filter((i) => i.codigo !== 'es');
+  const pendientes = SOLO_IDIOMAS ? idiomas.filter((i) => SOLO_IDIOMAS.includes(i.codigo)) : idiomas;
+
+  console.log(`Proveedor: ${PROVEEDOR} · Idiomas a revisar: ${pendientes.length} · Forzar retraducción: ${FORZAR}`);
+
+  const resumen = { completos: 0, traducidos: 0, fallidos: 0 };
+
+  for (const idioma of pendientes) {
+    const actual = dic[idioma.codigo] || {};
+    const claves = FORZAR
+      ? fuente
+      : Object.fromEntries(Object.entries(fuente).filter(([clave, valor]) => !actual[clave] && valor));
+
+    if (Object.keys(claves).length === 0) {
+      console.log(`- ${idioma.codigo} (${idioma.nombreEs}): ya está completo, se salta.`);
+      resumen.completos++;
+      continue;
+    }
+
+    console.log(`- ${idioma.codigo} (${idioma.nombreEs}): traduciendo ${Object.keys(claves).length} clave(s)…`);
+    try {
+      const traducidas = await traducirClaves(idioma.nombreEs, idioma.nombreNativo, claves);
+      dic[idioma.codigo] = { ...actual, ...traducidas };
+      resumen.traducidos++;
+      await guardarDiccionario(dic); // guarda tras cada idioma: un fallo a mitad no pierde lo ya hecho
+      console.log(`  ✔ guardado (${Object.keys(traducidas).length} clave(s)).`);
+    } catch (err) {
+      resumen.fallidos++;
+      console.error(`  ✘ no se pudo traducir ${idioma.codigo}: ${err.message}`);
+    }
+
+    await esperar(ESPERA_ENTRE_LLAMADAS_MS);
+  }
+
+  console.log(
+    `\nResumen: ${resumen.traducidos} traducido(s), ${resumen.completos} ya completo(s), ${resumen.fallidos} fallido(s).`,
+  );
+
+  if (resumen.fallidos > 0 && resumen.traducidos === 0) {
+    // Nada se tradujo y además hubo fallos: probablemente la clave de API falta, es inválida,
+    // o se agotó la cuota. Se marca como error para que el workflow de GitHub quede en rojo
+    // en vez de aparentar que "ya estaba todo hecho".
+    console.error('\nNo se tradujo ningún idioma y hubo errores. Revisa el mensaje de error de arriba');
+    console.error('(clave de API ausente/incorrecta, cuota agotada, modelo no disponible, etc.).');
+    process.exitCode = 1;
+    return;
+  }
+
+  if (resumen.fallidos > 0) {
+    console.error(`\n${resumen.fallidos} idioma(s) fallaron; el resto se guardó correctamente. Revisa los errores de arriba.`);
+    process.exitCode = 1; // éxito parcial: igualmente visible como fallo en GitHub Actions
+    return;
+  }
+
+  console.log('Listo.');
+}
+
+main().catch((err) => {
+  console.error('Error fatal:', err);
+  process.exitCode = 1;
+});
