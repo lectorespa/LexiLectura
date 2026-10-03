@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // Rellena automáticamente, en i18n/strings.json, las claves que falten en cada idioma
-// a partir del idioma "es" (fuente de verdad). No hace falta traducir nada a mano: cuando
-// añadas un botón o una etiqueta nueva, añade su clave solo en "es" y ejecuta este script.
+// a partir del idioma "es" (fuente de verdad). No hace falta traducir nada a mano: cuando añadas un botón o una etiqueta nueva, añade su clave solo en "es" y ejecuta este script.
 //
 // Uso:
 //   GEMINI_API_KEY=tu_clave node i18n/actualizar-traducciones.mjs
