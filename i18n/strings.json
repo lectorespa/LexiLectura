@@ -1,80 +1,234 @@
 {
   "_idiomas": [
-    { "codigo": "es", "nombreNativo": "Español",     "nombreEs": "Español",     "rtl": false },
-    { "codigo": "en", "nombreNativo": "English",      "nombreEs": "Inglés",      "rtl": false },
-    { "codigo": "fr", "nombreNativo": "Français",     "nombreEs": "Francés",     "rtl": false },
-    { "codigo": "pt", "nombreNativo": "Português",    "nombreEs": "Portugués",   "rtl": false },
-    { "codigo": "it", "nombreNativo": "Italiano",     "nombreEs": "Italiano",    "rtl": false },
-    { "codigo": "de", "nombreNativo": "Deutsch",      "nombreEs": "Alemán",      "rtl": false },
-    { "codigo": "ru", "nombreNativo": "Русский",      "nombreEs": "Ruso",        "rtl": false },
-    { "codigo": "sr", "nombreNativo": "Српски",       "nombreEs": "Serbio",      "rtl": false },
-    { "codigo": "ro", "nombreNativo": "Română",       "nombreEs": "Rumano",      "rtl": false },
-    { "codigo": "no", "nombreNativo": "Norsk",        "nombreEs": "Noruego",     "rtl": false },
-    { "codigo": "sv", "nombreNativo": "Svenska",      "nombreEs": "Sueco",       "rtl": false },
-    { "codigo": "fi", "nombreNativo": "Suomi",        "nombreEs": "Finés",       "rtl": false },
-    { "codigo": "is", "nombreNativo": "Íslenska",     "nombreEs": "Islandés",    "rtl": false },
-    { "codigo": "se", "nombreNativo": "Sámegiella",   "nombreEs": "Sami (septentrional)", "rtl": false },
-    { "codigo": "eu", "nombreNativo": "Euskara",      "nombreEs": "Euskera",     "rtl": false },
-    { "codigo": "ca", "nombreNativo": "Català",       "nombreEs": "Catalán",     "rtl": false },
-    { "codigo": "gl", "nombreNativo": "Galego",       "nombreEs": "Gallego",     "rtl": false },
-    { "codigo": "hu", "nombreNativo": "Magyar",       "nombreEs": "Húngaro",     "rtl": false },
-    { "codigo": "cs", "nombreNativo": "Čeština",      "nombreEs": "Checo",       "rtl": false },
-    { "codigo": "pl", "nombreNativo": "Polski",       "nombreEs": "Polaco",      "rtl": false },
-    { "codigo": "uk", "nombreNativo": "Українська",   "nombreEs": "Ucraniano",   "rtl": false },
-    { "codigo": "el", "nombreNativo": "Ελληνικά",     "nombreEs": "Griego",      "rtl": false },
-    { "codigo": "ar", "nombreNativo": "العربية",       "nombreEs": "Árabe",       "rtl": true  },
-    { "codigo": "fa", "nombreNativo": "فارسی",         "nombreEs": "Farsi",       "rtl": true  },
-    { "codigo": "sw", "nombreNativo": "Kiswahili",    "nombreEs": "Suajili",     "rtl": false },
-    { "codigo": "om", "nombreNativo": "Afaan Oromoo", "nombreEs": "Oromo",       "rtl": false },
-    { "codigo": "af", "nombreNativo": "Afrikaans",    "nombreEs": "Afrikáans",   "rtl": false },
-    { "codigo": "ja", "nombreNativo": "日本語",         "nombreEs": "Japonés",     "rtl": false },
-    { "codigo": "ko", "nombreNativo": "한국어",         "nombreEs": "Coreano",     "rtl": false },
-    { "codigo": "th", "nombreNativo": "ไทย",           "nombreEs": "Tailandés",   "rtl": false },
-    { "codigo": "tl", "nombreNativo": "Tagalog",      "nombreEs": "Tagalo",      "rtl": false },
-    { "codigo": "vi", "nombreNativo": "Tiếng Việt",   "nombreEs": "Vietnamita",  "rtl": false },
-    { "codigo": "he", "nombreNativo": "עברית",         "nombreEs": "Hebreo",      "rtl": true  },
-    { "codigo": "tr", "nombreNativo": "Türkçe",       "nombreEs": "Turco",       "rtl": false },
-    { "codigo": "hi", "nombreNativo": "हिन्दी",         "nombreEs": "Hindi",       "rtl": false },
-    { "codigo": "ur", "nombreNativo": "اردو",          "nombreEs": "Urdu",        "rtl": true  },
-    { "codigo": "zh", "nombreNativo": "中文",           "nombreEs": "Chino",       "rtl": false }
+    {
+      "codigo": "es",
+      "nombreNativo": "Español",
+      "nombreEs": "Español",
+      "rtl": false
+    },
+    {
+      "codigo": "en",
+      "nombreNativo": "English",
+      "nombreEs": "Inglés",
+      "rtl": false
+    },
+    {
+      "codigo": "fr",
+      "nombreNativo": "Français",
+      "nombreEs": "Francés",
+      "rtl": false
+    },
+    {
+      "codigo": "pt",
+      "nombreNativo": "Português",
+      "nombreEs": "Portugués",
+      "rtl": false
+    },
+    {
+      "codigo": "it",
+      "nombreNativo": "Italiano",
+      "nombreEs": "Italiano",
+      "rtl": false
+    },
+    {
+      "codigo": "de",
+      "nombreNativo": "Deutsch",
+      "nombreEs": "Alemán",
+      "rtl": false
+    },
+    {
+      "codigo": "ru",
+      "nombreNativo": "Русский",
+      "nombreEs": "Ruso",
+      "rtl": false
+    },
+    {
+      "codigo": "sr",
+      "nombreNativo": "Српски",
+      "nombreEs": "Serbio",
+      "rtl": false
+    },
+    {
+      "codigo": "ro",
+      "nombreNativo": "Română",
+      "nombreEs": "Rumano",
+      "rtl": false
+    },
+    {
+      "codigo": "no",
+      "nombreNativo": "Norsk",
+      "nombreEs": "Noruego",
+      "rtl": false
+    },
+    {
+      "codigo": "sv",
+      "nombreNativo": "Svenska",
+      "nombreEs": "Sueco",
+      "rtl": false
+    },
+    {
+      "codigo": "fi",
+      "nombreNativo": "Suomi",
+      "nombreEs": "Finés",
+      "rtl": false
+    },
+    {
+      "codigo": "is",
+      "nombreNativo": "Íslenska",
+      "nombreEs": "Islandés",
+      "rtl": false
+    },
+    {
+      "codigo": "se",
+      "nombreNativo": "Sámegiella",
+      "nombreEs": "Sami (septentrional)",
+      "rtl": false
+    },
+    {
+      "codigo": "eu",
+      "nombreNativo": "Euskara",
+      "nombreEs": "Euskera",
+      "rtl": false
+    },
+    {
+      "codigo": "ca",
+      "nombreNativo": "Català",
+      "nombreEs": "Catalán",
+      "rtl": false
+    },
+    {
+      "codigo": "gl",
+      "nombreNativo": "Galego",
+      "nombreEs": "Gallego",
+      "rtl": false
+    },
+    {
+      "codigo": "hu",
+      "nombreNativo": "Magyar",
+      "nombreEs": "Húngaro",
+      "rtl": false
+    },
+    {
+      "codigo": "cs",
+      "nombreNativo": "Čeština",
+      "nombreEs": "Checo",
+      "rtl": false
+    },
+    {
+      "codigo": "pl",
+      "nombreNativo": "Polski",
+      "nombreEs": "Polaco",
+      "rtl": false
+    },
+    {
+      "codigo": "uk",
+      "nombreNativo": "Українська",
+      "nombreEs": "Ucraniano",
+      "rtl": false
+    },
+    {
+      "codigo": "el",
+      "nombreNativo": "Ελληνικά",
+      "nombreEs": "Griego",
+      "rtl": false
+    },
+    {
+      "codigo": "ar",
+      "nombreNativo": "العربية",
+      "nombreEs": "Árabe",
+      "rtl": true
+    },
+    {
+      "codigo": "fa",
+      "nombreNativo": "فارسی",
+      "nombreEs": "Farsi",
+      "rtl": true
+    },
+    {
+      "codigo": "sw",
+      "nombreNativo": "Kiswahili",
+      "nombreEs": "Suajili",
+      "rtl": false
+    },
+    {
+      "codigo": "om",
+      "nombreNativo": "Afaan Oromoo",
+      "nombreEs": "Oromo",
+      "rtl": false
+    },
+    {
+      "codigo": "af",
+      "nombreNativo": "Afrikaans",
+      "nombreEs": "Afrikáans",
+      "rtl": false
+    },
+    {
+      "codigo": "ja",
+      "nombreNativo": "日本語",
+      "nombreEs": "Japonés",
+      "rtl": false
+    },
+    {
+      "codigo": "ko",
+      "nombreNativo": "한국어",
+      "nombreEs": "Coreano",
+      "rtl": false
+    },
+    {
+      "codigo": "th",
+      "nombreNativo": "ไทย",
+      "nombreEs": "Tailandés",
+      "rtl": false
+    },
+    {
+      "codigo": "tl",
+      "nombreNativo": "Tagalog",
+      "nombreEs": "Tagalo",
+      "rtl": false
+    },
+    {
+      "codigo": "vi",
+      "nombreNativo": "Tiếng Việt",
+      "nombreEs": "Vietnamita",
+      "rtl": false
+    },
+    {
+      "codigo": "he",
+      "nombreNativo": "עברית",
+      "nombreEs": "Hebreo",
+      "rtl": true
+    },
+    {
+      "codigo": "tr",
+      "nombreNativo": "Türkçe",
+      "nombreEs": "Turco",
+      "rtl": false
+    },
+    {
+      "codigo": "hi",
+      "nombreNativo": "हिन्दी",
+      "nombreEs": "Hindi",
+      "rtl": false
+    },
+    {
+      "codigo": "ur",
+      "nombreNativo": "اردو",
+      "nombreEs": "Urdu",
+      "rtl": true
+    },
+    {
+      "codigo": "zh",
+      "nombreNativo": "中文",
+      "nombreEs": "Chino",
+      "rtl": false
+    }
   ],
-
-  "es": {
-    "pagina.titulo": "Visor de Ediciones Críticas e Interactivas",
-    "idioma.interfaz.etiqueta": "Idioma de la interfaz:",
-    "anotar.etiqueta": "✨ Generar edición anotada con IA:",
-    "anotar.placeholder": "Pega aquí el texto plano en español o en cualquier otro idioma...",
-    "anotar.limpiar.boton": "🧹 Limpiar texto",
-    "anotar.limpiar.title": "Borra el texto pegado en el cajetín (no afecta a la edición anotada en pantalla)",
-    "anotar.gemini.boton": "✨ Anotar con Gemini Flash",
-    "anotar.gemini.title": "Anota con Gemini Flash (Google)",
-    "anotar.groq.boton": "✨ Anotar con Groq",
-    "anotar.groq.title": "Anota con Groq (modelos gpt-oss)",
-    "anotar.idioma.etiqueta": "Idioma de las anotaciones:",
-    "anotar.idioma.automatico": "Automático (mismo idioma que el texto)",
-    "anotar.exito": "¡Texto anotado correctamente con {motor}!",
-    "anotar.progreso": "⏳ Anotando parte {parte} de {total}…",
-    "exportar.html.boton": "💾 Descargar edición como HTML autónomo",
-    "exportar.html.title": "Descarga la edición anotada actual como un único archivo HTML que funciona sin servidor",
-    "exportar.json.boton": "📄 Descargar edición como JSON",
-    "exportar.json.title": "Descarga la edición anotada actual como archivo JSON",
-    "exportar.status.vacio": "Anota o carga una edición para poder descargarla.",
-    "exportar.status.lista": "Edición lista para descargar: «{titulo}».",
-    "catalogo.etiqueta": "O selecciona una obra del catálogo:",
-    "catalogo.opcion.vacia": "-- Cargar obra anotada --",
-    "filtros.titulo": "Filtro de Categorías / Capas",
-    "filtros.todas": "Todas",
-    "filtros.ninguna": "Ninguna",
-    "nivel.basico.boton": "Lectura Básica (B1+)",
-    "nivel.avanzado.boton": "Lectura Avanzada (C1+)",
-    "nivel.badge.basico": "Modo Lectura Básica (Vocabulario B1+)",
-    "nivel.badge.avanzado": "Modo Edición Crítica (Vocabulario C1+)",
-    "texto.cargando": "Pega un texto arriba y anótalo con IA, o selecciona alguna obra ya anotada del catálogo.",
-    "modal.cerrar.aria": "Cerrar modal",
-    "pie.anotado": "Anotado con {motor} el {fecha}.",
-    "pie.anotado.idioma": " Anotaciones en {idioma}."
-  },
-
+  "af": {},
+  "ar": {},
+  "ca": {},
+  "cs": {},
+  "de": {},
+  "el": {},
   "en": {
     "pagina.titulo": "Interactive Critical Editions Viewer",
     "idioma.interfaz.etiqueta": "Interface language:",
@@ -110,9 +264,102 @@
     "pie.anotado": "Annotated with {motor} on {fecha}.",
     "pie.anotado.idioma": " Annotations in {idioma}."
   },
-
-  "fr": {}, "pt": {}, "it": {}, "de": {}, "ru": {}, "sr": {}, "ro": {}, "no": {}, "sv": {},
-  "fi": {}, "is": {}, "se": {}, "eu": {}, "ca": {}, "gl": {}, "hu": {}, "cs": {}, "pl": {},
-  "uk": {}, "el": {}, "ar": {}, "fa": {}, "sw": {}, "om": {}, "af": {}, "ja": {}, "ko": {},
-  "th": {}, "tl": {}, "vi": {}, "he": {}, "tr": {}, "hi": {}, "ur": {}, "zh": {}
+  "es": {
+    "pagina.titulo": "Visor de Ediciones Críticas e Interactivas",
+    "idioma.interfaz.etiqueta": "Idioma de la interfaz:",
+    "anotar.etiqueta": "✨ Generar edición anotada con IA:",
+    "anotar.placeholder": "Pega aquí el texto plano en español o en cualquier otro idioma...",
+    "anotar.limpiar.boton": "🧹 Limpiar texto",
+    "anotar.limpiar.title": "Borra el texto pegado en el cajetín (no afecta a la edición anotada en pantalla)",
+    "anotar.gemini.boton": "✨ Anotar con Gemini Flash",
+    "anotar.gemini.title": "Anota con Gemini Flash (Google)",
+    "anotar.groq.boton": "✨ Anotar con Groq",
+    "anotar.groq.title": "Anota con Groq (modelos gpt-oss)",
+    "anotar.idioma.etiqueta": "Idioma de las anotaciones:",
+    "anotar.idioma.automatico": "Automático (mismo idioma que el texto)",
+    "anotar.exito": "¡Texto anotado correctamente con {motor}!",
+    "anotar.progreso": "⏳ Anotando parte {parte} de {total}…",
+    "exportar.html.boton": "💾 Descargar edición como HTML autónomo",
+    "exportar.html.title": "Descarga la edición anotada actual como un único archivo HTML que funciona sin servidor",
+    "exportar.json.boton": "📄 Descargar edición como JSON",
+    "exportar.json.title": "Descarga la edición anotada actual como archivo JSON",
+    "exportar.status.vacio": "Anota o carga una edición para poder descargarla.",
+    "exportar.status.lista": "Edición lista para descargar: «{titulo}».",
+    "catalogo.etiqueta": "O selecciona una obra del catálogo:",
+    "catalogo.opcion.vacia": "-- Cargar obra anotada --",
+    "filtros.titulo": "Filtro de Categorías / Capas",
+    "filtros.todas": "Todas",
+    "filtros.ninguna": "Ninguna",
+    "nivel.basico.boton": "Lectura Básica (B1+)",
+    "nivel.avanzado.boton": "Lectura Avanzada (C1+)",
+    "nivel.badge.basico": "Modo Lectura Básica (Vocabulario B1+)",
+    "nivel.badge.avanzado": "Modo Edición Crítica (Vocabulario C1+)",
+    "texto.cargando": "Pega un texto arriba y anótalo con IA, o selecciona alguna obra ya anotada del catálogo.",
+    "modal.cerrar.aria": "Cerrar modal",
+    "pie.anotado": "Anotado con {motor} el {fecha}.",
+    "pie.anotado.idioma": " Anotaciones en {idioma}."
+  },
+  "eu": {},
+  "fa": {},
+  "fi": {},
+  "fr": {
+    "pagina.titulo": "Visionneuse d'Éditions Critiques et Interactives",
+    "idioma.interfaz.etiqueta": "Langue de l'interface :",
+    "anotar.etiqueta": "✨ Générer une édition annotée avec l'IA :",
+    "anotar.placeholder": "Collez ici le texte brut en espagnol ou dans toute autre langue...",
+    "anotar.limpiar.boton": "🧹 Effacer le texte",
+    "anotar.limpiar.title": "Efface le texte collé dans la zone (n'affecte pas l'édition annotée à l'écran)",
+    "anotar.gemini.boton": "✨ Annoter avec Gemini Flash",
+    "anotar.gemini.title": "Annoter avec Gemini Flash (Google)",
+    "anotar.groq.boton": "✨ Annoter avec Groq",
+    "anotar.groq.title": "Annoter avec Groq (modèles gpt-oss)",
+    "anotar.idioma.etiqueta": "Langue des annotations :",
+    "anotar.idioma.automatico": "Automatique (même langue que le texte)",
+    "anotar.exito": "Texte annoté avec succès avec {motor} !",
+    "anotar.progreso": "⏳ Annotation de la partie {parte} sur {total}…",
+    "exportar.html.boton": "💾 Télécharger l'édition en HTML autonome",
+    "exportar.html.title": "Télécharge l'édition annotée actuelle sous forme de fichier HTML unique fonctionnant sans serveur",
+    "exportar.json.boton": "📄 Télécharger l'édition au format JSON",
+    "exportar.json.title": "Télécharge l'édition annotée actuelle sous forme de fichier JSON",
+    "exportar.status.vacio": "Annotez ou chargez une édition pour pouvoir la télécharger.",
+    "exportar.status.lista": "Édition prête à être téléchargée : « {titulo} ».",
+    "catalogo.etiqueta": "Ou sélectionnez une œuvre dans le catalogue :",
+    "catalogo.opcion.vacia": "-- Charger une œuvre annotée --",
+    "filtros.titulo": "Filtre de catégories / couches",
+    "filtros.todas": "Toutes",
+    "filtros.ninguna": "Aucune",
+    "nivel.basico.boton": "Lecture de base (B1+)",
+    "nivel.avanzado.boton": "Lecture avancée (C1+)",
+    "nivel.badge.basico": "Mode Lecture de base (Vocabulaire B1+)",
+    "nivel.badge.avanzado": "Mode Édition critique (Vocabulaire C1+)",
+    "texto.cargando": "Collez un texte ci-dessus et annotez-le avec l'IA, ou sélectionnez une œuvre déjà annotée dans le catalogue.",
+    "modal.cerrar.aria": "Fermer la fenêtre modale",
+    "pie.anotado": "Annoté avec {motor} le {fecha}.",
+    "pie.anotado.idioma": " Annotations en {idioma}."
+  },
+  "gl": {},
+  "he": {},
+  "hi": {},
+  "hu": {},
+  "is": {},
+  "it": {},
+  "ja": {},
+  "ko": {},
+  "no": {},
+  "om": {},
+  "pl": {},
+  "pt": {},
+  "ro": {},
+  "ru": {},
+  "se": {},
+  "sr": {},
+  "sv": {},
+  "sw": {},
+  "th": {},
+  "tl": {},
+  "tr": {},
+  "uk": {},
+  "ur": {},
+  "vi": {},
+  "zh": {}
 }
