@@ -18,7 +18,7 @@ import { SYSTEM_PROMPT } from '../lib/prompt.js';
 
 export const config = { runtime: 'edge' };
 
-const VERSION = '2026-09-21-a'; // súbela al cambiar el archivo: aparece en GET /api/generar
+const VERSION = '2026-09-26-a'; // súbela al cambiar el archivo: aparece en GET /api/generar
 
 // Los IDs cambian con frecuencia. Sobrescríbelos SIN tocar código con variables de entorno
 // (IDs separados por comas, en orden de preferencia):
@@ -110,16 +110,13 @@ function errorConCodigo(codigo, mensaje) {
   return e;
 }
 
-function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto, idiomaAnotaciones) {
-  // Instrucción de idioma de las anotaciones: se repite ANTES y DESPUÉS del texto a analizar.
-  // No es redundancia superflua: va antes para que el modelo la lea antes de "anclarse" al
-  // idioma del propio texto, y se repite después, pegada al texto, porque es la posición que
-  // mejor retienen los modelos en prompts largos (hay literatura de sobra sobre modelos que
-  // ignoran instrucciones que solo aparecen una vez al principio de un prompt largo).
-  const instruccionIdioma = idiomaAnotaciones
-    ? `INSTRUCCIÓN DE IDIOMA — MÁXIMA PRIORIDAD: el usuario ha pedido explícitamente que TODAS las anotaciones (los campos "definition" y "content" de cada nivel "short"/"deep", los "title" de los nodos, y el campo "period" de "meta" si aplica) se redacten en ${idiomaAnotaciones}. Esto anula cualquier otra instrucción del sistema sobre "mismo idioma que el texto". El único contenido que NUNCA se traduce es el array "stanzas" (el texto literario en sí, que se transcribe tal cual) y los valores estructurales en inglés (type, category, etc.).`
-    : '';
-
+function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto) {
+  // El idioma de las anotaciones ya NO se pide aquí: se deja que el modelo anote con
+  // normalidad (típicamente en el idioma del propio texto, que es lo que el sistema le pide
+  // y para lo que está optimizado este prompt) y, si el usuario pidió un idioma distinto,
+  // se traduce aparte en un segundo paso dedicado (traducirAnotaciones). Pedir "anota Y
+  // cambia de idioma" en una sola instrucción, compitiendo con todo el resto del prompt,
+  // resultó mucho menos fiable que separar ambas tareas.
   let extra = '';
   if (totalPartes > 1) {
     extra += `\nMODO FRAGMENTO: este texto es la parte ${parte} de ${totalPartes} de una obra más larga que se anota por partes. Anota ÚNICAMENTE este fragmento; no resumas ni comentes el resto. Los identificadores de nodo (node_1, node_2…) pueden repetirse entre partes: se renumeran al unirlas.`;
@@ -127,12 +124,7 @@ function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto, idiom
       extra += ` NO generes los nodos node_author ni node_period (ya existen en la parte 1). En "meta" repite exactamente estos valores: ${JSON.stringify(contexto || {})}.`;
     }
   }
-
-  const bloqueTexto = `TEXTO A ANALIZAR (transcribe este contenido tal cual en "stanzas"; NO es necesariamente el idioma de las anotaciones):\n"""\n${textoPlano}\n"""`;
-
-  if (!instruccionIdioma) return `${bloqueTexto}${extra}`;
-
-  return `${instruccionIdioma}\n\n${bloqueTexto}\n\nRECORDATORIO: redacta las anotaciones de este texto en ${idiomaAnotaciones}, no en el idioma del texto de arriba.${extra}`;
+  return `TEXTO A ANALIZAR:\n"""\n${textoPlano}\n"""${extra}`;
 }
 
 // Extrae el objeto JSON aunque el modelo lo envuelva en ```json, añada texto o razonamiento.
@@ -196,6 +188,95 @@ function normalizarAnotacion(d) {
   }
 
   return { ...d, interactiveNodes: nodos, stanzas: estrofas };
+}
+
+// ---------------------------------------------------------------------------
+// Traducción de las anotaciones a un idioma elegido por el usuario
+// ---------------------------------------------------------------------------
+//
+// Pedirle al modelo "anota Y además hazlo en este idioma" en una sola pasada compite con
+// toda la densidad de instrucciones del prompt principal (esquema, ejemplo, reglas de
+// densidad…) y en la práctica el idioma pierde esa pugna. Traducir aparte, con un prompt
+// mínimo dedicado solo a eso, es una tarea mucho más simple y fiable para un LLM.
+
+// Recoge los campos traducibles de una anotación ya validada, cada uno con una clave plana
+// (t0, t1…) y una función set() para volver a escribirlo en una COPIA del objeto. meta.title,
+// meta.author y el propio texto ("stanzas") nunca se tocan: no son anotaciones, son la obra.
+function extraerCamposTraducibles(obra) {
+  const entradas = [];
+  let contador = 0;
+  const añadir = (texto, set) => {
+    if (typeof texto === 'string' && texto.trim()) entradas.push({ clave: `t${contador++}`, texto, set });
+  };
+
+  añadir(obra.meta?.period, (copia, v) => { copia.meta.period = v; });
+
+  for (const id of Object.keys(obra.interactiveNodes || {})) {
+    añadir(obra.interactiveNodes[id]?.title, (copia, v) => { copia.interactiveNodes[id].title = v; });
+    for (const nivel of ['short', 'deep']) {
+      const an = obra.interactiveNodes[id]?.annotations?.[nivel];
+      añadir(an?.definition, (copia, v) => { copia.interactiveNodes[id].annotations[nivel].definition = v; });
+      añadir(an?.content, (copia, v) => { copia.interactiveNodes[id].annotations[nivel].content = v; });
+    }
+  }
+  return entradas;
+}
+
+function construirPromptTraduccion(mapaTextos, idiomaAnotaciones) {
+  return {
+    sistema: 'Eres un traductor profesional especializado en anotaciones filológicas y '
+      + 'críticas de textos literarios. Tu única tarea es traducir VALORES de un objeto JSON; '
+      + 'nunca cambias las claves ni la estructura, y nunca añades, quitas ni interpretas nada '
+      + 'que no esté en el texto original. Devuelve ÚNICAMENTE el objeto JSON traducido, sin '
+      + 'texto introductorio, sin explicaciones y sin bloques de código.',
+    usuario: `Traduce todos los valores de este objeto JSON al idioma "${idiomaAnotaciones}". Reglas:
+- Conserva exactamente las mismas claves (t0, t1, t2…); traduce solo los valores.
+- Conserva intactas las etiquetas HTML que aparezcan (por ejemplo <br><br>).
+- Mantén un registro equivalente al original: directo y claro en los textos breves, académico y terminológico en los textos largos de análisis.
+- Longitud similar a la del original en cada valor; no resumas ni amplíes.
+- Si un valor ya está en "${idiomaAnotaciones}", devuélvelo tal cual.
+- No traduzcas nombres propios que no se traducen habitualmente (autores, topónimos sin forma tradicional en el idioma de destino).
+
+JSON a traducir:
+${JSON.stringify(mapaTextos)}`,
+  };
+}
+
+// Traduce las anotaciones ya generadas a idiomaAnotaciones. Si algo falla (red, JSON mal
+// formado, tiempo agotado…) se devuelve la anotación ORIGINAL sin tocar: es preferible
+// entregar una anotación correcta en otro idioma que hacer fallar toda la petición por un
+// problema solo en el paso de traducción.
+async function traducirAnotaciones(resultado, idiomaAnotaciones, proveedorId, prov, client, ajustes, senalCliente) {
+  const entradas = extraerCamposTraducibles(resultado);
+  if (!entradas.length) return resultado;
+
+  const mapaTextos = Object.fromEntries(entradas.map((e) => [e.clave, e.texto]));
+  const prompt = construirPromptTraduccion(mapaTextos, idiomaAnotaciones);
+  const limite = Date.now() + 60_000; // la traducción es una tarea acotada: no necesita el presupuesto completo
+
+  for (const modelo of prov.modelos) {
+    if (limite - Date.now() < 10_000) break;
+    try {
+      const salida = await conControlDeTiempo(ajustes, limite, senalCliente, (senal, latir) => {
+        if (proveedorId === 'gemini') return pedirAGemini(prov, modelo, prompt, senal, latir);
+        return pedirAGroq(client, prov, modelo, prompt, senal, latir);
+      });
+      const traducido = extraerJson(salida.texto);
+      const copia = JSON.parse(JSON.stringify(resultado));
+      let aplicadas = 0;
+      for (const entrada of entradas) {
+        const valor = traducido?.[entrada.clave];
+        if (typeof valor === 'string' && valor.trim()) { entrada.set(copia, valor); aplicadas++; }
+      }
+      console.log(`[generar] traducción a "${idiomaAnotaciones}" OK con ${prov.nombre}/${salida.modeloReal} (${aplicadas}/${entradas.length} campos).`);
+      return copia;
+    } catch (err) {
+      console.warn(`[generar] traducción a "${idiomaAnotaciones}" falló con ${modelo}: ${err.message}`);
+    }
+  }
+
+  console.warn(`[generar] no se pudo traducir a "${idiomaAnotaciones}" con ningún modelo; se devuelve la anotación sin traducir.`);
+  return resultado;
 }
 
 // ---------------------------------------------------------------------------
@@ -475,15 +556,19 @@ async function pedirAGemini(prov, modelo, prompt, senal, latir) {
 // Respaldo entre modelos: falla el modelo O falla su salida → siguiente modelo
 // ---------------------------------------------------------------------------
 
-async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente) {
-  const prov = ajustes.proveedores[proveedorId];
-  const client = proveedorId === 'gemini'
+function crearClienteProveedor(proveedorId, prov) {
+  return proveedorId === 'gemini'
     ? null
     : new OpenAI({
       apiKey: prov.apiKey,
       baseURL: prov.baseURL,
       maxRetries: 0, // los reintentos los gestionamos nosotros (cambiando de modelo)
     });
+}
+
+async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente) {
+  const prov = ajustes.proveedores[proveedorId];
+  const client = crearClienteProveedor(proveedorId, prov);
 
   const limite = Date.now() + ajustes.presupuestoMs;
   const fallos = [];
@@ -620,7 +705,7 @@ export default async function handler(req) {
 
     const prompt = {
       sistema: SYSTEM_PROMPT,
-      usuario: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto, idiomaAnotaciones),
+      usuario: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto),
     };
 
     const enc = new TextEncoder();
@@ -636,7 +721,13 @@ export default async function handler(req) {
         const latido = setInterval(() => enviar(' '), ajustes.latidoMs);
 
         try {
-          const resultado = await generarConRespaldo(proveedorId, prompt, ajustes, req.signal);
+          let resultado = await generarConRespaldo(proveedorId, prompt, ajustes, req.signal);
+          if (idiomaAnotaciones) {
+            resultado = await traducirAnotaciones(
+              resultado, idiomaAnotaciones, proveedorId, prov,
+              crearClienteProveedor(proveedorId, prov), ajustes, req.signal,
+            );
+          }
           enviar(JSON.stringify(resultado));
         } catch (err) {
           console.error('[generar] error final:', err.codigo, err.message);
