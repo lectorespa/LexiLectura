@@ -302,7 +302,7 @@
     "pagina.titulo": "Visor de Ediciones Críticas e Interactivas",
     "idioma.interfaz.etiqueta": "Idioma de la interfaz:",
     "anotar.etiqueta": "✨ Generar edición anotada con IA:",
-    "anotar.placeholder": "Pega aquí el texto plano en español o en cualquier otro idioma...",
+    "anotar.placeholder": "Pega aquí el texto...",
     "anotar.limpiar.boton": "🧹 Limpiar texto",
     "anotar.limpiar.title": "Borra el texto pegado en el cajetín (no afecta a la edición anotada en pantalla)",
     "anotar.gemini.boton": "✨ Anotar con Gemini Flash",
