@@ -111,17 +111,28 @@ function errorConCodigo(codigo, mensaje) {
 }
 
 function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto, idiomaAnotaciones) {
+  // Instrucción de idioma de las anotaciones: se repite ANTES y DESPUÉS del texto a analizar.
+  // No es redundancia superflua: va antes para que el modelo la lea antes de "anclarse" al
+  // idioma del propio texto, y se repite después, pegada al texto, porque es la posición que
+  // mejor retienen los modelos en prompts largos (hay literatura de sobra sobre modelos que
+  // ignoran instrucciones que solo aparecen una vez al principio de un prompt largo).
+  const instruccionIdioma = idiomaAnotaciones
+    ? `INSTRUCCIÓN DE IDIOMA — MÁXIMA PRIORIDAD: el usuario ha pedido explícitamente que TODAS las anotaciones (los campos "definition" y "content" de cada nivel "short"/"deep", los "title" de los nodos, y el campo "period" de "meta" si aplica) se redacten en ${idiomaAnotaciones}. Esto anula cualquier otra instrucción del sistema sobre "mismo idioma que el texto". El único contenido que NUNCA se traduce es el array "stanzas" (el texto literario en sí, que se transcribe tal cual) y los valores estructurales en inglés (type, category, etc.).`
+    : '';
+
   let extra = '';
-  if (idiomaAnotaciones) {
-    extra += `\nIDIOMA DE LAS ANOTACIONES: redacta TODO el texto de tus anotaciones (definiciones, contenido, notas, y el campo "period" de "meta" si aplica) en ${idiomaAnotaciones}, sea cual sea el idioma del TEXTO A ANALIZAR. Esto tiene prioridad sobre cualquier otra instrucción sobre el idioma de salida. No traduzcas el texto original al citarlo literalmente dentro de una anotación; usa ${idiomaAnotaciones} solo en tus propias explicaciones. Los nombres técnicos (identificadores de nodo, "type"/"category", claves JSON) siguen en su formato habitual, sin traducir.`;
-  }
   if (totalPartes > 1) {
     extra += `\nMODO FRAGMENTO: este texto es la parte ${parte} de ${totalPartes} de una obra más larga que se anota por partes. Anota ÚNICAMENTE este fragmento; no resumas ni comentes el resto. Los identificadores de nodo (node_1, node_2…) pueden repetirse entre partes: se renumeran al unirlas.`;
     if (parte > 1) {
       extra += ` NO generes los nodos node_author ni node_period (ya existen en la parte 1). En "meta" repite exactamente estos valores: ${JSON.stringify(contexto || {})}.`;
     }
   }
-  return `TEXTO A ANALIZAR:\n"""\n${textoPlano}\n"""${extra}`;
+
+  const bloqueTexto = `TEXTO A ANALIZAR (transcribe este contenido tal cual en "stanzas"; NO es necesariamente el idioma de las anotaciones):\n"""\n${textoPlano}\n"""`;
+
+  if (!instruccionIdioma) return `${bloqueTexto}${extra}`;
+
+  return `${instruccionIdioma}\n\n${bloqueTexto}\n\nRECORDATORIO: redacta las anotaciones de este texto en ${idiomaAnotaciones}, no en el idioma del texto de arriba.${extra}`;
 }
 
 // Extrae el objeto JSON aunque el modelo lo envuelva en ```json, añada texto o razonamiento.
