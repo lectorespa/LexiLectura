@@ -1,0 +1,708 @@
+{
+  "meta": {
+    "title": "«Campos de Soria» / Campos de Castilla",
+    "author": "Antonio Machado",
+    "authorNodeId": "node_author",
+    "period": "Generación del 98",
+    "periodNodeId": "node_period",
+    "year": "1912",
+    "lang": "es",
+    "audioUrl": null
+  },
+  "interactiveNodes": {
+    "node_author": {
+      "type": "author",
+      "category": "author",
+      "title": "Antonio Machado: Poesía de paisaje y alma",
+      "wikipediaArticle": "Antonio_Machado",
+      "wikiLang": "es",
+      "visualConceptType": "portrait",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Antonio Machado retrato",
+      "imageVisualKeywords": ["retrato autor", "fotografía histórica", "poeta español"],
+      "youtubeSearchQuery": "Antonio Machado biografía y poesía",
+      "annotations": {
+        "short": {
+          "definition": "Uno de los poetas más importantes de la literatura española y figura cumbre del 98.",
+          "content": "Su obra evoluciona desde un intimismo modernista en 'Soledades' hacia una poesía arraigada en el paisaje y la intrahistoria de España en 'Campos de Castilla'."
+        },
+        "deep": {
+          "definition": "Voz fundamental del modernismo intimista y la lírica de corte regeneracionista en España, cuya poética aúna melancolía y depuración estilística.",
+          "content": "La trayectoria de Machado está marcada por su estancia en Soria (1907-1912), donde su estética subjetiva se abre a la realidad del paisaje castellano, reflejando en él sus propias inquietudes filosóficas y el dolor por la decadencia nacional.<br><br>Su poesía se caracteriza por el antirretoricismo, el uso de un simbolismo depurado y la proyección del estado de ánimo sobre la naturaleza, consolidando una poética del tiempo que ha influido decisivamente en la poesía contemporánea en lengua española."
+        }
+      }
+    },
+    "node_period": {
+      "type": "period",
+      "category": "period",
+      "title": "La Generación del 98",
+      "wikipediaArticle": "Generación_del_98",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Castilla",
+      "imageSearchQuery": "Paisaje de Castilla austero literatura",
+      "imageVisualKeywords": ["paisaje árido", "meseta", "campos de castilla"],
+      "youtubeSearchQuery": "Generación del 98 características y contexto",
+      "annotations": {
+        "short": {
+          "definition": "Grupo de escritores españoles marcados por la crisis espiritual y política del Desastre de 1898.",
+          "content": "Buscaron la esencia de España a través del paisaje de Castilla, abordando la decadencia del país con un tono crítico, pesimista y profundamente reflexivo."
+        },
+        "deep": {
+          "definition": "Movimiento literario y cultural español de fin de siglo XIX y principios del XX, vertebrado por una honda preocupación existencial y regeneracionista.",
+          "content": "Los autores noventayochistas respondieron a la pérdida de los últimos territorios ultramarinos con una introspección dolorosa que proyectaron sobre el paisaje árido e histórico de Castilla. Este entorno se erigió como símbolo del alma nacional, conjugando austeridad, ruina y atemporalidad.<br><br>Filosóficamente influidos por Schopenhauer, Nietzsche y Kierkegaard, estos escritores renovaron la prosa y la lírica hispánicas, huyendo del exceso retórico en favor de una expresión sobria, exacta e íntima, sentando las bases de la literatura española moderna."
+        }
+      }
+    },
+    "node_vocab_ciguena": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "vocabLevel": "B1",
+      "title": "Cigüeña (léxico)",
+      "wikipediaArticle": "Ciconia_ciconia",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Cigüeña blanca en campanario",
+      "imageVisualKeywords": ["cigüeña", "nido", "ave migratoria"],
+      "youtubeSearchQuery": "Cigüeña ave migratoria primavera",
+      "annotations": {
+        "short": {
+          "definition": "Ave migratoria grande, de plumaje blanco y negro, con pico y patas rojas.",
+          "content": "En este pasaje, el regreso de esta ave señala de forma inequívoca el inicio del buen tiempo y el fin de la dureza del invierno."
+        },
+        "deep": {
+          "definition": "Zancuda migratoria (Ciconia ciconia) fuertemente arraigada en el acervo tradicional español como marcadora del calendario fenológico.",
+          "content": "El término designa a esta especie cuyo retorno migratorio a la Península Ibérica está tradicionalmente asociado al final del invierno, fijado en el refranero popular español en torno a febrero y marzo.<br><br>Su aparición léxica en la apertura del poema actúa como un índice temporal preciso y costumbrista, enraizando la escena poética en la más estricta y reconocible cotidianidad rural castellana."
+        }
+      }
+    },
+    "node_sym_ciguena": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "Símbolo de la llegada de la primavera",
+      "wikipediaArticle": "Primavera",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Renacimiento primavera símbolo literatura",
+      "imageVisualKeywords": ["brote", "luz", "despertar"],
+      "youtubeSearchQuery": "El simbolismo de la primavera en la poesía",
+      "annotations": {
+        "short": {
+          "definition": "Elemento natural que funciona como heraldo del cambio estacional.",
+          "content": "La aparición del ave rompe la inmovilidad del paisaje invernal y anticipa un ciclo de renovación vital, llenando de esperanza la escena."
+        },
+        "deep": {
+          "definition": "Motivo literario clásico que encarna el renacer cíclico de la naturaleza frente al estancamiento de la muerte invernal.",
+          "content": "Machado emplea esta imagen no solo de manera descriptiva, sino con un profundo sentido de anunciación. El ave en lo alto del campanario instaura un eje vertical que conecta el cielo con la tierra, inaugurando el despertar de Soria tras los rigores del hielo.<br><br>Esta renovación cíclica contrasta frecuentemente en la obra de Machado con la linealidad irreversible del tiempo humano, ofreciendo un instante de consuelo estético y vital ante la caducidad existencial que atraviesa sus versos."
+        }
+      }
+    },
+    "node_cult_campanario": {
+      "type": "culture",
+      "category": "culture",
+      "title": "El campanario castellano",
+      "wikipediaArticle": "Campanario",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Campanario antiguo iglesia románica Castilla",
+      "imageVisualKeywords": ["campanario", "piedra", "iglesia rural"],
+      "youtubeSearchQuery": "Arquitectura rural románica en Soria",
+      "annotations": {
+        "short": {
+          "definition": "Torre de iglesia típica de la arquitectura rural de los pueblos españoles.",
+          "content": "El campanario funciona como el centro geográfico y social del paisaje soriano, uniendo la religión, el paso del tiempo y la vida cotidiana."
+        },
+        "deep": {
+          "definition": "Elemento arquitectónico vertebrador del urbanismo tradicional castellano, símbolo de la herencia religiosa y la ordenación comunitaria del tiempo.",
+          "content": "En la iconografía noventayochista, las viejas torres de las iglesias castellanas operan como testigos mudos de la historia y del declive del país. Representan una espiritualidad anclada en la piedra, inmutable frente al paso de las estaciones.<br><br>Machado utiliza esta estructura como punto de observación elevado, desde el cual el resurgir primaveral irradia hacia el resto del paisaje, integrando la ruina humana y arquitectónica dentro del constante fluir de la naturaleza."
+        }
+      }
+    },
+    "node_ana_caseron": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "El caserón solitario",
+      "wikipediaArticle": "Casona",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Caserón abandonado viejo Castilla",
+      "imageVisualKeywords": ["ruina", "soledad", "edificio viejo"],
+      "youtubeSearchQuery": "La decadencia de Castilla en la Generación del 98",
+      "annotations": {
+        "short": {
+          "definition": "Imagen de una casa grande, antigua y deshabitada que sugiere abandono.",
+          "content": "Representa la despoblación y el deterioro histórico de España, un tema recurrente en los autores de esta época al contemplar Castilla."
+        },
+        "deep": {
+          "definition": "Icono espacial de la ruina y el estancamiento histórico que define la visión crítica de la Castilla finisecular.",
+          "content": "El adjetivo 'solitario' proyecta sobre el edificio una carga afectiva de orfandad y abandono, reflejo directo del vaciamiento demográfico y la decadencia socioeconómica de la España interior que preocupó profundamente a la Generación del 98.<br><br>Frente al bullicio de las aves que traen la nueva estación, la quietud del caserón evidencia el contraste trágico entre la naturaleza que siempre se renueva y la obra humana, que inexorablemente perece y queda anclada en un pasado irrecuperable."
+        }
+      }
+    },
+    "node_sym_golondrinas": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "El dinamismo de las golondrinas",
+      "wikipediaArticle": "Golondrina_(literatura)",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Golondrinas volando cielo primavera",
+      "imageVisualKeywords": ["vuelo", "golondrinas", "cielo"],
+      "youtubeSearchQuery": "Simbolismo de las aves en la poesía de Machado y Bécquer",
+      "annotations": {
+        "short": {
+          "definition": "Aves cuyo vuelo rápido y chillidos rompen el silencio del paisaje.",
+          "content": "Introducen movimiento y sonoridad, celebrando el triunfo de la primavera sobre la quietud sepulcral del invierno en la ciudad antigua."
+        },
+        "deep": {
+          "definition": "Motivo literario recurrente que simboliza la ciclicidad del tiempo, el retorno jubiloso y la recuperación de la memoria vital.",
+          "content": "En un claro guiño intertextual a la poética becqueriana, las golondrinas reaparecen aquí como garantes de la continuidad de la vida. Su movimiento cinético ('girando') y su elemento acústico ('chillan') disuelven el letargo petrificado del campanario y del caserón.<br><br>Esta irrupción sensorial sirve a Machado para escenificar la dialéctica entre la eternidad estática de la piedra castellana y la fugacidad bullanguera y frágil del tiempo presente que encarnan las aves."
+        }
+      }
+    },
+    "node_syn_blanco": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Epíteto descriptivo",
+      "wikipediaArticle": "Epíteto",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Invierno nieve blanco literatura",
+      "imageVisualKeywords": ["nieve", "frio", "blancura"],
+      "youtubeSearchQuery": "El uso del epíteto en la poesía descriptiva",
+      "annotations": {
+        "short": {
+          "definition": "Uso de un adjetivo que expresa una cualidad obvia e inherente al sustantivo.",
+          "content": "Al decir 'blanco invierno', Machado resalta la intensidad visual y fría de la estación que acaba de quedar atrás en las tierras altas de Soria."
+        },
+        "deep": {
+          "definition": "Recurso retórico consistente en la anteposición de un adjetivo inherente que intensifica el valor sensorial y evocativo del sintagma.",
+          "content": "La fórmula 'blanco invierno' no busca aportar información nueva, sino condensar atmosféricamente la memoria de la inclemencia climática. El color se asocia aquí al frío extremo, la nieve y la esterilidad de la meseta.<br><br>Sintácticamente, la inversión del orden habitual del adjetivo eleva el registro poético y subraya la pesadumbre de una estación que, en la cosmovisión machadiana de Soria, resulta dilatada y opresiva, acentuando así el alivio de su término."
+        }
+      }
+    },
+    "node_vocab_nevascas": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "vocabLevel": "C1",
+      "title": "Nevascas y ventiscas (léxico)",
+      "wikipediaArticle": "Ventisca",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Tormenta de nieve ventisca temporal",
+      "imageVisualKeywords": ["nieve", "viento", "tormenta"],
+      "youtubeSearchQuery": "Fenómenos meteorológicos ventisca y nieve",
+      "annotations": {
+        "short": {
+          "definition": "Tormentas fuertes de nieve acompañadas de vientos helados y violentos.",
+          "content": "Estos términos enfatizan la extrema rudeza del clima soriano durante el invierno, creando un contraste con la suavidad primaveral."
+        },
+        "deep": {
+          "definition": "Sustantivos de precisión meteorológica que denotan precipitaciones níveas intensas y ráfagas huracanadas de frío extremo.",
+          "content": "La elección de estos vocablos, que comparten sufijación despectiva o intensificadora (-asca, -isca), aporta una textura fónica áspera e inclemente al verso, reforzando mediante la paronomasia y la acumulación semántica la agresividad del temporal.<br><br>Machado utiliza esta terminología específica no solo con rigor descriptivo de la climatología continental soriana, sino para trazar un paisaje moral de resistencia, hostilidad y dureza telúrica."
+        }
+      }
+    },
+    "node_syn_soplos": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Hipérbole y metáfora térmica",
+      "wikipediaArticle": "Hipérbole",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Viento helado soplos infierno arte",
+      "imageVisualKeywords": ["viento", "frío", "aliento"],
+      "youtubeSearchQuery": "Figuras retóricas hipérbole y metáfora literaria",
+      "annotations": {
+        "short": {
+          "definition": "Exageración literaria que compara el frío extremo con el infierno.",
+          "content": "Curiosamente, el autor asocia el infierno no al fuego, sino al hielo y al viento implacable, destacando lo insoportable del invierno soriano."
+        },
+        "deep": {
+          "definition": "Identificación hiperbólica que subvierta la imaginería tradicional del infierno ígneo para representar un averno de frío absoluto.",
+          "content": "Esta potente imagen metafórica recuerda al noveno círculo del Infierno de Dante, donde los grandes pecadores sufren eternamente atrapados en el hielo. Al calificar los vientos invernales como 'crudos soplos de infierno', Machado mitifica el clima castellano, dotándolo de una crueldad casi cosmológica.<br><br>El adjetivo 'crudos' refuerza la cualidad física, táctil e hiriente del viento, convirtiendo el frío no en una mera ausencia de calor, sino en una entidad activa, destructora y hostil de la que la tierra acaba de salvarse."
+        }
+      }
+    },
+    "node_ana_tibia": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "El renacer sensorial",
+      "wikipediaArticle": "Luz",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Luz suave amanecer primavera tibia",
+      "imageVisualKeywords": ["luz solar", "calidez", "mañana"],
+      "youtubeSearchQuery": "La luz y el paisaje en la poesía moderna",
+      "annotations": {
+        "short": {
+          "definition": "Sensación de suavidad térmica que rompe la agresividad del frío.",
+          "content": "La palabra 'tibia' marca el inicio de una atmósfera de alivio y esperanza, donde el sol empieza a reconfortar la tierra."
+        },
+        "deep": {
+          "definition": "Calificación táctil que inaugura un cambio de tono estético y emocional en el poema, pasando de la aspereza a la conciliación climática.",
+          "content": "El verso 'Es una tibia mañana' opera como un eje vertebrador o punto de inflexión estructural. Sintácticamente breve y sereno, detiene el ímpetu violento de la estrofa anterior e instaura un ritmo apacible que mimetiza la llegada de la luz y el temple atmosférico.<br><br>Esta tibieza es, en la poética machadiana, un reflejo interior; no solo se templa la tierra, sino el propio espíritu del yo lírico, que encuentra en la sutil caricia del sol un instante efímero de tregua existencial."
+        }
+      }
+    },
+    "node_per_pobre": {
+      "type": "period",
+      "category": "period",
+      "title": "La austeridad de la tierra soriana",
+      "wikipediaArticle": "Soria",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Paisaje árido campos Soria",
+      "imageVisualKeywords": ["aridez", "campos", "tierra"],
+      "youtubeSearchQuery": "El concepto de Castilla en la Generación del 98",
+      "annotations": {
+        "short": {
+          "definition": "Caracterización de Castilla como una tierra árida, difícil y desfavorecida.",
+          "content": "Refleja la compasión y el amor dolorido que sentían los autores de 1898 por una España olvidada, humilde y llena de belleza en su desnudez."
+        },
+        "deep": {
+          "definition": "Atribución patética que concentra el ideario regeneracionista noventayochista sobre la decadencia agrícola y demográfica de la meseta norte.",
+          "content": "La adjetivación de la tierra como 'pobre' encierra una mirada dual típica de Machado: por un lado, una constatación socioeconómica de la miseria del campo castellano; por otro, una honda ternura franciscana hacia esa misma desnudez e indefensión material.<br><br>Este sintagma condensa el célebre 'me duele España' unamuniano. La pequeñez de la acción del sol ('calienta un poquito') resalta la fragilidad de esta tierra, estableciendo un tono de compasión íntima y solidaridad hacia el paisaje que lo aleja del romanticismo grandilocuente."
+        }
+      }
+    },
+    "node_syn_verdes": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Pluralidad cromática",
+      "wikipediaArticle": "Cromatismo_(literatura)",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Pinos verdes paisaje primavera",
+      "imageVisualKeywords": ["pinos", "verde intenso", "bosque"],
+      "youtubeSearchQuery": "El cromatismo en la poesía descriptiva",
+      "annotations": {
+        "short": {
+          "definition": "Introducción de colores vivos tras la palidez de la nieve invernal.",
+          "content": "El verde de los pinos representa la vitalidad perenne de la naturaleza que resistió al frío y ahora recibe a la nueva estación."
+        },
+        "deep": {
+          "definition": "Punto de partida de una gradación cromática impresionista que cartografía el despertar biológico del paisaje.",
+          "content": "Frente a la monocromía del 'blanco invierno' y las sombras del paisaje yermo, el adjetivo 'verdes' irrumpe con fuerza plástica, aportando volumen y presencia a los pinares, especie resistente a la dureza del clima continental.<br><br>La pincelada de Machado funciona aquí como la de un pintor plein air, marcando los distintos planos visuales de la geografía soriana mediante contrastes de color, donde la permanencia del pino sirve de fondo para la transformación inminente de los árboles caducifolios."
+        }
+      }
+    },
+    "node_ana_azules": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "El azul como distancia poética",
+      "wikipediaArticle": "Perspectiva_aérea",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Montañas azules lejanía paisaje",
+      "imageVisualKeywords": ["perspectiva aérea", "montañas", "tonos azulados"],
+      "youtubeSearchQuery": "El color azul en la poesía de Antonio Machado",
+      "annotations": {
+        "short": {
+          "definition": "Efecto óptico que tiñe de azul los montes y bosques lejanos.",
+          "content": "El poeta capta la atmósfera y la profundidad del paisaje con una técnica similar a la pintura impresionista, evocando la pureza del aire libre."
+        },
+        "deep": {
+          "definition": "Captación óptica basada en la perspectiva aérea (sfumato atmosférico), frecuente en el simbolismo machadiano para denotar vaguedad e infinito.",
+          "content": "La matización 'casi azules' revela una mirada atenta a la refracción de la luz primaveral. El paisaje pierde contornos exactos y adquiere tintes vaporosos, trasladando la geografía física hacia una topografía del ensueño y la memoria.<br><br>Este azul no es solo un fenómeno atmosférico, sino el color de lo inalcanzable, de la distancia melancólica. En Machado, los elementos que se tiñen de azul se desmaterializan, conectando la tierra tangible con la inmensidad espiritual de su propia introspección."
+        }
+      }
+    },
+    "node_sym_primavera": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "La primavera como sujeto activo",
+      "wikipediaArticle": "Alegoría",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Alegoría de la primavera arte botánica",
+      "imageVisualKeywords": ["brote", "naturaleza", "alegoría"],
+      "youtubeSearchQuery": "La primavera como metáfora de juventud en la literatura",
+      "annotations": {
+        "short": {
+          "definition": "La estación se presenta personificada, realizando acciones vivas.",
+          "content": "No es solo una época del año, sino una fuerza creadora que se puede ver actuando directamente sobre los árboles, haciéndolos revivir."
+        },
+        "deep": {
+          "definition": "Estructura alegórica en la que la entidad abstracta temporal se materializa gramaticalmente como sujeto agente de la transformación botánica.",
+          "content": "Al afirmar que la 'primavera se ve brotar', Machado traslada la acción de los vegetales (los que brotan son los árboles) a la estación misma mediante una metonimia poética. La primavera adquiere corporeidad y presencia inmanente en el paisaje.<br><br>Este recurso infunde a la naturaleza un animismo latente. La resurrección estacional se nos muestra no como un estado estático, sino como un gerundio vital, un proceso de génesis en el que la vida frágil se impone sobre la aridez con lentitud asombrosa."
+        }
+      }
+    },
+    "node_ana_finos": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "Fragilidad y elegancia",
+      "wikipediaArticle": "Delicadeza",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Ramas finas brotes chopo",
+      "imageVisualKeywords": ["ramas delgadas", "yemas", "fragilidad"],
+      "youtubeSearchQuery": "El paisaje intimista de Antonio Machado",
+      "annotations": {
+        "short": {
+          "definition": "Adjetivo que destaca la delgadez y fragilidad de los árboles jóvenes.",
+          "content": "Resalta el carácter tierno, incipiente y delicado del resurgir primaveral en la dura meseta, contrastando con la crudeza del entorno."
+        },
+        "deep": {
+          "definition": "Calificación estética que subraya la estilización longitudinal y la vulnerabilidad de la flora caducifolia en su estadio germinal.",
+          "content": "El uso del adjetivo 'finos' antepuesto a los chopos delata la ternura con la que el poeta examina el milagro mínimo de la floración. La finura visual denota una juventud precaria, casi milagrosa, en medio del agreste escenario soriano.<br><br>Machado cultiva aquí una poética del detalle minúsculo y de lo humilde. La belleza no reside en la frondosidad espectacular, sino en el trazado lineal, sutil y desvalido de unas ramas que empiezan a despuntar tímidamente."
+        }
+      }
+    },
+    "node_vocab_chopos": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "vocabLevel": "B1",
+      "title": "Chopos (léxico)",
+      "wikipediaArticle": "Populus_nigra",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Populus nigra chopos carretera",
+      "imageVisualKeywords": ["chopo", "árbol", "ramas"],
+      "youtubeSearchQuery": "Identificación botánica del chopo o álamo negro",
+      "annotations": {
+        "short": {
+          "definition": "Árboles de ribera, de tronco alto y esbelto, cuyas hojas caen en invierno.",
+          "content": "Son un elemento inseparable de los paisajes con ríos y caminos en España, y su brote verde es la señal definitiva de la primavera."
+        },
+        "deep": {
+          "definition": "Nombre común de la especie Populus nigra, árbol caducifolio característico de las galerías fluviales y márgenes de los caminos en la Península Ibérica.",
+          "content": "El chopo conforma, taxonómica y paisajísticamente, el esqueleto vegetal de los valles fluviales castellanos. En invierno, su desnudez esquelética simboliza la muerte y el rigor glacial.<br><br>Su mención léxica repetida en la obra de Machado trasciende el inventario botánico para convertirse en un emblema íntimo, un árbol-amigo cuyo ciclo vital mimetiza las propias esperanzas y desolaciones del poeta frente al curso del río."
+        }
+      }
+    },
+    "node_cult_chopos": {
+      "type": "culture",
+      "category": "culture",
+      "title": "El chopo en el paisaje castellano",
+      "wikipediaArticle": "Bosque_en_galería",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Soria",
+      "imageSearchQuery": "Chopos carretera Castilla primavera",
+      "imageVisualKeywords": ["hilera árboles", "camino", "castilla"],
+      "youtubeSearchQuery": "Los paisajes de Soria de Antonio Machado",
+      "annotations": {
+        "short": {
+          "definition": "Símbolo natural que marca los bordes de los caminos y los ríos en Castilla.",
+          "content": "Para la Generación del 98, estos árboles humildes y esbeltos representaban el alma austera, pero viva, de las tierras de España."
+        },
+        "deep": {
+          "definition": "Componente fundamental del locus amoenus noventayochista y jalón visual que estructura el espacio humano (carretera) y natural (río).",
+          "content": "La hilera de chopos flanqueando la carretera y el río configura la geometría sentimental de Soria. Es el árbol del caminante, sombra proyectada sobre los senderos que Machado tanto transitó y cantó en sus versos.<br><br>Al vincular los árboles simultáneamente a la infraestructura humana ('la carretera') y a la corriente natural ('del río'), el autor entrelaza el destino del ser humano, abocado al viaje de la vida, con los cauces inmutables de la geografía, erigiendo el árbol como testigo de ambos tránsitos."
+        }
+      }
+    },
+    "node_cult_duero": {
+      "type": "culture",
+      "category": "culture",
+      "title": "El río Duero",
+      "wikipediaArticle": "Río_Duero",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "Río Duero",
+      "imageSearchQuery": "Río Duero a su paso por Soria",
+      "imageVisualKeywords": ["río", "agua serena", "riberas"],
+      "youtubeSearchQuery": "El río Duero en la literatura española",
+      "annotations": {
+        "short": {
+          "definition": "El río más importante del noroeste de la península ibérica.",
+          "content": "Atraviesa Castilla y es utilizado constantemente por los escritores del 98 como metáfora de la historia, el tiempo y el alma española."
+        },
+        "deep": {
+          "definition": "Eje hidrográfico y simbólico capital en la mitología literaria de Castilla y en el imaginario lírico machadiano.",
+          "content": "El Duero no es solo un accidente geográfico, sino el cauce viviente de la memoria castellana, surcando tierras de gestas medievales (Cid Campeador, Romancero) y ruinas contemporáneas, operando como un espejo del alma colectiva.<br><br>Filosóficamente, entronca con la tradición heraclitiana y manriqueña del río como metáfora del tiempo irreversible ('Nuestras vidas son los ríos...'). Su caudal encarna la continuidad sosegada de la existencia, ajena a los avatares históricos, invitando a una contemplación meditativa del paso inexorable de los días."
+        }
+      }
+    },
+    "node_syn_terso": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Personificación y ritmo pausado",
+      "wikipediaArticle": "Prosopopeya",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Aguas mansas río reflejo",
+      "imageVisualKeywords": ["superficie lisa", "calma", "espejo de agua"],
+      "youtubeSearchQuery": "Prosopopeya y figuras poéticas Machado",
+      "annotations": {
+        "short": {
+          "definition": "Uso de adjetivos ('mudo') y adverbios ('mansamente') propios de seres humanos para el río.",
+          "content": "El ritmo de la frase se vuelve lento mediante las comas, imitando perfectamente la corriente pacífica y silenciosa del agua."
+        },
+        "deep": {
+          "definition": "Acumulación de modificadores descriptivos y uso de prosopopeya que instauran un tempo adagio, en isocronía rítmica con la fluencia hídrica.",
+          "content": "La tríada 'terso y mudo, mansamente' es un prodigio de onomatopeya rítmica y adecuación sintáctica. La abundancia de fonemas nasales y sibilantes, unida a los incisos separados por pausas métricas, frena la lectura, evocando el discurrir calmo, casi imperceptible, de las aguas en la planicie.<br><br>La personificación del río como ente 'mudo' y 'manso' le otorga una dimensión sapiencial y estoica. El agua no brama con la furia del deshielo, sino que refleja ('terso') la madurez de un testigo silencioso, encarnando la paz espiritual que el poeta busca en la contemplación del entorno."
+        }
+      }
+    },
+    "node_syn_adolescente": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Gradación poética",
+      "wikipediaArticle": "Gradación_(retórica)",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Brote joven adolescente naturaleza alegoría",
+      "imageVisualKeywords": ["juventud", "crecimiento", "verdor"],
+      "youtubeSearchQuery": "La metáfora de las edades de la vida en poesía",
+      "annotations": {
+        "short": {
+          "definition": "Figura retórica que amplifica la idea de juventud.",
+          "content": "Al calificar al campo de adolescente, destaca su fuerza pujante, su energía todavía en desarrollo y su inocencia absoluta ante la nueva vida."
+        },
+        "deep": {
+          "definition": "Epanortosis o autocorrección amplificatoria ('más que joven, adolescente') que humaniza la geografía y subraya su estado transicional y bullente.",
+          "content": "Esta precisión semántica no es casual: la juventud puede ser una etapa asentada, pero la adolescencia implica el mismo proceso de cambio, el estallido repentino, inexperto y vibrante del crecimiento. El campo está sufriendo una metamorfosis en tiempo real.<br><br>Al emplear este término biológico-humano, Machado proyecta sobre el paisaje telúrico una empatía paternal, admirando la ternura y la promesa de futuro que late en los primeros brotes, oponiéndolo radicalmente a la decrepitud histórica de sus habitantes y sus piedras."
+        }
+      }
+    },
+    "node_ana_humilde": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "Minimalismo poético",
+      "wikipediaArticle": "Minimalismo",
+      "wikiLang": "es",
+      "visualConceptType": "artwork",
+      "locationAnchor": null,
+      "imageSearchQuery": "Flor silvestre pequeña hierba campo",
+      "imageVisualKeywords": ["flor solitaria", "sencillez", "detalle"],
+      "youtubeSearchQuery": "La belleza de lo humilde en la poesía española",
+      "annotations": {
+        "short": {
+          "definition": "Atención hacia lo más pequeño, sencillo y poco llamativo de la naturaleza.",
+          "content": "La belleza no se busca en grandes jardines, sino en una simple flor silvestre, celebrando la sobriedad como un valor estético y moral."
+        },
+        "deep": {
+          "definition": "Elogio de la insignificancia material y exaltación de lo diminuto como portador de una verdad estética y espiritual profunda.",
+          "content": "La adjetivación 'humilde' encierra la ética noventayochista de la austeridad. En contraposición a los excesos exóticos, sensoriales y aristocráticos del primer Modernismo rubendariano, Machado reivindica una lírica del despojamiento y la pobreza voluntaria.<br><br>La flor no precisa de abolengo botánico; su mero nacimiento espontáneo 'entre las hierbas' es un triunfo épico sobre la esterilidad de la tierra y el frío, convirtiendo lo cotidiano y minúsculo en un objeto de reverencia poética."
+        }
+      }
+    },
+    "node_ana_azulblanca": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "Cromatismo puro y elemental",
+      "wikipediaArticle": "Color",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Flores silvestres azules y blancas",
+      "imageVisualKeywords": ["flores sencillas", "azul", "blanco"],
+      "youtubeSearchQuery": "La paleta de colores de Antonio Machado",
+      "annotations": {
+        "short": {
+          "definition": "Uso de colores muy básicos y claros, asociados a la inocencia.",
+          "content": "Estos tonos reflejan un paisaje sin artificios, puro, en sintonía con el alma campesina y el cielo abierto de la primavera castellana."
+        },
+        "deep": {
+          "definition": "Reducción de la paleta cromática a tintes primarios y virginales que simbolizan la inmaculada fragilidad del despertar natural.",
+          "content": "La indefinición 'azul o blanca' delata la poca importancia que el autor otorga a la exactitud taxonómica en favor del impacto cromático absoluto. Azul (espiritualidad, lejanía) y blanco (pureza, nieve residual, virginidad) son los colores emblemáticos del Machado más depurado.<br><br>Esta elección cromática restringe el mundo a sus esencias fundamentales, configurando una imagen de ascesis visual que invita a la interiorización. La belleza machadiana es siempre contenida, nunca estridente, revelándose en la armonía de los tonos fríos y serenos."
+        }
+      }
+    },
+    "node_ana_apenas": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "La belleza de lo incipiente",
+      "wikipediaArticle": "Estética",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Campo apenas florido brotes",
+      "imageVisualKeywords": ["inicio de floración", "campo verde", "sutileza"],
+      "youtubeSearchQuery": "El concepto de belleza en la Generación del 98",
+      "annotations": {
+        "short": {
+          "definition": "Admiración por lo que está a punto de suceder, más que por lo que ya ha madurado.",
+          "content": "Subraya la timidez de la primavera en una tierra dura donde la vida brota con mucho esfuerzo y escasez, haciéndola más valiosa."
+        },
+        "deep": {
+          "definition": "Estética de la potencialidad y lo embrionario, donde el valor lírico reside en la contención y la insinuación antes que en la exuberancia plena.",
+          "content": "El adverbio restrictivo 'apenas' mitiga la explosión primaveral típica de la lírica tradicional, ajustándola a la realidad climática de la alta meseta, donde la primavera es breve y avara en sus manifestaciones botánicas.<br><br>Filosóficamente, encierra la predilección de Machado por lo inacabado, lo sugerido, el tránsito. Hay más conmoción poética en el esfuerzo del campo por florecer contra los elementos, en esa latencia asordinada, que en un jardín primaveral en su máximo esplendor, ya que lo 'apenas florido' mantiene intacta la esperanza de lo que está por venir."
+        }
+      }
+    },
+    "node_syn_mistica": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "El adjetivo trascendental",
+      "wikipediaArticle": "Misticismo",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Paisaje espiritual contemplación naturaleza mística",
+      "imageVisualKeywords": ["luz divina", "contemplación", "paisaje interior"],
+      "youtubeSearchQuery": "El paisaje como estado de ánimo en Antonio Machado",
+      "annotations": {
+        "short": {
+          "definition": "Uso de un término religioso/espiritual aplicado a la naturaleza.",
+          "content": "Eleva el renacer de las plantas a la categoría de milagro divino, dotando al campo de un alma y una profundidad casi sagradas."
+        },
+        "deep": {
+          "definition": "Traslación de una categoría teológica y espiritual (mística) al orden natural, consagranto el paisaje como un espacio de revelación inmanente.",
+          "content": "La exclamación final de la estrofa, coronada por este epíteto, evidencia el proceso de subjetivación del paisaje ('paisaje del alma'). La primavera no es un mero ciclo fenológico, sino una experiencia de comunión extática donde el poeta intuye un orden trascendente y misterioso detrás de las formas tangibles.<br><br>Al calificarla de 'mística', Machado hermana su poesía intimista con la contemplación metafísica, hallando en el modesto reverdecer de Castilla una teofanía laica, un bálsamo irracional contra el escepticismo y la angustia existencial del hombre moderno."
+        }
+      }
+    },
+    "node_ana_camino": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "El camino machadiano",
+      "wikipediaArticle": "Camino_(símbolo)",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Camino blanco de tierra Castilla",
+      "imageVisualKeywords": ["sendero de tierra", "camino", "horizonte"],
+      "youtubeSearchQuery": "El simbolismo del camino en Machado",
+      "annotations": {
+        "short": {
+          "definition": "Símbolo fundamental en el poeta que representa la vida humana.",
+          "content": "El camino blanco (polvoriento, iluminado por el sol) nos recuerda que somos viajeros efímeros cruzando un paisaje que permanecerá después de nosotros."
+        },
+        "deep": {
+          "definition": "Arquetipo central de la cosmovisión machadiana (el 'homo viator'), emblema del devenir vital, la búsqueda identitaria y la errancia humana.",
+          "content": "El 'camino blanco', calcáreo y cegador bajo la luz, atraviesa de parte a parte la obra de Machado. No es solo la ruta polvorienta que unía los pueblos sorianos, sino la materialización del tiempo histórico y personal que se hace al andar, desprovisto de destino prefijado.<br><br>En estos versos de exaltación, los chopos que flanquean el camino actúan como guardianes del paso del caminante, integrando la transitoriedad humana en el marco superior y perenne de la geografía, dotando al tránsito existencial de dignidad y acompañamiento estético."
+        }
+      }
+    },
+    "node_vocab_alamos": {
+      "type": "vocabulary",
+      "category": "vocabulary",
+      "vocabLevel": "B2",
+      "title": "Álamos (léxico)",
+      "wikipediaArticle": "Populus_alba",
+      "wikiLang": "es",
+      "visualConceptType": "diagram",
+      "locationAnchor": null,
+      "imageSearchQuery": "Álamos de ribera hojas plateadas",
+      "imageVisualKeywords": ["álamo blanco", "ribera", "hojas"],
+      "youtubeSearchQuery": "Identificación de árboles de ribera álamos y chopos",
+      "annotations": {
+        "short": {
+          "definition": "Árboles muy similares a los chopos que crecen junto a los ríos, de corteza clara.",
+          "content": "Son los custodios del agua, y su presencia repetida es casi un estribillo de amor a la flora de estas tierras."
+        },
+        "deep": {
+          "definition": "Especies arbóreas ripario-silvícolas, particularmente el álamo blanco (Populus alba), con fuerte arraigo en el folclore y la lírica peninsular.",
+          "content": "Aunque a menudo se usa como sinónimo poético de chopo, los álamos introducen un matiz cromático distinto por el envés blanquecino y plateado de sus hojas, que centellean con el viento, añadiendo vibración lumínica al paisaje fluvial.<br><br>Su mención constante en estos cantos a Soria los eleva a la categoría de fetiche literario del poeta ('álamos del amor', dirá en otros poemas). Custodiando las márgenes ('la ribera'), representan la vida anclada a la fuente de la existencia (el río), uniendo el reino vegetal con el devenir del agua."
+        }
+      }
+    },
+    "node_syn_espuma": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Metáfora visual asombrosa",
+      "wikipediaArticle": "Metáfora",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": "Moncayo",
+      "imageSearchQuery": "Espuma montaña nieve cumbre primavera",
+      "imageVisualKeywords": ["cumbres nevadas", "montaña", "blanco sobre azul"],
+      "youtubeSearchQuery": "Creación de metáforas visuales en poesía",
+      "annotations": {
+        "short": {
+          "definition": "Comparación de la nieve residual en las cimas (o la abundancia de flores) con la espuma del mar.",
+          "content": "Crea una imagen poderosa y oxigenante, dotando a la pesada montaña de una ligereza y frescura propias del océano."
+        },
+        "deep": {
+          "definition": "Metáfora imaginativa de alto vuelo plástico que asimila las cumbres nevadas lejanas (o los estratos de floración arbórea) a la efervescencia marítima.",
+          "content": "Esta imagen es una transgresión magistral de los elementos: funde la verticalidad telúrica y pétrea (montaña) con la inestabilidad horizontal y líquida (espuma). Altera radicalmente la gravedad del paisaje soriano, dotándolo de una gracia dinámica, luminosa y purificadora.<br><br>Es posible leerlo como el contraste fulgurante de la nieve remanente del Moncayo herida por el sol naciente, o como la floración masiva del valle vista desde lejos. En cualquier caso, sublima la dureza de Castilla transformándola en un rompiente de belleza inmaterial y expansiva."
+        }
+      }
+    },
+    "node_ana_lejania": {
+      "type": "analysis",
+      "category": "analysis",
+      "title": "La amplitud del horizonte",
+      "wikipediaArticle": "Horizonte",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": null,
+      "imageSearchQuery": "Horizonte azul llanura meseta",
+      "imageVisualKeywords": ["distancia", "horizonte infinito", "cielo azul"],
+      "youtubeSearchQuery": "El horizonte castellano y la Generación del 98",
+      "annotations": {
+        "short": {
+          "definition": "Mirada hacia el horizonte despejado y vasto, característico de Castilla.",
+          "content": "La falta de obstáculos visuales en la meseta invita a que la mirada y el espíritu se proyecten hacia lo infinito, provocando una sensación de inmensidad."
+        },
+        "deep": {
+          "definition": "Concepto espacial y fenomenológico que articula la llanura castellana como un vacío metafísico proyectado hacia el infinito cromático.",
+          "content": "La 'azul lejanía' es el telón de fondo escenográfico sobre el cual se recorta la epifanía primaveral. En la meseta española, la ausencia de relieves intermedios genera una perspectiva donde la tierra y el cielo acaban fundiéndose en un último plano desdibujado y melancólico.<br><br>Para los hombres del 98, este ensanchamiento del horizonte visual suponía, paralelamente, un ensanchamiento de la conciencia histórica. La lejanía actúa como un espejo del alma anhelante, un espacio sin límites para la proyección del deseo, la nostalgia y la interrogación existencial que excede las fronteras de lo humano."
+        }
+      }
+    },
+    "node_syn_sol": {
+      "type": "syntax",
+      "category": "syntax",
+      "title": "Epizeuxis y exaltación",
+      "wikipediaArticle": "Reduplicación_(retórica)",
+      "wikiLang": "es",
+      "visualConceptType": "symbol",
+      "locationAnchor": null,
+      "imageSearchQuery": "Sol radiante día claro primavera",
+      "imageVisualKeywords": ["sol", "luz cegadora", "cielo despejado"],
+      "youtubeSearchQuery": "Uso de repeticiones y exclamaciones líricas",
+      "annotations": {
+        "short": {
+          "definition": "Repetición emocionada de la palabra 'día' para enfatizar la luz.",
+          "content": "El poeta no puede contener su alegría ante un día perfecto, resplandeciente, que borra todas las sombras del invierno."
+        },
+        "deep": {
+          "definition": "Uso de la epanadiplosis parcial y la reiteración exclamativa que mimetiza el deslumbramiento sensorial frente al cénit luminoso.",
+          "content": "La reduplicación ('día, claro día') funciona como un acelerador lírico y un clímax emocional. Se abandona la sintaxis descriptiva pausada de versos anteriores para irrumpir en el júbilo puro de la exclamación, celebrando la irrupción de la luz solar como elemento salvífico.<br><br>La claridad del día no es solo meteorológica, es ontológica. Frente al 'caserón solitario' y el 'blanco invierno', sombras y muertes pasadas, este momento de absoluta luminosidad consagra el triunfo efímero, pero total, del presente vital, uniendo al poeta en vibración armónica con el cosmos."
+        }
+      }
+    },
+    "node_per_hermosa": {
+      "type": "period",
+      "category": "period",
+      "title": "El patriotismo del 98",
+      "wikipediaArticle": "Patriotismo",
+      "wikiLang": "es",
+      "visualConceptType": "landscape",
+      "locationAnchor": "España",
+      "imageSearchQuery": "España campos belleza austera paisaje",
+      "imageVisualKeywords": ["tierras de españa", "belleza rural", "identidad"],
+      "youtubeSearchQuery": "El concepto de España para Antonio Machado",
+      "annotations": {
+        "short": {
+          "definition": "Declaración final de amor incondicional a la tierra española.",
+          "content": "A pesar de sus defectos, de su aridez y de su pobreza, el autor reivindica la profunda y pura belleza de su país, encontrando en ella su propia identidad."
+        },
+        "deep": {
+          "definition": "Cierre apologético y conclusivo que sintetiza el amor dolo-rido (pietas) noventayochista por la esencia nacional desnuda de retórica imperial.",
+          "content": "El broche de oro del poema es una exclamación incondicional de fervor patriótico íntimo. Atrás queda la crítica a la 'pobre tierra soriana'; tras el prodigio de la primavera, la geografía se redime estéticamente y Machado se rinde ante la autenticidad telúrica de Castilla, metonimia de toda España.<br><br>Esta belleza reivindicada no es la del vergel feraz, sino la hermosura trágica, austera y espiritual de lo difícil. Constituye el credo ético y estético de una generación que, habiendo asistido al derrumbe del mito imperial español, fundó una nueva patria emocional basada en la tierra áspera, los hombres sufridos y la luz de su paisaje interior."
+        }
+      }
+    }
+  },
+  "stanzas": [
+    "<p>Se ha asomado una <span class=\"interactive-word\" data-nodes=\"node_vocab_ciguena node_sym_ciguena\" data-layers=\"vocabulary analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">cigüeña</span> a lo alto del <span class=\"interactive-word\" data-node=\"node_cult_campanario\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">campanario</span>.<br>Girando en torno a la torre y al <span class=\"interactive-word\" data-node=\"node_ana_caseron\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">caserón solitario</span>,<br>ya las <span class=\"interactive-word\" data-node=\"node_sym_golondrinas\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">golondrinas</span> chillan. Pasaron del <span class=\"interactive-word\" data-node=\"node_syn_blanco\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">blanco invierno</span>,<br>de <span class=\"interactive-word\" data-node=\"node_vocab_nevascas\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">nevascas y ventiscas</span> los <span class=\"interactive-word\" data-node=\"node_syn_soplos\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">crudos soplos de infierno</span>.</p>",
+    "<p>Es una <span class=\"interactive-word\" data-node=\"node_ana_tibia\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">tibia mañana</span>.<br>El sol calienta un poquito la <span class=\"interactive-word\" data-node=\"node_per_pobre\" data-category=\"period\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">pobre tierra soriana</span>.</p>",
+    "<p>Pasados los <span class=\"interactive-word\" data-node=\"node_syn_verdes\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">verdes pinos</span>,<br><span class=\"interactive-word\" data-node=\"node_ana_azules\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">casi azules</span>, <span class=\"interactive-word\" data-node=\"node_sym_primavera\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">primavera</span><br>se ve brotar en los <span class=\"interactive-word\" data-node=\"node_ana_finos\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">finos</span><br><span class=\"interactive-word\" data-nodes=\"node_vocab_chopos node_cult_chopos\" data-layers=\"vocabulary culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">chopos de la carretera</span><br>y del río. <span class=\"interactive-word\" data-node=\"node_cult_duero\" data-category=\"culture\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">El Duero</span> corre, <span class=\"interactive-word\" data-node=\"node_syn_terso\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">terso y mudo, mansamente</span>.<br>El campo parece, <span class=\"interactive-word\" data-node=\"node_syn_adolescente\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">más que joven, adolescente</span>.</p>",
+    "<p>Entre las hierbas alguna <span class=\"interactive-word\" data-node=\"node_ana_humilde\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">humilde flor</span> ha nacido,<br><span class=\"interactive-word\" data-node=\"node_ana_azulblanca\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">azul o blanca</span>. ¡Belleza del campo <span class=\"interactive-word\" data-node=\"node_ana_apenas\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">apenas florido</span>,<br>y <span class=\"interactive-word\" data-node=\"node_syn_mistica\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">mística primavera</span>!</p>",
+    "<p>¡Chopos del <span class=\"interactive-word\" data-node=\"node_ana_camino\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">camino blanco</span>, <span class=\"interactive-word\" data-node=\"node_vocab_alamos\" data-category=\"vocabulary\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">álamos de la ribera</span>,<br><span class=\"interactive-word\" data-node=\"node_syn_espuma\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">espuma de la montaña</span><br>ante la <span class=\"interactive-word\" data-node=\"node_ana_lejania\" data-category=\"analysis\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">azul lejanía</span>,<br><span class=\"interactive-word\" data-node=\"node_syn_sol\" data-category=\"syntax\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">sol del día, claro día</span>!<br>¡<span class=\"interactive-word\" data-node=\"node_per_hermosa\" data-category=\"period\" tabindex=\"0\" role=\"button\" aria-haspopup=\"dialog\">Hermosa tierra de España</span>!</p>",
+    "<p><i>Anotación generada por LexiA (versión estable de prueba) el 4 de octubre de 2026, 16:01 CEST.</i></p>"
+  ]
+}
