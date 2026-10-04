@@ -221,7 +221,13 @@
       "nombreNativo": "中文",
       "nombreEs": "Chino",
       "rtl": false
-    }
+    },
+    {
+  "codigo": "la",
+  "nombreNativo": "Latina",
+  "nombreEs": "Latín",
+  "rtl": false
+}
   ],
   "af": {},
   "ar": {},
@@ -735,5 +741,6 @@
   "uk": {},
   "ur": {},
   "vi": {},
-  "zh": {}
+  "zh": {},
+  "la": {}
 }
