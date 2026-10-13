@@ -253,30 +253,53 @@ async function traducirAnotaciones(resultado, idiomaAnotaciones, proveedorId, pr
   const mapaTextos = Object.fromEntries(entradas.map((e) => [e.clave, e.texto]));
   const prompt = construirPromptTraduccion(mapaTextos, idiomaAnotaciones);
   const limite = Date.now() + 60_000; // la traducción es una tarea acotada: no necesita el presupuesto completo
+  const fallos = [];
 
   for (const modelo of prov.modelos) {
-    if (limite - Date.now() < 10_000) break;
+    if (limite - Date.now() < 10_000) {
+      fallos.push(`${modelo}: sin tiempo suficiente para intentarlo`);
+      break;
+    }
     try {
       const salida = await conControlDeTiempo(ajustes, limite, senalCliente, (senal, latir) => {
         if (proveedorId === 'gemini') return pedirAGemini(prov, modelo, prompt, senal, latir);
         return pedirAGroq(client, prov, modelo, prompt, senal, latir);
       });
-      const traducido = extraerJson(salida.texto);
+      let traducido;
+      try {
+        traducido = extraerJson(salida.texto);
+      } catch (errJson) {
+        throw Object.assign(errJson, { detalleCrudo: salida.texto.slice(0, 200) });
+      }
       const copia = JSON.parse(JSON.stringify(resultado));
       let aplicadas = 0;
       for (const entrada of entradas) {
         const valor = traducido?.[entrada.clave];
         if (typeof valor === 'string' && valor.trim()) { entrada.set(copia, valor); aplicadas++; }
       }
+      if (aplicadas === 0) {
+        // JSON válido pero ninguna clave esperada: probable incumplimiento de formato del modelo.
+        throw errorConCodigo('TRADUCCION_VACIA', `el modelo devolvió JSON válido pero sin ninguna de las ${entradas.length} claves esperadas (t0, t1…)`);
+      }
       console.log(`[generar] traducción a "${idiomaAnotaciones}" OK con ${prov.nombre}/${salida.modeloReal} (${aplicadas}/${entradas.length} campos).`);
+      if (aplicadas < entradas.length) {
+        copia.meta.iaAvisoTraduccion = `Traducción parcial a ${idiomaAnotaciones}: ${aplicadas} de ${entradas.length} campos. El resto quedó en el idioma original.`;
+      }
       return copia;
     } catch (err) {
-      console.warn(`[generar] traducción a "${idiomaAnotaciones}" falló con ${modelo}: ${err.message}`);
+      const motivo = err.detalleCrudo ? `${err.message} (inicio de la respuesta: ${JSON.stringify(err.detalleCrudo)})` : err.message;
+      console.warn(`[generar] traducción a "${idiomaAnotaciones}" falló con ${modelo}: ${motivo}`);
+      fallos.push(`${modelo}: ${motivo}`);
     }
   }
 
-  console.warn(`[generar] no se pudo traducir a "${idiomaAnotaciones}" con ningún modelo; se devuelve la anotación sin traducir.`);
-  return resultado;
+  const resumenFallo = fallos.join(' | ').slice(0, 500);
+  console.warn(`[generar] no se pudo traducir a "${idiomaAnotaciones}" con ningún modelo. ${resumenFallo}`);
+  // Se devuelve la anotación ORIGINAL (nunca se pierde el trabajo ya hecho) pero con un aviso
+  // visible en meta: así el fallo se ve en la propia interfaz, no solo en los logs de Vercel.
+  const copiaConAviso = JSON.parse(JSON.stringify(resultado));
+  copiaConAviso.meta.iaAvisoTraduccion = `No se pudo traducir a ${idiomaAnotaciones}: ${resumenFallo || 'motivo desconocido'}. Se muestra en el idioma original.`;
+  return copiaConAviso;
 }
 
 // ---------------------------------------------------------------------------
