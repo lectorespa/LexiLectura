@@ -429,7 +429,8 @@ function renderizarPieAnotacionIA(meta) {
 
   pie.hidden = false;
   pie.textContent = t('pie.anotado', { motor: meta.iaProveedor, fecha: fechaTexto })
-    + (meta.iaIdiomaAnotaciones ? t('pie.anotado.idioma', { idioma: meta.iaIdiomaAnotaciones }) : '');
+    + (meta.iaIdiomaAnotaciones ? t('pie.anotado.idioma', { idioma: meta.iaIdiomaAnotaciones }) : '')
+    + (meta.iaAvisoTraduccion ? ` ⚠️ ${meta.iaAvisoTraduccion}` : '');
 }
 
 function renderizarFiltrosCategorias(datosObra) {
@@ -1401,7 +1402,10 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
     };
     renderizarTextoAnotado(resultadoFinal);
 
-    alert(t('anotar.exito', { motor: NOMBRES_MOTOR[proveedor] || proveedor }));
+    alert(
+      t('anotar.exito', { motor: NOMBRES_MOTOR[proveedor] || proveedor })
+      + (resultadoFinal.meta?.iaAvisoTraduccion ? `\n\n⚠️ ${resultadoFinal.meta.iaAvisoTraduccion}` : ''),
+    );
 
     // Tras cerrar el aviso, se sube la pantalla para que el filtro de categorías y el texto
     // queden arriba, sin necesidad de bajar manualmente para empezar a leer.
