@@ -283,9 +283,11 @@ function poblarSelectoresIdioma() {
     idiomas.forEach((idioma) => {
       if (idioma.codigo === 'es') return; // "es" ya está cubierto por la opción "Automático"
       const op = document.createElement('option');
-      // Se envía el nombre en español (no el código) para que la IA lo entienda sin tener
-      // que mantener la misma tabla de códigos también en el servidor.
-      op.value = idioma.nombreEs;
+      // Se envía el CÓDIGO (no el nombre): el servidor valida ese código contra
+      // i18n/strings.json y así resuelve la instrucción de idioma ya traducida (ver
+      // resolverInstruccionIdioma en generar.js). Enviar el nombre libre rompía ese
+      // mecanismo silenciosamente (nunca encontraba el código y no forzaba nada).
+      op.value = idioma.codigo;
       op.textContent = idioma.nombreNativo === idioma.nombreEs
         ? idioma.nombreEs
         : `${idioma.nombreNativo} (${idioma.nombreEs})`;
@@ -1286,7 +1288,7 @@ async function anotarFragmento(texto, estado, profundidad) {
         parte,
         totalPartes: estado.total,
         contexto: estado.resultados[0]?.meta || null,
-        idiomaAnotaciones: estado.idiomaAnotaciones || undefined,
+        idiomaAnotacionesCodigo: estado.idiomaAnotacionesCodigo || undefined,
       });
       estado.resultados.push(resultado);
       estado.alResultado();
@@ -1364,8 +1366,9 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
   const plainText = document.getElementById('plain-text-input')?.value.trim();
   const botones = Array.from(document.querySelectorAll('[data-proveedor]'));
   const btn = botones.find((b) => b.dataset.proveedor === proveedor) || { textContent: '', disabled: false };
-  // Idioma de las anotaciones elegido por el usuario; vacío = automático (idioma del texto).
-  const idiomaAnotaciones = document.getElementById('selector-idioma-anotacion')?.value.trim() || '';
+  // Idioma de las anotaciones elegido por el usuario (CÓDIGO, p. ej. "ru"); vacío = automático
+  // (idioma del texto). Ver poblarSelectoresIdioma(): el <option> lleva el código como value.
+  const idiomaAnotacionesCodigo = document.getElementById('selector-idioma-anotacion')?.value.trim() || '';
 
   if (!IA_CONFIG.CHUNK_CHARS[proveedor]) {
     alert(`Motor de anotación desconocido: ${proveedor}`);
@@ -1380,7 +1383,7 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
   const fragmentos = dividirEnFragmentos(plainText, IA_CONFIG.CHUNK_CHARS[proveedor]);
   const estado = {
     proveedor,
-    idiomaAnotaciones,
+    idiomaAnotacionesCodigo,
     resultados: [],
     total: fragmentos.length,
     alProgreso: (parte, total) => { btn.textContent = t('anotar.progreso', { parte, total }); },
@@ -1393,12 +1396,13 @@ async function generarAnotacionConIA(proveedor = 'gemini') {
     for (const f of fragmentos) await anotarFragmento(f, estado, 0);
 
     // Resultado final con el motor y la fecha/hora de anotación, para el pie de la edición.
+    // ojo: NO se sobrescribe aquí "iaIdiomaAnotaciones" — ya viene del servidor (en el nombre
+    // en español correcto, resuelto a partir del código) dentro de resultadoFinal.meta.
     const resultadoFinal = unirResultados(estado.resultados);
     resultadoFinal.meta = {
       ...resultadoFinal.meta,
       iaProveedor: NOMBRES_MOTOR[proveedor] || proveedor,
       iaFecha: new Date().toISOString(),
-      ...(idiomaAnotaciones ? { iaIdiomaAnotaciones: idiomaAnotaciones } : {}),
     };
     renderizarTextoAnotado(resultadoFinal);
 
