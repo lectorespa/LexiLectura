@@ -14,11 +14,14 @@
 // incompatibles con Edge.
 
 import OpenAI from 'openai';
-import { SYSTEM_PROMPT } from '../lib/prompt.js';
+import { construirSystemPrompt } from '../lib/prompt.js';
+// Única fuente de verdad para los idiomas soportados y sus textos (incluida la instrucción
+// de idioma forzado de más abajo): así el servidor no mantiene su propia copia de la lista.
+import idiomasData from '../i18n/strings.json';
 
 export const config = { runtime: 'edge' };
 
-const VERSION = '2026-09-21-a'; // súbela al cambiar el archivo: aparece en GET /api/generar
+const VERSION = '2026-10-22-a'; // súbela al cambiar el archivo: aparece en GET /api/generar
 
 // Los IDs cambian con frecuencia. Sobrescríbelos SIN tocar código con variables de entorno
 // (IDs separados por comas, en orden de preferencia):
@@ -110,7 +113,7 @@ function errorConCodigo(codigo, mensaje) {
   return e;
 }
 
-function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto) {
+function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto, idiomaForzado) {
   let extra = '';
   if (totalPartes > 1) {
     extra += `\nMODO FRAGMENTO: este texto es la parte ${parte} de ${totalPartes} de una obra más larga que se anota por partes. Anota ÚNICAMENTE este fragmento; no resumas ni comentes el resto. Los identificadores de nodo (node_1, node_2…) pueden repetirse entre partes: se renumeran al unirlas.`;
@@ -118,7 +121,17 @@ function construirMensajeUsuario(textoPlano, parte, totalPartes, contexto) {
       extra += ` NO generes los nodos node_author ni node_period (ya existen en la parte 1). En "meta" repite exactamente estos valores: ${JSON.stringify(contexto || {})}.`;
     }
   }
-  return `TEXTO A ANALIZAR:\n"""\n${textoPlano}\n"""${extra}`;
+  // El recordatorio de idioma forzado (si lo hay) se repite aquí, al final del mensaje, además
+  // de ir ya en el system prompt: los modelos dan más peso a lo que leen en último lugar. Se
+  // construye SIEMPRE que haya idioma forzado (no solo cuando hay plantilla traducida), para
+  // que el forzado no dependa de que esa clave de i18n ya esté traducida a ese idioma concreto.
+  let pie = '';
+  if (idiomaForzado) {
+    const recordatorio = `RECORDATORIO FINAL DE IDIOMA (la instrucción más reciente, la de más peso): redacta TODAS las anotaciones de este fragmento ("title", "definition", "content", "period") exclusivamente en ${idiomaForzado.nombreNativo} (${idiomaForzado.nombreEs}), sin importar el idioma del texto de arriba. El array "stanzas" con el texto citado, y los campos meta.lang/wikiLang, siguen en el idioma real del texto, sin traducir.`;
+    const nativa = idiomaForzado.instruccionNativa ? `\n${idiomaForzado.instruccionNativa}` : '';
+    pie = `\n\n${recordatorio}${nativa}`;
+  }
+  return `TEXTO A ANALIZAR:\n"""\n${textoPlano}\n"""${extra}${pie}`;
 }
 
 // Extrae el objeto JSON aunque el modelo lo envuelva en ```json, añada texto o razonamiento.
@@ -182,6 +195,59 @@ function normalizarAnotacion(d) {
   }
 
   return { ...d, interactiveNodes: nodos, stanzas: estrofas };
+}
+
+// ---------------------------------------------------------------------------
+// Idioma de las anotaciones: forzado en una sola pasada
+// ---------------------------------------------------------------------------
+//
+// Pedir "anota Y cambia de idioma" compitiendo con toda la densidad de instrucciones del
+// prompt principal (esquema, ejemplo, reglas de densidad…) resultó poco fiable de dos formas
+// distintas, ya probadas y descartadas:
+//  1) Una sola frase de excepción al final del prompt, mientras el resto del documento seguía
+//     diciendo media docena de veces "redacta en el mismo idioma que el texto": el modelo se
+//     quedaba con la regla repetida, no con la excepción. Esto es lo que de verdad fallaba
+//     ("solo funciona cuando el idioma elegido ya coincide con el del texto" = no había
+//     ninguna contradicción que resolver en ese caso). Solucionado ahora en lib/prompt.js:
+//     construirSystemPrompt() ya NO tiene ninguna instrucción de idioma fija; hay una única
+//     frase (fraseIdiomaAnotaciones) sustituida en todo el documento, así que no hay nada que
+//     contradecir.
+//  2) Traducir aparte, en una segunda llamada: arregla la fiabilidad pero dobla el coste y la
+//     latencia de cada fragmento — inaceptable para este proyecto, descartado.
+//
+// Además, la instrucción que SÍ se añade (el "AVISO CRÍTICO DE IDIOMA" en el prompt, y el pie
+// del mensaje de usuario) se refuerza con el nombre del idioma YA TRADUCIDO a su propio idioma
+// nativo (reutilizando i18n/strings.json, la misma fuente de verdad que traduce el resto de la
+// interfaz): un modelo lee "Русский" con más peso que "ruso". Esa plantilla traducida es
+// opcional (instruccionNativa, abajo): si falta para un idioma concreto, el resto del prompt
+// ya fuerza el idioma igualmente por sí solo, vía fraseIdiomaAnotaciones.
+
+// Busca el código recibido del cliente en _idiomas y devuelve, si corresponde forzar un idioma
+// (es decir, si no es "automático"/vacío), sus nombres y, si existe, la plantilla ya traducida.
+// Nunca inserta texto libre del cliente en el prompt: solo un código validado contra una lista
+// cerrada.
+function resolverInstruccionIdioma(codigo) {
+  if (!codigo) return null;
+  const idiomas = idiomasData._idiomas || [];
+  const meta = idiomas.find((i) => i.codigo === codigo);
+  if (!meta) {
+    throw errorConCodigo('PETICION', `Código de idioma de anotaciones no reconocido: "${codigo}".`);
+  }
+  if (meta.codigo === 'es') return null; // español = sin forzar nada (ya es el idioma por defecto)
+
+  const dicIdioma = idiomasData[meta.codigo] || {};
+  const dicEs = idiomasData.es || {};
+  const plantilla = dicIdioma['anotar.instruccion_idioma_forzado']
+    || dicEs['anotar.instruccion_idioma_forzado']
+    || '';
+
+  return {
+    nombreNativo: meta.nombreNativo,
+    nombreEs: meta.nombreEs,
+    // Puede quedar vacía si esa clave aún no se ha traducido para este idioma concreto (ver
+    // i18n/README.md): no es un fallo, el prompt fuerza el idioma igualmente sin ella.
+    instruccionNativa: plantilla ? plantilla.replace(/\{idioma\}/g, meta.nombreNativo) : '',
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -461,15 +527,19 @@ async function pedirAGemini(prov, modelo, prompt, senal, latir) {
 // Respaldo entre modelos: falla el modelo O falla su salida → siguiente modelo
 // ---------------------------------------------------------------------------
 
-async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente) {
-  const prov = ajustes.proveedores[proveedorId];
-  const client = proveedorId === 'gemini'
+function crearClienteProveedor(proveedorId, prov) {
+  return proveedorId === 'gemini'
     ? null
     : new OpenAI({
       apiKey: prov.apiKey,
       baseURL: prov.baseURL,
       maxRetries: 0, // los reintentos los gestionamos nosotros (cambiando de modelo)
     });
+}
+
+async function generarConRespaldo(proveedorId, prompt, ajustes, senalCliente) {
+  const prov = ajustes.proveedores[proveedorId];
+  const client = crearClienteProveedor(proveedorId, prov);
 
   const limite = Date.now() + ajustes.presupuestoMs;
   const fallos = [];
@@ -597,9 +667,25 @@ export default async function handler(req) {
     const parte = Number.isInteger(cuerpo.parte) && cuerpo.parte > 0 ? cuerpo.parte : 1;
     const contexto = cuerpo.contexto && typeof cuerpo.contexto === 'object' ? cuerpo.contexto : null;
 
+    // Idioma opcional para las anotaciones, elegido por el usuario en la interfaz. El cliente
+    // manda un CÓDIGO (p. ej. "ru"), nunca texto libre: se valida contra i18n/strings.json y,
+    // si es válido, se resuelve a sus nombres (ver resolverInstruccionIdioma más arriba), que
+    // construirSystemPrompt usa para forzar el idioma en todo el prompt. Nada de lo que escriba
+    // el cliente entra directo en el prompt.
+    const idiomaAnotacionesCodigo = (typeof cuerpo?.idiomaAnotacionesCodigo === 'string' ? cuerpo.idiomaAnotacionesCodigo : '')
+      .trim()
+      .slice(0, 10);
+
+    let idiomaResuelto;
+    try {
+      idiomaResuelto = resolverInstruccionIdioma(idiomaAnotacionesCodigo);
+    } catch (err) {
+      return respuestaJson(400, { error: err.message, codigo: err.codigo || 'PETICION' }, cors);
+    }
+
     const prompt = {
-      sistema: SYSTEM_PROMPT,
-      usuario: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto),
+      sistema: construirSystemPrompt(idiomaResuelto),
+      usuario: construirMensajeUsuario(textoPlano, parte, totalPartes, contexto, idiomaResuelto),
     };
 
     const enc = new TextEncoder();
@@ -616,6 +702,7 @@ export default async function handler(req) {
 
         try {
           const resultado = await generarConRespaldo(proveedorId, prompt, ajustes, req.signal);
+          if (idiomaResuelto) resultado.meta.iaIdiomaAnotaciones = idiomaResuelto.nombreEs;
           enviar(JSON.stringify(resultado));
         } catch (err) {
           console.error('[generar] error final:', err.codigo, err.message);
