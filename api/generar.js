@@ -21,7 +21,7 @@ import idiomasData from '../i18n/strings.json';
 
 export const config = { runtime: 'edge' };
 
-const VERSION = '2026-10-22-a'; // súbela al cambiar el archivo: aparece en GET /api/generar
+const VERSION = '2026-10-24-verificacion'; // súbela al cambiar el archivo: aparece en GET /api/generar
 
 // Los IDs cambian con frecuencia. Sobrescríbelos SIN tocar código con variables de entorno
 // (IDs separados por comas, en orden de preferencia):
