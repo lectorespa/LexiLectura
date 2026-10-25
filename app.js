@@ -14,14 +14,42 @@ const activeLayersSet = new Set(); // Estado global de capas activas
 let diccionarioIdiomas = null; // se rellena en cargarDiccionarioIdiomas()
 let idiomaInterfazActual = 'es';
 
+// "claveI18n" en vez de un texto fijo: así la etiqueta de cada categoría sigue el idioma de
+// interfaz elegido (ver etiquetaCapa() y actualizarEtiquetasFiltros() más abajo), en vez de
+// quedarse fija en español como antes.
 const CAPAS_CATALOGO = {
-  author:     { id: 'author',     label: 'Autoría',                  color: '#8E44AD' },
-  period:     { id: 'period',     label: 'Época y Contexto',         color: '#2980B9' },
-  vocabulary: { id: 'vocabulary', label: 'Vocabulario',              color: '#F39C12' },
-  culture:    { id: 'culture',    label: 'Cultura y Sociedad',        color: '#27AE60' },
-  syntax:     { id: 'syntax',     label: 'Métrica y Sintaxis',        color: '#E67E22' },
-  analysis:   { id: 'analysis',   label: 'Análisis e Interpretación', color: '#C0392B' }
+  author:     { id: 'author',     claveI18n: 'categoria.author',     color: '#8E44AD' },
+  period:     { id: 'period',     claveI18n: 'categoria.period',     color: '#2980B9' },
+  vocabulary: { id: 'vocabulary', claveI18n: 'categoria.vocabulary', color: '#F39C12' },
+  culture:    { id: 'culture',    claveI18n: 'categoria.culture',    color: '#27AE60' },
+  syntax:     { id: 'syntax',     claveI18n: 'categoria.syntax',     color: '#E67E22' },
+  analysis:   { id: 'analysis',   claveI18n: 'categoria.analysis',   color: '#C0392B' }
 };
+
+// Etiqueta visible de una capa: traducida (t()) si es una de las 6 categorías canónicas, o el
+// texto literal que trajo el propio JSON si es un valor no reconocido (ese no se puede traducir,
+// es texto libre que vino del modelo o de un JSON antiguo).
+function etiquetaCapa(capa) {
+  if (!capa) return t('anotacion.generica');
+  return capa.claveI18n ? t(capa.claveI18n) : (capa.label || t('anotacion.generica'));
+}
+
+// Vuelve a pintar, en el idioma de interfaz actual, las etiquetas ya renderizadas que no pasan
+// por el mecanismo genérico data-i18n: los chips del filtro de categorías (creados dinámicamente
+// con textContent) y la insignia de categoría del modal de anotación, si está abierto. Se llama
+// desde aplicarIdiomaInterfaz() cada vez que el usuario cambia el idioma de la interfaz.
+function actualizarEtiquetasFiltros() {
+  document.querySelectorAll('#category-filter-bar .filter-chip').forEach((btn) => {
+    const capa = CAPAS_CATALOGO[btn.dataset.category] || resolverCapa(btn.dataset.category);
+    btn.textContent = etiquetaCapa(capa);
+  });
+  const modalCat = document.getElementById('modal-category');
+  const categoriaModalActual = modalCat?.getAttribute('data-category');
+  if (modalCat && categoriaModalActual) {
+    const capa = CAPAS_CATALOGO[categoriaModalActual] || resolverCapa(categoriaModalActual);
+    modalCat.textContent = etiquetaCapa(capa);
+  }
+}
 
 const ALIAS_CAPAS = {
   'autor': 'author', 'autoría': 'author', 'autoria': 'author',
@@ -329,6 +357,12 @@ function aplicarIdiomaInterfaz(codigo) {
   if (levelBadge) levelBadge.textContent = t(nivelLecturaActual === 'deep' ? 'nivel.badge.avanzado' : 'nivel.badge.basico');
   actualizarBotonExportar();
   renderizarPieAnotacionIA(obraActiva?.meta);
+  // Chips del filtro de categorías e insignia de categoría del modal (si está abierto): no
+  // llevan data-i18n porque su texto depende de la capa, así que se actualizan aparte, sin
+  // tocar su estado activo/inactivo (a diferencia de volver a llamar a
+  // renderizarFiltrosCategorias(), que reconstruiría los chips desde cero y perdería los
+  // filtros que el usuario hubiera desactivado).
+  actualizarEtiquetasFiltros();
 }
 
 function renderizarTextoAnotado(datosObra) {
@@ -454,7 +488,7 @@ function renderizarFiltrosCategorias(datosObra) {
   capasPresentes.forEach((capa) => {
     const btn = document.createElement('button');
     btn.className = 'btn filter-chip active';
-    btn.textContent = capa.label;
+    btn.textContent = etiquetaCapa(capa);
     btn.dataset.layerId = capa.id;
     btn.dataset.category = capa.id;
     btn.style.borderColor = capa.color;
@@ -485,7 +519,7 @@ async function abrirModalAnotacion(datosNodo) {
   const colorCategoria = capaObj ? capaObj.color : '#4A90E2';
 
   if (modalCat) {
-    modalCat.textContent = capaObj ? capaObj.label : (datosNodo.category || 'Anotación');
+    modalCat.textContent = capaObj ? etiquetaCapa(capaObj) : (datosNodo.category || t('anotacion.generica'));
     modalCat.setAttribute('data-category', capaObj?.id || '');
     modalCat.style.backgroundColor = colorCategoria;
     modalCat.style.color = '#FFFFFF';
@@ -629,7 +663,7 @@ function mostrarMenuSolapamiento(nodos, x, y) {
   title.style.textTransform = 'uppercase';
   title.style.borderBottom = '1px solid #EEE';
   title.style.marginBottom = '4px';
-  title.textContent = 'Selecciona la capa a consultar:';
+  title.textContent = t('overlap.titulo');
   popup.appendChild(title);
 
   nodos.forEach(item => {
@@ -649,7 +683,7 @@ function mostrarMenuSolapamiento(nodos, x, y) {
     const badgeColor = capaObj?.color || '#4A90E2';
     btn.innerHTML = `<span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${badgeColor}; margin-right:8px; flex-shrink:0;"></span>
                      <div>
-                       <span style="font-size:11px; color:#777; display:block;">${capaObj?.label || 'Anotación'}</span>
+                       <span style="font-size:11px; color:#777; display:block;">${etiquetaCapa(capaObj)}</span>
                        <strong>${item.data.title || item.id}</strong>
                      </div>`;
 
