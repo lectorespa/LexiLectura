@@ -332,7 +332,14 @@
     "texto.cargando": "Enganxa un text a dalt i anota'l amb IA, o selecciona una obra ja anotada del catàleg.",
     "modal.cerrar.aria": "Tancar modal",
     "pie.anotado": "Anotat amb {motor} el {fecha}.",
-    "pie.anotado.idioma": " Anotacions en {idioma}."
+    "pie.anotado.idioma": " Anotacions en {idioma}.",
+    "categoria.author": "Autoria",
+    "categoria.period": "Època i Context",
+    "categoria.vocabulary": "Vocabulari",
+    "categoria.culture": "Cultura i Societat",
+    "categoria.syntax": "Mètrica i Sintaxi",
+    "categoria.analysis": "Anàlisi i Interpretació",
+    "anotar.instruccion_idioma_forzado": "INSTRUCCIÓ D'IDIOMA (màxima prioritat: aplica-la per sobre de qualsevol altre criteri d'aquest prompt). Redacta TOT el text que generis tu —títols de node, definicions, contingut d'anàlisi, notes, qualsevol cadena nova— exclusivament en {idioma}, sigui quin sigui l'idioma del text original que se t'ha passat per anotar. No barregis idiomes dins de les teves pròpies anotacions. Excepció: els camps \"lang\" i \"wikiLang\" del JSON han de continuar reflectint l'idioma REAL del text original (no l'idioma de les anotacions), perquè d'ells depèn l'enllaç a Wikipedia."
   },
   "cs": {
     "pagina.titulo": "Prohlížeč kritických a interaktivních edicí",
@@ -402,7 +409,14 @@
     "texto.cargando": "Fügen Sie oben einen Text ein und annotieren Sie ihn mit KI, oder wählen Sie ein bereits annotiertes Werk aus dem Katalog.",
     "modal.cerrar.aria": "Dialog schließen",
     "pie.anotado": "Annotiert mit {motor} am {fecha}.",
-    "pie.anotado.idioma": " Annotationen auf {idioma}."
+    "pie.anotado.idioma": " Annotationen auf {idioma}.",
+    "categoria.author": "Autorschaft",
+    "categoria.period": "Epoche und Kontext",
+    "categoria.vocabulary": "Wortschatz",
+    "categoria.culture": "Kultur und Gesellschaft",
+    "categoria.syntax": "Metrik und Syntax",
+    "categoria.analysis": "Analyse und Interpretation",
+    "anotar.instruccion_idioma_forzado": "SPRACHANWEISUNG (höchste Priorität: wende sie vor jedem anderen Kriterium dieses Prompts an). Verfasse SÄMTLICHEN von dir generierten Text —Knotentitel, Definitionen, Analyseinhalte, Anmerkungen, jede neue Zeichenkette— ausschließlich auf {idioma}, ungeachtet der Sprache des Originaltexts, der dir zum Annotieren übergeben wurde. Mische keine Sprachen innerhalb deiner eigenen Annotationen. Ausnahme: Die JSON-Felder \"lang\" und \"wikiLang\" müssen weiterhin die TATSÄCHLICHE Sprache des Originaltexts widerspiegeln (nicht die Sprache der Annotationen), da von ihnen der Wikipedia-Link abhängt."
   },
   "el": {
     "pagina.titulo": "Προβολέας Κριτικών και Διαδραστικών Εκδόσεων",
@@ -437,7 +451,14 @@
     "texto.cargando": "Επικολλήστε ένα κείμενο παραπάνω και σχολιάστε το με TN, ή επιλέξτε ένα ήδη σχολιασμένο έργο από τον κατάλογο.",
     "modal.cerrar.aria": "Κλείσιμο παράθυρου",
     "pie.anotado": "Σχολιάστηκε με το {motor} στις {fecha}.",
-    "pie.anotado.idioma": " Σχόλια στα {idioma}."
+    "pie.anotado.idioma": " Σχόλια στα {idioma}.",
+    "categoria.author": "Συγγραφέας",
+    "categoria.period": "Εποχή και Πλαίσιο",
+    "categoria.vocabulary": "Λεξιλόγιο",
+    "categoria.culture": "Πολιτισμός και Κοινωνία",
+    "categoria.syntax": "Μετρική και Σύνταξη",
+    "categoria.analysis": "Ανάλυση και Ερμηνεία",
+    "anotar.instruccion_idioma_forzado": "ΟΔΗΓΙΑ ΓΛΩΣΣΑΣ (μέγιστη προτεραιότητα: εφαρμόστε την πάνω από οποιοδήποτε άλλο κριτήριο αυτής της εντολής). Συντάξτε ΟΛΟ το κείμενο που παράγετε —τίτλους κόμβων, ορισμούς, περιεχόμενο ανάλυσης, σημειώσεις, οποιαδήποτε νέα συμβολοσειρά— αποκλειστικά στα {idioma}, ανεξάρτητα από τη γλώσσα του πρωτότυπου κειμένου που σας δόθηκε για σχολιασμό. Μην αναμειγνύετε γλώσσες μέσα στις σημειώσεις σας. Εξαίρεση: τα πεδία \"lang\" και \"wikiLang\" του JSON πρέπει να συνεχίσουν να αντικατοπτρίζουν την ΠΡΑΓΜΑΤΙΚΗ γλώσσα του πρωτότυπου κειμένου (όχι τη γλώσσα των σημειώσεων), καθώς από αυτά εξαρτάται ο σύνδεσμος προς τη Wikipedia."
   },
   "en": {
     "pagina.titulo": "Interactive Critical Editions Viewer",
@@ -556,7 +577,14 @@
     "texto.cargando": "Itsatsi testu bat goian eta oharpetu IA bidez, edo hautatu dagoeneko oharpetutako lan bat katalogotik.",
     "modal.cerrar.aria": "Itxi modala",
     "pie.anotado": "{fecha}(e)an {motor}-rekin oharpetua.",
-    "pie.anotado.idioma": " Oharrak {idioma}(e)an."
+    "pie.anotado.idioma": " Oharrak {idioma}(e)an.",
+    "categoria.author": "Egiletza",
+    "categoria.period": "Garaia eta testuingurua",
+    "categoria.vocabulary": "Hiztegia",
+    "categoria.culture": "Kultura eta gizartea",
+    "categoria.syntax": "Metrika eta sintaxia",
+    "categoria.analysis": "Analisia eta interpretazioa",
+    "anotar.instruccion_idioma_forzado": "HIZKUNTZA AGINDUA (gorentasun handiena: aplikatu prompt honetako beste edozein irizpideren gainetik). Idatzi zuk sortutako testu GUZTIA —nodo-tituluak, definizioak, analisiaren edukia, oharrak, edozein kate berri— soilik {idioma} hizkuntzan, oharrak egiteko eman zaizun jatorrizko testuaren hizkuntza edozein dela ere. Ez nahastu hizkuntzak zure oharren barruan. Salbuespena: JSONeko \"lang\" eta \"wikiLang\" eremuek jatorrizko testuaren BENETAKO hizkuntza islatzen jarraitu behar dute (ez oharren hizkuntza), horien mende baitago Wikipediarako esteka."
   },
   "fa": {
     "pagina.titulo": "نمایش‌گر نسخه‌های انتقادی و تعاملی",
@@ -661,7 +689,14 @@
     "texto.cargando": "Collez un texte ci-dessus et annotez-le avec l'IA, ou sélectionnez une œuvre déjà annotée dans le catalogue.",
     "modal.cerrar.aria": "Fermer la fenêtre modale",
     "pie.anotado": "Annoté avec {motor} le {fecha}.",
-    "pie.anotado.idioma": " Annotations en {idioma}."
+    "pie.anotado.idioma": " Annotations en {idioma}.",
+    "categoria.author": "Auteur",
+    "categoria.period": "Époque et contexte",
+    "categoria.vocabulary": "Vocabulaire",
+    "categoria.culture": "Culture et société",
+    "categoria.syntax": "Métrique et syntaxe",
+    "categoria.analysis": "Analyse et interprétation",
+    "anotar.instruccion_idioma_forzado": "INSTRUCTION DE LANGUE (priorité maximale : appliquez-la au-dessus de tout autre critère de cette invite). Rédigez TOUT le texte que vous générez — titres de nœud, définitions, contenu d'analyse, notes, toute nouvelle chaîne — exclusivement en {idioma}, quelle que soit la langue du texte original qui vous a été transmis pour annotation. Ne mélangez pas les langues au sein de vos propres annotations. Exception : les champs \"lang\" et \"wikiLang\" du JSON doivent continuer à refléter la langue RÉELLE du texte original (et non la langue des annotations), car le lien vers Wikipédia en dépend."
   },
   "gl": {
     "pagina.titulo": "Visor de Edicións Críticas e Interactivas",
@@ -836,7 +871,14 @@
     "texto.cargando": "Límdu texta fyrir ofan og bættu við glósum með gervigreind, eða veldu þegar glósað verk úr vörulistanum.",
     "modal.cerrar.aria": "Loka glugga",
     "pie.anotado": "Glósað með {motor} þann {fecha}.",
-    "pie.anotado.idioma": " Glósur á {idioma}."
+    "pie.anotado.idioma": " Glósur á {idioma}.",
+    "categoria.author": "Höfundur",
+    "categoria.period": "Tímabil og samhengi",
+    "categoria.vocabulary": "Orðaforði",
+    "categoria.culture": "Menning og samfélag",
+    "categoria.syntax": "Bragfræði og setningarfræði",
+    "categoria.analysis": "Greining og túlkun",
+    "anotar.instruccion_idioma_forzado": "TUNGUMÁLALEIÐBEININGAR (hæsti forgangur: beittu þeim umfram öll önnur viðmið í þessum fyrirmælum). Skrifaðu ALLAN texta sem þú býrð til — hnútatitla, skilgreiningar, efni greiningar, athugasemdir og allan nýjan texta — eingöngu á {idioma}, hverju sem tungumál upprunalega textans sem þér var falið að glósa sætir. Blandaðu ekki saman tungumálum í þínum eigin glósum. Undantekning: reitirnir „lang“ og „wikiLang“ í JSON-skjalinu verða áfram að endurspegla RAUNVERULEGT tungumál upprunalega textans (ekki tungumál glósanna), þar sem Wikipedia-hlekkurinn ræðst af þeim."
   },
   "it": {
     "pagina.titulo": "Visualizzatore di Edizioni Critiche e Interattive",
@@ -871,7 +913,14 @@
     "texto.cargando": "Incolla un testo sopra e annotalo con l'IA, oppure seleziona un'opera già annotata dal catalogo.",
     "modal.cerrar.aria": "Chiudi modal",
     "pie.anotado": "Annotato con {motor} il {fecha}.",
-    "pie.anotado.idioma": " Annotazioni in {idioma}."
+    "pie.anotado.idioma": " Annotazioni in {idioma}.",
+    "categoria.author": "Autore",
+    "categoria.period": "Epoca e contesto",
+    "categoria.vocabulary": "Vocabolario",
+    "categoria.culture": "Cultura e società",
+    "categoria.syntax": "Metrica e sintassi",
+    "categoria.analysis": "Analisi e interpretazione",
+    "anotar.instruccion_idioma_forzado": "ISTRUZIONE SULLA LINGUA (massima priorità: applicala al di sopra di qualsiasi altro criterio di questo prompt). Redigi TUTTO il testo da te generato —titoli dei nodi, definizioni, contenuti di analisi, note, qualsiasi nuova stringa— esclusivamente in {idioma}, qualunque sia la lingua del testo originale fornito per l'annotazione. Non mescolare le lingue all'interno delle tue annotazioni. Eccezione: i campi \"lang\" e \"wikiLang\" del JSON devono continuare a riflettere la lingua REALE del testo originale (non la lingua delle annotazioni), poiché da essi dipende il collegamento a Wikipedia."
   },
   "ja": {
     "pagina.titulo": "クリティカル＆インタラクティブ版ビューア",
@@ -943,6 +992,41 @@
     "pie.anotado": "{fecha}에 {motor}(으)로 주석 작성됨.",
     "pie.anotado.idioma": " {idioma} 언어 주석."
   },
+  "la": {
+    "pagina.titulo": "Lector Editionum Criticarum et Interactivarum",
+    "idioma.interfaz.etiqueta": "Lingua interfaciei:",
+    "anotar.etiqueta": "✨ Editionem annotatam cum IA generare:",
+    "anotar.placeholder": "Hic textum adglutina...",
+    "anotar.limpiar.boton": "🧹 Textum delere",
+    "anotar.limpiar.title": "Textum in capsula delet (non mutat editionem annotatam in scrinio)",
+    "anotar.gemini.boton": "✨ Annotare cum Gemini Flash",
+    "anotar.gemini.title": "Annotare cum Gemini Flash (Google)",
+    "anotar.groq.boton": "✨ Annotare cum Groq",
+    "anotar.groq.title": "Annotare cum Groq (exemplaria gpt-oss)",
+    "anotar.idioma.etiqueta": "Lingua annotationum:",
+    "anotar.idioma.automatico": "Automaticum (eadem lingua ac textus)",
+    "anotar.exito": "Textus feliciter annotatus est cum {motor}!",
+    "anotar.progreso": "⏳ Annotans partem {parte} ex {total}…",
+    "exportar.html.boton": "💾 Editionem deicere ut HTML autonomum",
+    "exportar.html.title": "Editionem annotatam praesentem deicit ut unum plicarium HTML quod sine伺服器 opera dat",
+    "exportar.json.boton": "📄 Editionem deicere ut JSON",
+    "exportar.json.title": "Editionem annotatam praesentem deicit ut plicarium JSON",
+    "exportar.status.vacio": "Annota vel onera editionem ut eam deicere possis.",
+    "exportar.status.lista": "Editio parata ad deiciendum: «{titulo}».",
+    "catalogo.etiqueta": "Vel elige opus ex catalogo:",
+    "catalogo.opcion.vacia": "-- Onerare opus annotatum --",
+    "filtros.titulo": "Colum Categoriarum / Stratorum",
+    "filtros.todas": "Omnia",
+    "filtros.ninguna": "Nulla",
+    "nivel.basico.boton": "Lectio Basica (B1+)",
+    "nivel.avanzado.boton": "Lectio Progressa (C1+)",
+    "nivel.badge.basico": "Modus Lectionis Basicae (Vocabularium B1+)",
+    "nivel.badge.avanzado": "Modus Editionis Criticae (Vocabularium C1+)",
+    "texto.cargando": "Adglutina textum supra et annota cum IA, vel elige opus iam annotatum ex catalogo.",
+    "modal.cerrar.aria": "Claudere fenestram",
+    "pie.anotado": "Annotatum cum {motor} die {fecha}.",
+    "pie.anotado.idioma": " Annotationes lingua {idioma}."
+  },
   "no": {
     "pagina.titulo": "Leser for kritiske og interaktive utgaver",
     "idioma.interfaz.etiqueta": "Grensesnittspråk:",
@@ -976,7 +1060,14 @@
     "texto.cargando": "Lim inn en tekst ovenfor og annoter den med KI, eller velg et allerede annotert verk fra katalogen.",
     "modal.cerrar.aria": "Lukk dialog",
     "pie.anotado": "Annotert med {motor} den {fecha}.",
-    "pie.anotado.idioma": " Annotasjoner på {idioma}."
+    "pie.anotado.idioma": " Annotasjoner på {idioma}.",
+    "categoria.author": "Forfatterskap",
+    "categoria.period": "Epoke og kontekst",
+    "categoria.vocabulary": "Ordforråd",
+    "categoria.culture": "Kultur og samfunn",
+    "categoria.syntax": "Metrikk og syntaks",
+    "categoria.analysis": "Analyse og tolkning",
+    "anotar.instruccion_idioma_forzado": "SPRÅKINSTRUKSJON (høyeste prioritet: overstyrer alle andre kriterier i denne ledeteksten). Skriv HELE teksten du genererer — nodetitler, definisjoner, analyseinnhold, notater, enhver ny streng — utelukkende på {idioma}, uansett hvilket språk den opprinnelige teksten som er gitt til annotering er på. Ikke bland språk i dine egne annoteringer. Unntak: feltene \"lang\" og \"wikiLang\" i JSON må fortsatt gjenspeile det REELLE språket til den opprinnelige teksten (ikke språket til annoteringene), fordi Wikipedia-lenken avhenger av dem."
   },
   "om": {
     "pagina.titulo": "Mullisa Maxxansaawwan Qeeqaa fi Interaktiivii",
@@ -1081,7 +1172,14 @@
     "texto.cargando": "Cole um texto acima e anote-o com IA, ou selecione uma obra já anotada do catálogo.",
     "modal.cerrar.aria": "Fechar modal",
     "pie.anotado": "Anotado com {motor} em {fecha}.",
-    "pie.anotado.idioma": " Anotações em {idioma}."
+    "pie.anotado.idioma": " Anotações em {idioma}.",
+    "categoria.author": "Autoria",
+    "categoria.period": "Época e Contexto",
+    "categoria.vocabulary": "Vocabulário",
+    "categoria.culture": "Cultura e Sociedade",
+    "categoria.syntax": "Métrica e Sintaxe",
+    "categoria.analysis": "Análise e Interpretação",
+    "anotar.instruccion_idioma_forzado": "INSTRUÇÃO DE IDIOMA (prioridade máxima: aplique-a acima de qualquer outro critério deste prompt). Redija TODO o texto gerado por você —títulos de nós, definições, conteúdo de análise, notas, qualquer nova string— exclusivamente em {idioma}, independentemente do idioma do texto original fornecido para anotação. Não misture idiomas em suas próprias anotações. Exceção: os campos \"lang\" e \"wikiLang\" do JSON devem continuar refletindo o idioma REAL do texto original (não o idioma das anotações), pois o link para a Wikipédia depende deles."
   },
   "ro": {
     "pagina.titulo": "Vizualizator de Ediții Critice și Interactive",
@@ -1116,7 +1214,14 @@
     "texto.cargando": "Lipește un text mai sus și adnotează-l cu IA, sau selectează o operă deja adnotată din catalog.",
     "modal.cerrar.aria": "Închide fereastra",
     "pie.anotado": "Adnotat cu {motor} la data de {fecha}.",
-    "pie.anotado.idioma": " Adnotări în {idioma}."
+    "pie.anotado.idioma": " Adnotări în {idioma}.",
+    "categoria.author": "Autorat",
+    "categoria.period": "Epocă și context",
+    "categoria.vocabulary": "Vocabular",
+    "categoria.culture": "Cultură și societate",
+    "categoria.syntax": "Metrică și sintaxă",
+    "categoria.analysis": "Analiză și interpretare",
+    "anotar.instruccion_idioma_forzado": "INSTRUCȚIUNE PRIVIND LIMBA (prioritate maximă: aplic-o înaintea oricărui alt criteriu din acest prompt). Redactează TOT textul pe care îl generezi tu — titluri de noduri, definiții, conținut de analiză, note, orice șir nou — exclusiv în {idioma}, oricare ar fi limba textului original care ți-a fost transmis pentru adnotare. Nu amesteca limbile în cadrul propriilor tale adnotări. Excepție: câmpurile \"lang\" și \"wikiLang\" din JSON trebuie să reflecte în continuare limba REALĂ a textului original (nu limba adnotărilor), deoarece de ele depinde linkul către Wikipedia."
   },
   "ru": {
     "pagina.titulo": "Просмотр критических и интерактивных изданий",
@@ -1151,7 +1256,14 @@
     "texto.cargando": "Вставьте текст выше и добавьте аннотации с помощью ИИ или выберите уже аннотированное произведение из каталога.",
     "modal.cerrar.aria": "Закрыть модальное окно",
     "pie.anotado": "Аннотировано с помощью {motor} ({fecha}).",
-    "pie.anotado.idioma": " Аннотации на языке {idioma}."
+    "pie.anotado.idioma": " Аннотации на языке {idioma}.",
+    "categoria.author": "Авторство",
+    "categoria.period": "Эпоха и контекст",
+    "categoria.vocabulary": "Словарь",
+    "categoria.culture": "Культура и общество",
+    "categoria.syntax": "Метрика и синтаксис",
+    "categoria.analysis": "Анализ и интерпретация",
+    "anotar.instruccion_idioma_forzado": "ИНСТРУКЦИЯ ПО ЯЗЫКУ (высший приоритет: применяйте её поверх любых других критериев этого промпта). Пишите ВЕСЬ создаваемый вами текст — названия узлов, определения, содержание анализа, примечания, любые новые строки — исключительно на {idioma}, независимо от языка исходного текста, переданного для аннотирования. Не смешивайте языки внутри собственных аннотаций. Исключение: поля JSON «lang» и «wikiLang» должны по-прежнему отражать РЕАЛЬНЫЙ язык исходного текста (а не язык аннотаций), так как от них зависит ссылка на Википедию."
   },
   "se": {
     "pagina.titulo": "Kritihkalaš ja interaktiivvalaš olggosaddimiid čájeheaddji",
@@ -1186,7 +1298,14 @@
     "texto.cargando": "Liimmaa teavstta bajábeallai ja annotere dan AI:in, dahje vállje moidde kataloga árabut annoterejuvvon bargguin.",
     "modal.cerrar.aria": "Gidde lási",
     "pie.anotado": "Annoterejuvvon motoriin {motor} {fecha}.",
-    "pie.anotado.idioma": " Annotášuvnnat gielas {idioma}."
+    "pie.anotado.idioma": " Annotášuvnnat gielas {idioma}.",
+    "categoria.author": "Čálli",
+    "categoria.period": "Áigi ja konteaksta",
+    "categoria.vocabulary": "Sátnevuorká",
+    "categoria.culture": "Kultuvra ja searvegoddi",
+    "categoria.syntax": "Metrihkka ja syntáksa",
+    "categoria.analysis": "Analysa ja dulkon",
+    "anotar.instruccion_idioma_forzado": "GIELALAŠ NJUOLGGADUS (alimus vuoruheapmi: čuovo dán ovddemušat buot eará kritearaid ektui dán keahččaleamis). Čále BUOT teavstta maid buvttadat —noda-tihttaliid, mearrádusaid, analysasisdoalu, mearkkašumiid, buot ođđa teavsttaid— dušše gielas {idioma}, fuolakeahttá das mii giella algovuolggalaš teavsttas lea mii lea addojuvvon annoteret. Ale seagut gielaid iežat mearkkašumiin. Spiehkastat: JSON-fealtat \"lang\" ja \"wikiLang\" fertejit ain čujuhit algovuolggalaš teavstta DUOHTA giela (eai ge annotášuvnnaid giela), dasgo Wikipedia-liŋka lea daid duohken."
   },
   "sr": {
     "pagina.titulo": "Прегледач критичких и интерактивних издања",
@@ -1221,7 +1340,14 @@
     "texto.cargando": "Налепите текст изнад и анотирајте га помоћу AI-ја, или изаберите већ анотирано дело из каталога.",
     "modal.cerrar.aria": "Затвори прозор",
     "pie.anotado": "Анотирано помоћу {motor} дана {fecha}.",
-    "pie.anotado.idioma": " Анотације на {idioma}."
+    "pie.anotado.idioma": " Анотације на {idioma}.",
+    "categoria.author": "Ауторство",
+    "categoria.period": "Епоха и контекст",
+    "categoria.vocabulary": "Вокабулар",
+    "categoria.culture": "Култура и друштво",
+    "categoria.syntax": "Метрика и синтакса",
+    "categoria.analysis": "Анализа и тумачење",
+    "anotar.instruccion_idioma_forzado": "УПУТСТВО ЗА ЈЕЗИК (највећи приоритет: примени га изнад било ког другог критеријума у овом одзивнику). Састави СВЕ текстове које сам генеришеш — наслове чворова, дефиниције, садржај анализе, белешке, било који нови текст — искључиво на језику {idioma}, без обзира на језик оригиналног текста који ти је достављен за анотирање. Не мешај језике унутар сопствених анотација. Изузетак: поља \"lang\" и \"wikiLang\" у JSON-у морају и даље одражавати СТВАРНИ језик оригиналног текста (не језик анотација), јер од њих зависи веза ка Википедији."
   },
   "sv": {
     "pagina.titulo": "Visare för kritiska och interaktiva utgåvor",
@@ -1256,7 +1382,14 @@
     "texto.cargando": "Klistra in en text ovan och annotera den med AI, eller välj ett redan annoterat verk från katalogen.",
     "modal.cerrar.aria": "Stäng modal",
     "pie.anotado": "Annoterad med {motor} den {fecha}.",
-    "pie.anotado.idioma": " Annoteringar på {idioma}."
+    "pie.anotado.idioma": " Annoteringar på {idioma}.",
+    "categoria.author": "Författarskap",
+    "categoria.period": "Epok och kontext",
+    "categoria.vocabulary": "Ordförråd",
+    "categoria.culture": "Kultur och samhälle",
+    "categoria.syntax": "Metrik och syntax",
+    "categoria.analysis": "Analys och tolkning",
+    "anotar.instruccion_idioma_forzado": "SPRÅKINSTRUKTION (högsta prioritet: tillämpa denna framför alla andra kriterier i denna prompt). Skriv ALL text som du genererar —nodtitlar, definitioner, analysinnehåll, anteckningar, alla nya strängar— uteslutande på {idioma}, oavsett vilket språk originaltexten som skickats till dig för annotering är på. Blanda inte språk i dina egna annoteringar. Undantag: fälten \"lang\" och \"wikiLang\" i JSON måste fortsätta att återspegla originaltextens FAKTISKA språk (inte annoteringarnas språk), eftersom Wikipedia-länken beror på dem."
   },
   "sw": {
     "pagina.titulo": "Kionyeshi cha Toleo la Kina na la Kuingiliana",
@@ -1537,40 +1670,5 @@
     "modal.cerrar.aria": "关闭窗口",
     "pie.anotado": "于 {fecha} 使用 {motor} 添加注释。",
     "pie.anotado.idioma": " 注释语言为 {idioma}。"
-  },
-  "la": {
-    "pagina.titulo": "Lector Editionum Criticarum et Interactivarum",
-    "idioma.interfaz.etiqueta": "Lingua interfaciei:",
-    "anotar.etiqueta": "✨ Editionem annotatam cum IA generare:",
-    "anotar.placeholder": "Hic textum adglutina...",
-    "anotar.limpiar.boton": "🧹 Textum delere",
-    "anotar.limpiar.title": "Textum in capsula delet (non mutat editionem annotatam in scrinio)",
-    "anotar.gemini.boton": "✨ Annotare cum Gemini Flash",
-    "anotar.gemini.title": "Annotare cum Gemini Flash (Google)",
-    "anotar.groq.boton": "✨ Annotare cum Groq",
-    "anotar.groq.title": "Annotare cum Groq (exemplaria gpt-oss)",
-    "anotar.idioma.etiqueta": "Lingua annotationum:",
-    "anotar.idioma.automatico": "Automaticum (eadem lingua ac textus)",
-    "anotar.exito": "Textus feliciter annotatus est cum {motor}!",
-    "anotar.progreso": "⏳ Annotans partem {parte} ex {total}…",
-    "exportar.html.boton": "💾 Editionem deicere ut HTML autonomum",
-    "exportar.html.title": "Editionem annotatam praesentem deicit ut unum plicarium HTML quod sine伺服器 opera dat",
-    "exportar.json.boton": "📄 Editionem deicere ut JSON",
-    "exportar.json.title": "Editionem annotatam praesentem deicit ut plicarium JSON",
-    "exportar.status.vacio": "Annota vel onera editionem ut eam deicere possis.",
-    "exportar.status.lista": "Editio parata ad deiciendum: «{titulo}».",
-    "catalogo.etiqueta": "Vel elige opus ex catalogo:",
-    "catalogo.opcion.vacia": "-- Onerare opus annotatum --",
-    "filtros.titulo": "Colum Categoriarum / Stratorum",
-    "filtros.todas": "Omnia",
-    "filtros.ninguna": "Nulla",
-    "nivel.basico.boton": "Lectio Basica (B1+)",
-    "nivel.avanzado.boton": "Lectio Progressa (C1+)",
-    "nivel.badge.basico": "Modus Lectionis Basicae (Vocabularium B1+)",
-    "nivel.badge.avanzado": "Modus Editionis Criticae (Vocabularium C1+)",
-    "texto.cargando": "Adglutina textum supra et annota cum IA, vel elige opus iam annotatum ex catalogo.",
-    "modal.cerrar.aria": "Claudere fenestram",
-    "pie.anotado": "Annotatum cum {motor} die {fecha}.",
-    "pie.anotado.idioma": " Annotationes lingua {idioma}."
   }
 }
