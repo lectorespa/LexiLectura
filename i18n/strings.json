@@ -472,7 +472,14 @@
     "texto.cargando": "Paste a text above and annotate it with AI, or pick an already-annotated work from the catalog.",
     "modal.cerrar.aria": "Close modal",
     "pie.anotado": "Annotated with {motor} on {fecha}.",
-    "pie.anotado.idioma": " Annotations in {idioma}."
+    "pie.anotado.idioma": " Annotations in {idioma}.",
+    "categoria.author": "Authorship",
+    "categoria.period": "Period & Context",
+    "categoria.vocabulary": "Vocabulary",
+    "categoria.culture": "Culture & Society",
+    "categoria.syntax": "Meter & Syntax",
+    "categoria.analysis": "Analysis & Interpretation",
+    "anotar.instruccion_idioma_forzado": "LANGUAGE INSTRUCTION (highest priority: apply it above any other rule in this prompt). Write ALL the text you generate yourself — node titles, definitions, analysis content, notes, any new string — exclusively in {idioma}, regardless of the language of the original text you were given to annotate. Do not mix languages within your own annotations. Exception: the \"lang\" and \"wikiLang\" fields of the JSON must keep reflecting the REAL language of the original text (not the annotation language), since the Wikipedia link depends on them."
   },
   "es": {
     "pagina.titulo": "Visor de Ediciones Críticas e Interactivas",
@@ -507,7 +514,14 @@
     "texto.cargando": "Pega un texto arriba y anótalo con IA, o selecciona alguna obra ya anotada del catálogo.",
     "modal.cerrar.aria": "Cerrar modal",
     "pie.anotado": "Anotado con {motor} el {fecha}.",
-    "pie.anotado.idioma": " Anotaciones en {idioma}."
+    "pie.anotado.idioma": " Anotaciones en {idioma}.",
+    "categoria.author": "Autoría",
+    "categoria.period": "Época y Contexto",
+    "categoria.vocabulary": "Vocabulario",
+    "categoria.culture": "Cultura y Sociedad",
+    "categoria.syntax": "Métrica y Sintaxis",
+    "categoria.analysis": "Análisis e Interpretación",
+    "anotar.instruccion_idioma_forzado": "INSTRUCCIÓN DE IDIOMA (máxima prioridad: aplícala por encima de cualquier otro criterio de este prompt). Redacta TODO el texto que generes tú —títulos de nodo, definiciones, contenido de análisis, notas, cualquier cadena nueva— exclusivamente en {idioma}, sea cual sea el idioma del texto original que se te ha pasado para anotar. No mezcles idiomas dentro de tus propias anotaciones. Excepción: los campos \"lang\" y \"wikiLang\" del JSON deben seguir reflejando el idioma REAL del texto original (no el idioma de las anotaciones), porque de ellos depende el enlace a Wikipedia."
   },
   "eu": {
     "pagina.titulo": "Edizio Kritiko eta Interaktiboen Ikusgailua",
