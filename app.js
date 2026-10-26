@@ -546,7 +546,7 @@ async function abrirModalAnotacion(datosNodo) {
     modalContent.style.paddingLeft = '10px';
   }
 
-  showImagePlaceholder("Buscando y cargando imagen representativa...");
+  showImagePlaceholder(t('modal.imagen.buscando'));
 
   const modalLinks = document.getElementById('modal-links');
   if (modalLinks) {
@@ -554,7 +554,7 @@ async function abrirModalAnotacion(datosNodo) {
     const wikiRef = datosNodo.wikipediaArticle || datosNodo.wikipedia;
     if (wikiRef) {
       let urlWiki = wikiRef.startsWith('http') ? wikiRef : `https://${datosNodo.wikiLang || obraActiva?.meta?.lang || 'es'}.wikipedia.org/wiki/${encodeURIComponent(wikiRef)}`;
-      htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">🌐 Más información en Wikipedia ↗</a>`;
+      htmlEnlaces += `<a href="${urlWiki}" target="_blank" rel="noopener noreferrer" class="link-item wiki-link">${t('modal.enlace.wikipedia')}</a>`;
     }
 
     let urlYoutube = datosNodo.youtubeUrl;
@@ -563,7 +563,7 @@ async function abrirModalAnotacion(datosNodo) {
     }
 
     if (urlYoutube) {
-      htmlEnlaces += `<a href="${urlYoutube}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link" style="color: #FF0000; font-weight: bold; margin-left: 10px;">📺 Más información en YouTube ↗</a>`;
+      htmlEnlaces += `<a href="${urlYoutube}" target="_blank" rel="noopener noreferrer" class="link-item youtube-link" style="color: #FF0000; font-weight: bold; margin-left: 10px;">${t('modal.enlace.youtube')}</a>`;
     }
 
     if (htmlEnlaces !== '') {
@@ -725,7 +725,7 @@ function cerrarSelectorSolapamiento() {
 //  MOTOR DE BÚSQUEDA, FILTRADO Y GESTIÓN DE IMÁGENES
 // =========================================================================
 
-function showImagePlaceholder(message = "Cargando imagen...") {
+function showImagePlaceholder(message = t('modal.imagen.cargando')) {
   const modalImgWrapper = document.getElementById('modal-image-wrapper');
   const modalImg = document.getElementById('modal-image');
   const modalCaption = document.getElementById('modal-image-caption');
@@ -784,7 +784,7 @@ async function showImageWithPreload(src, caption, sourceBadge = null, signal = n
     if (modalImgWrapper && modalImg) {
       modalImgWrapper.classList.remove('is-loading');
       modalImg.src = src;
-      modalImg.alt = caption || 'Imagen representativa';
+      modalImg.alt = caption || t('modal.imagen.alt');
       modalImg.style.display = 'block';
 
       if (modalCaption) {
@@ -812,7 +812,7 @@ function showNoImageAvailable() {
     modalImg.style.display = 'none';
   }
   if (modalCaption) {
-    modalCaption.textContent = 'No se ha encontrado ninguna imagen suficientemente relacionada con esta anotación.';
+    modalCaption.textContent = t('modal.imagen.noencontrada');
   }
 }
 
